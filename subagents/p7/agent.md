@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
 agents: [p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author]
 argument-hint: "Describe the P7 feature, bug fix, or task to run through the full SDLC pipeline"
-user-invocable: false
+user-invocable: true
 ---
 
 # P7 SDLC Orchestrator
