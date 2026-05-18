@@ -3,7 +3,7 @@ name: t7-sdlc-planner
 description: "Software development planner agent for the T7 Trading System. Use when: breaking down T7 features into tasks, creating implementation plans, analyzing requirements, identifying affected files, estimating scope, writing acceptance criteria, triaging bugs."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, search]
-user-invocable: true
+user-invocable: false
 system: t7
 skills_common: [github, jira, confluence]
 ---

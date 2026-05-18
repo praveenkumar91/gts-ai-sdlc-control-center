@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
 agents: [t7-sdlc-planner, t7-sdlc-developer, t7-sdlc-reviewer]
 argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDLC pipeline"
-user-invocable: false
+user-invocable: true
 ---
 
 # T7 SDLC Orchestrator
