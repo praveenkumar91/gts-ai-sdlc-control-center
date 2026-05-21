@@ -28,11 +28,13 @@
       "pipeline_agents": [
         "subagents/t7/agents/sdlc-planner.agent.md",
         "subagents/t7/agents/sdlc-developer.agent.md",
-        "subagents/t7/agents/sdlc-reviewer.agent.md"
+        "subagents/t7/agents/sdlc-reviewer.agent.md",
+        "subagents/t7/agents/sdlc-knowledge.agent.md"
       ],
       "skills": [
         "skills/systems/t7/t7-code",
-        "skills/systems/t7/t7-spec"
+        "skills/systems/t7/t7-spec",
+        "skills/systems/t7/t7-knowledge-base"
       ]
     }
   },

@@ -1,173 +1,102 @@
 ---
 name: t7-code
-description: "T7 Trading System coding conventions for all 4 layers. Use when: implementing T7 features, writing code, creating new files, adding endpoints, reviewing code on the T7 platform across Core Engine (C++17), Gateway (Java 17), Admin UI (Angular), or Database (Oracle)."
+description: "T7 codebase navigation and code retrieval. Use when: locating source files in T7 components, searching for classes or functions in the T7 codebase, reading large source files by chunk, listing files within a component by pattern, confirming the latest T7 release baseline, understanding component structure and build dependencies. Covers all interactions with the t7codebase MCP tools — agents must always delegate codebase lookups to this skill rather than calling the MCP tools directly."
 systems: [t7]
+tools: [t7codebase/*]
+user-invocable: false
 ---
 
-# T7 Code — Platform Coding Standards
+# T7 Code — Codebase Navigation & Retrieval
 
-All T7 implementation work MUST follow these conventions. Match surrounding code style exactly. Use existing imports and utilities before creating new ones.
-
-## T7 Layer Table
-
-| Layer | Path | Language | Build Command |
-|-------|------|----------|---------------|
-| Core Engine | `gts.t7.core/` | C++17 (CMake) | `cmake --build . --config Release` |
-| Gateway | `gts.t7.gateway/` | Java 17 (Maven/Spring Boot) | `mvn clean package` |
-| Admin UI | `gts.t7.admin/` | Angular/TypeScript | `ng build --prod` |
-| Database | `gts.t7.database/` | SQL (Oracle) | SQL scripts via `sqlplus` |
+Use this skill whenever you need to locate, read, or explore T7 source code. This skill governs **all** direct interactions with the `t7codebase` MCP tools — agents must always delegate codebase lookups to this skill rather than calling the MCP tools directly.
 
 ---
 
-## Core Engine Conventions (C++17)
+## T7 Codebase MCP Tool Usage
 
-### Performance
-- RAII throughout — every resource acquisition is a construction
-- **No exceptions in the hot path** — use error codes (`enum class ErrorCode`) or `std::expected<T, E>` for expected failure paths
-- Lock-free data structures preferred in order matching: `std::atomic`, `folly::MPMCQueue`, or custom ring buffers
-- No dynamic allocation (`new` / `malloc`) inside the matching engine per-order path — use pre-allocated object pools
+### Tool Selection Guide
 
-### Structure
-- File naming: `PascalCase.cpp` / `PascalCase.hpp`, one primary class per file
-- Method naming: `camelCase`; class naming: `PascalCase`; constants: `UPPER_SNAKE_CASE`
-- New REST endpoints: add paired `.cpp/.hpp` in `src/rest/`, register handler in `RestHandler`
-- New matching logic: extend `src/matching/` — follow the `MatchingEngine` base class interface
+| Tool | When to use |
+|------|-------------|
+| `mcp_t7codebase_list_releases` | Confirm the latest release baseline before any search |
+| `mcp_t7codebase_list_projects` | Confirm available projects and environments (standard: `project=t7`, `env=eurex`) |
+| `mcp_t7codebase_search_codebase` | Find classes, functions, configuration parameters, or symbols by keyword |
+| `mcp_t7codebase_list_files` | Enumerate files within a component using `component` + `pattern` filters |
+| `mcp_t7codebase_page_index_search` | Locate pages (sections) within a large source file by keyword |
+| `mcp_t7codebase_get_page_chunk` | Read a specific page/chunk of a large source file by page ID |
 
-### Testing
-- Google Test in `gts.t7.core/test/`
-- Performance benchmarks: Google Benchmark in `gts.t7.core/bench/`
-- Build tests: `cmake --build . --target tests && ctest`
+### Usage Rules
 
----
+1. **Always call `mcp_t7codebase_list_releases` first** in any session before searching or reading code — pin every result to the confirmed latest release.
+2. **Use `mcp_t7codebase_list_projects`** once per session to confirm `project=t7`, `env=eurex` are correct before querying.
+3. **Use `mcp_t7codebase_search_codebase`** for symbol or keyword searches. Start with the most specific terms (exact class name, method name, enum value); broaden if no results.
+4. **Use `mcp_t7codebase_list_files`** with a `component` path (from the `t7-knowledge-base` skill) and a `pattern` (e.g., `*.cpp`, `*Test*`) to list actual files before referencing them in tasks or reviews.
+5. **Use `mcp_t7codebase_page_index_search` + `mcp_t7codebase_get_page_chunk`** to navigate and read large files — never fabricate file content; always retrieve it.
+6. **Never reference a file path or class name** that has not been verified through one of the tools above.
 
-## Gateway Conventions (Java 17)
+### Query Strategy by Task Type
 
-### Framework
-- Spring Boot — use `@Service`, `@RestController`, `@Component`
-- Constructor injection only — never `@Autowired` on fields
-
-### FIX Protocol (QuickFIX/J)
-- Implement `quickfix.Application` interface for session callbacks: `onMessage`, `toApp`, `fromApp`, `onCreate`, `onLogon`, `onLogout`
-- FIX message fields: use `quickfix.field.*` constants, never raw tag integers
-- FIX session config: `gts.t7.gateway/src/main/resources/quickfix.cfg`
-- Common message types: `NewOrderSingle (D)`, `OrderCancelRequest (F)`, `OrderCancelReplaceRequest (G)`, `ExecutionReport (8)`, `OrderCancelReject (9)`
-
-### Async Processing
-- `CompletableFuture` for non-blocking order routing downstream to Core Engine
-- Do NOT block gateway threads — order acknowledgement is async
-- Backpressure: use bounded queues (`LinkedBlockingQueue` with capacity) before Core Engine IPC
-
-### Logging & Config
-- SLF4J: `log.info/warn/debug/error` — never `System.out.println`
-- Config: `application.properties` / `application.yml` — never hardcode connection strings, ports, or FIX session parameters
-- Secrets: inject via environment variables or Spring Cloud Config
-
-### Testing
-- JUnit 5 + Mockito in `src/test/java/`
-- Integration tests: `@SpringBootTest` with in-memory H2 where Oracle is not needed
-- Build: `mvn test`
+| Task | Recommended tool sequence |
+|------|--------------------------|
+| Confirm release baseline | `list_releases` |
+| Find where a class is defined | `search_codebase` (class name) → `get_page_chunk` (file) |
+| Find all files in a component | `list_files` (component + pattern) |
+| Read a specific source file | `page_index_search` (file name) → `get_page_chunk` (section) |
+| Find test files for a component | `list_files` (component, pattern=`*Test*` or `*_test*`) |
+| Find all callers of a function | `search_codebase` (function name) |
+| Verify a class hierarchy | `search_codebase` (base class) → `get_page_chunk` (header) |
+| Locate build dependency metadata | `list_files` (component, pattern=`component.json`) → `get_page_chunk` |
 
 ---
 
-## Admin UI Conventions (Angular/TypeScript)
+## Standard Session Setup
 
-### State Management (NgRx)
-- Actions: `store/actions/*.actions.ts` — use `createAction` with `props<>()`
-- Reducers: `store/reducers/*.reducer.ts` — pure functions, immutable state updates
-- Selectors: `store/selectors/*.selectors.ts` — use `createSelector` for derived state
-- Effects: `store/effects/*.effects.ts` — side effects only (HTTP calls, WebSocket events)
-- Never mutate state directly — always return new objects/arrays in reducers
-
-### HTTP & Observables
-- Angular `HttpClient` injected via constructor — never `fetch()`
-- API base URLs: `environment.ts` (dev) and `environment.prod.ts` (prod) — never hardcode
-- RxJS: use `async` pipe in templates; manage subscriptions with `takeUntil(this.destroy$)` pattern or `AsyncPipe`
-- Unsubscribe on destroy: implement `OnDestroy` with `private destroy$ = new Subject<void>()`
-
-### Forms
-- Reactive forms only: `FormBuilder`, `FormGroup`, `FormControl`
-- Validation: built-in `Validators.*` + custom validator functions — no template-driven `ngModel`
-
-### Component Rules
-- Selector naming: `app-kebab-case`; class naming: `PascalCaseComponent`
-- `ChangeDetectionStrategy.OnPush` on all components receiving store data
-- No `console.log` — use `inject(LoggerService)` or remove debug statements entirely
-
-### Testing
-- Jest + Angular Testing Library (`*.spec.ts` alongside each component/service)
-- Run: `ng test --watch=false`
-
----
-
-## Database Conventions (Oracle)
-
-### Schema Changes
-- Migration scripts: `gts.t7.database/migrations/V{version}__{description}.sql`
-- Always migration-safe: `ALTER TABLE` — never `DROP TABLE` + `CREATE TABLE`
-- Every migration file must have a paired rollback script: `gts.t7.database/rollbacks/V{version}__rollback.sql`
-
-### Primary Keys & Sequences
-- Use Oracle `SEQUENCE` objects — `seq_{table_name}.NEXTVAL` as default
-- Never rely on `ROWNUM` or `ROWID` as stable identifiers
-
-### Stored Procedures
-- Complex multi-step queries and order history aggregations: Oracle stored procedures in `gts.t7.database/procedures/`
-- Naming: `pkg_{domain}.proc_{action}` (e.g. `pkg_orders.proc_get_history`)
-
-### Partitioning
-- High-volume tables (order history, execution reports): partition by `RANGE` on `ORDER_DATE`
-- Instrument-specific data: consider `LIST` partitioning on `INSTRUMENT_TYPE`
-
-### Data Seeds
-- No DML in migration files — data seeds go in `gts.t7.database/data/`
-
----
-
-## T7 Data Flow
+At the start of any session involving code navigation, run these two calls once:
 
 ```
-Admin UI (Angular)
-    │  REST (HTTP/S) — order management, reference data
-    ▼
-Gateway (Java / Spring Boot)
-    │  FIX protocol (QuickFIX/J) — order entry & execution reports
-    │  REST internal API — admin commands
-    ▼
-Core Engine (C++17)
-    │  Shared memory / UNIX domain socket — low-latency order routing
-    ▼
-Exchange Matching Engine
-    │  ITCH (market data out) / OUCH (order entry in)
-    ▼
-Market Data Feed → Gateway → Admin UI (via WebSocket / SSE)
+mcp_t7codebase_list_releases()          → pin to latest release
+mcp_t7codebase_list_projects()          → confirm project=t7, env=eurex
 ```
 
-- Admin UI sends order management actions over REST to the Gateway
-- Gateway translates REST calls into FIX messages and routes to Core Engine
-- Core Engine communicates with the matching engine via shared memory or UNIX domain socket
-- Market data flows back via ITCH feed → Gateway parses → Admin UI receives via WebSocket
+Record the release value and use it as the baseline for all subsequent references.
 
 ---
 
-## Commit Scope Format
+## File Enumeration Pattern
 
-Use layer-specific scopes for Conventional Commits:
+To list files in a component, always supply both `component` (from the `t7-knowledge-base` skill Component Map) and a `pattern`:
 
-| Scope | Layer |
-|-------|-------|
-| `feat(core):` | Core Engine C++ changes |
-| `feat(gateway):` | Java Gateway changes |
-| `feat(admin):` | Angular Admin UI changes |
-| `feat(db):` | Database schema, procedure, or data changes |
+```
+mcp_t7codebase_list_files(component="<verified-component-path>", pattern="*.cpp")
+mcp_t7codebase_list_files(component="<verified-component-path>", pattern="*Test*")
+```
 
-Multi-layer commits: use the primary changed layer as scope and list all layers in the commit body.
+Do not pass fabricated component paths — resolve them from the `t7-knowledge-base` skill first.
 
 ---
 
-## General Rules
+## Large File Navigation Pattern
 
-- Match surrounding code style exactly — no style improvements beyond the task scope
-- Handle errors at system boundaries only — do not add defensive error handling deep inside utilities
-- No `console.log` / `System.out.println` anywhere across any layer
-- No placeholder code: no "TODO", "implement later", or stub functions left disconnected
-- No hardcoded secrets, URLs, or connection parameters in any layer
+For source files too large to read in one chunk:
+
+1. `mcp_t7codebase_page_index_search(query="<class or function name>")` → find the page IDs containing the relevant section.
+2. `mcp_t7codebase_get_page_chunk(page_id="<id>")` → read that section in full.
+
+Repeat step 2 for adjacent sections as needed to gather complete context before writing or reviewing code.
+
+---
+
+## Search Quality Rules
+
+- Try at least **three distinct search strategies** (e.g., class name → method name → related enum) before concluding a symbol is NOT_FOUND.
+- When a search returns too many results, narrow by adding the component name or module scope as an additional term.
+- When a search returns nothing, broaden by trying related T7 terminology — consult the `t7-knowledge-base` skill for canonical term variants.
+- Always read the **surrounding context** of every match — never act on a single line in isolation.
+
+---
+
+## Constraints
+
+- DO NOT fabricate class names, method signatures, or file paths — verify everything through the tools.
+- DO NOT skip `list_releases` at the start of a session — always pin to the confirmed latest release.
+- DO NOT call `t7codebase` MCP tools from agent instructions directly — all calls must flow through this skill.

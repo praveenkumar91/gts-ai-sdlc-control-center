@@ -1,6 +1,6 @@
 ---
 name: gts-orchestrator
-description: "Generic SDLC orchestrator for all GTS systems. Routes requests to the correct system subagent (P7, T7, CUE, etc.) and coordinates the full software development lifecycle. Use when: you are working on any GTS system and want to plan, implement, review, test, build, or generate a PR for a feature or fix."
+description: "Generic SDLC orchestrator for all GTS systems. Routes requests to the correct system subagent (P7, T7, CURE, etc.) and coordinates the full software development lifecycle. Use when: you are working on any GTS system and want to plan, implement, review, test, build, or generate a PR for a feature or fix."
 model: Claude Sonnet 4.6 (copilot)
 tools: [agent, todo]
 agents: [p7-orchestrator, t7-orchestrator]
