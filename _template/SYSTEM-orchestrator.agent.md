@@ -1,14 +1,12 @@
 <!--
   TODO: CHECKLIST TO ADD A NEW SYSTEM
   ====================================
-  1. Copy this file to subagents/{system}/agent.md and fill in all {SYSTEM} placeholders
-  2. Create the pipeline agents folder: subagents/{system}/agents/
-     - Copy sdlc-developer.agent.md from subagents/_template/agents/ and fill in placeholders
-     - Add sdlc-planner.agent.md, sdlc-reviewer.agent.md as the system matures
-  3. Create system skills: skills/systems/{system}/
-     - At minimum, add a {system}-code/SKILL.md using skills/_template/SKILL.md
-  4. Register the system in registry.json — add an entry under "systems"
-  5. Add the subagent name to agents/orchestrator/agent.md's `agents:` frontmatter list
+  1. Copy this file to .agents/{system}-orchestrator.agent.md and fill in all {SYSTEM} placeholders
+  2. Copy SYSTEM-sdlc-developer.agent.md to .agents/{system}-sdlc-developer.agent.md and fill in placeholders
+     - Add .agents/{system}-sdlc-planner.agent.md, .agents/{system}-sdlc-reviewer.agent.md as the system matures
+  3. Create system skills: .agents/skills/systems/{system}/
+     - At minimum, add a {system}-code/SKILL.md using .agents/skills/_template/SKILL.md
+  4. Add the orchestrator name to .agents/gts-orchestrator.agent.md's `agents:` frontmatter list
 -->
 ---
 name: {system}-orchestrator                                 # replace {system} with lowercase system name (e.g. cue, crd, omnet)

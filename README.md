@@ -9,18 +9,18 @@ Developer reference for the GTS AI SDLC framework — agent and skill definition
 This repository defines a **3-tier composition model** for AI-assisted software development:
 
 ```
-Tier 1: Generic Orchestrator  (agents/orchestrator/)
+Tier 1: Generic Orchestrator  (.agents/gts-orchestrator.agent.md)
          ↓ routes by system
-Tier 2: System Subagent       (subagents/{system}/agent.md)
+Tier 2: System Orchestrator   (.agents/{system}-orchestrator.agent.md)
          ↓ coordinates pipeline
-Tier 3: Pipeline Agents       (subagents/{system}/agents/*.agent.md)
+Tier 3: Pipeline Agents       (.agents/{system}-sdlc-{role}.agent.md)
          ↓ use skills
-        Common Skills          (skills/common/)
-        System Skills          (skills/systems/{system}/)
+        Common Skills          (.agents/skills/common/)
+        System Skills          (.agents/skills/systems/{system}/)
 ```
 
 - **Tier 1 (Generic Orchestrator)** — Knows all registered systems. Routes the user's request to the correct system subagent. Never implements anything itself.
-- **Tier 2 (System Subagent)** — Knows the SDLC pipeline for one system (Plan → Gate → Develop → Review → PR). Coordinates Tier 3 agents. Never implements anything itself.
+- **Tier 2 (System Orchestrator)** — Knows the SDLC pipeline for one system (Plan → Gate → Develop → Review → PR). Coordinates Tier 3 agents. Never implements anything itself.
 - **Tier 3 (Pipeline Agents)** — Specialised workers: planner, developer, reviewer, tester, builder, pr-author. Each does exactly one job and reports a status code back to the orchestrator.
 
 Skills are reusable knowledge modules loaded by agents — not agents themselves.
@@ -31,96 +31,87 @@ Skills are reusable knowledge modules loaded by agents — not agents themselves
 
 ```
 gts.ai.sdlc/
-├── registry.json                        # Master manifest: systems, subagents, pipeline agents, skills
-├── README.md                            # This file
+├── README.md                                    # This file
 │
-├── agents/
-│   └── orchestrator/
-│       └── agent.md                     # Tier 1: generic routing orchestrator (gts-orchestrator)
+├── .agents/                                     # VS Code discovers all *.agent.md files here
+│   ├── gts-orchestrator.agent.md                # Tier 1: generic routing orchestrator
+│   ├── p7-orchestrator.agent.md                 # Tier 2: P7 system orchestrator
+│   ├── p7-sdlc-planner.agent.md                 # Tier 3: P7 pipeline agents
+│   ├── p7-sdlc-architect.agent.md
+│   ├── p7-sdlc-developer.agent.md
+│   ├── p7-sdlc-tester.agent.md
+│   ├── p7-sdlc-reviewer.agent.md
+│   ├── p7-sdlc-builder.agent.md
+│   ├── p7-sdlc-pr-author.agent.md
+│   ├── t7-orchestrator.agent.md                 # Tier 2: T7 system orchestrator
+│   ├── t7-sdlc-planner.agent.md                 # Tier 3: T7 pipeline agents
+│   ├── t7-sdlc-developer.agent.md
+│   ├── t7-sdlc-reviewer.agent.md
+│   ├── t7-sdlc-knowledge.agent.md
+│   └── skills/
+│       ├── _template/
+│       │   └── SKILL.md                         # Template: copy to create any new skill
+│       ├── common/                              # Skills reusable across ALL systems
+│       │   ├── github/
+│       │   ├── github-pr-miner/
+│       │   ├── jira/
+│       │   ├── confluence/
+│       │   ├── teams/
+│       │   ├── sdlc-brainstorming/
+│       │   ├── sdlc-debugging/
+│       │   └── sdlc-verification/
+│       └── systems/                             # Skills scoped to one system
+│           ├── p7/
+│           │   ├── p7-code/
+│           │   ├── p7-code-review/
+│           │   ├── p7-debugging/
+│           │   ├── p7-brainstorming/
+│           │   ├── p7-verification/
+│           │   └── p7-github/
+│           └── t7/
+│               ├── t7-code/
+│               ├── t7-spec/
+│               └── t7-knowledge-base/
 │
-├── subagents/
-│   ├── _template/                       # Copy this to add a new system
-│   │   ├── agent.md                     # Template: system subagent (Tier 2)
-│   │   └── agents/
-│   │       └── sdlc-developer.agent.md  # Template: system developer pipeline agent (Tier 3)
-│   ├── p7/
-│   │   ├── agent.md                     # P7 system subagent (p7-orchestrator)
-│   │   └── agents/                      # P7 pipeline agents (planner, developer, reviewer, …)
-│   └── t7/
-│       ├── agent.md                     # T7 system subagent (t7-orchestrator)
-│       └── agents/                      # T7 pipeline agents (planner, developer, reviewer)
-│
-└── skills/
-    ├── _template/
-    │   └── SKILL.md                     # Template: copy to create any new skill
-    ├── common/                          # Skills reusable across ALL systems (systems: [all])
-    │   ├── github/                      # GitHub PR, branch, commit operations
-    │   ├── jira/                        # Jira ticket creation, status updates, linking
-    │   ├── confluence/                  # Confluence page creation, ADRs, API docs
-    │   ├── teams/                       # Microsoft Teams notifications and message formatting
-    │   ├── sdlc-brainstorming/          # Generic feature exploration and requirements gathering
-    │   ├── sdlc-debugging/              # Generic systematic debugging workflow
-    │   └── sdlc-verification/          # Generic pre-completion verification checklist
-    └── systems/                         # Skills scoped to one system (systems: [systemname])
-        ├── p7/
-        │   ├── p7-code/                 # P7 coding conventions across all 4 layers
-        │   ├── p7-debugging/            # P7-specific debugging patterns
-        │   ├── p7-brainstorming/        # P7 feature exploration (overrides common)
-        │   ├── p7-verification/         # P7 pre-completion verification (overrides common)
-        │   └── p7-github/              # P7 commit scope conventions (overrides common)
-        └── t7/
-            ├── t7-code/                 # T7 coding conventions across all 4 layers
-            └── t7-spec/                 # T7 functional specs, FIX protocol, order lifecycle
+└── _template/                                   # Copy this to add a new system (not auto-discovered)
+    ├── SYSTEM-orchestrator.agent.md             # Template: system orchestrator (Tier 2)
+    └── SYSTEM-sdlc-developer.agent.md           # Template: developer pipeline agent (Tier 3)
 ```
 
 ---
 
 ## Supported Systems
 
-| System | Subagent | Pipeline Agents | System Skills |
-|--------|----------|-----------------|---------------|
-| P7 — Pricing & Risk Management | `subagents/p7/agent.md` | planner, architect, developer, tester, reviewer, builder, pr-author | p7-code, p7-debugging, p7-brainstorming, p7-verification, p7-github |
-| T7 — Trading System | `subagents/t7/agent.md` | planner, developer, reviewer | t7-code, t7-spec |
+| System | Orchestrator | Pipeline Agents | System Skills |
+|--------|-------------|-----------------|---------------|
+| P7 — Pricing & Risk Management | `p7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author | p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github |
+| T7 — Trading System | `t7-orchestrator` | planner, developer, reviewer, knowledge | t7-code, t7-spec, t7-knowledge-base |
 
 ---
 
 ## How to Add a New System
 
-**Step 1 — Create the system subagent**
-```
-cp -r subagents/_template subagents/{system}
-```
-Edit `subagents/{system}/agent.md` — replace every `{system}` / `{SYSTEM}` placeholder.
+**Step 1 — Create the system orchestrator**
+
+Copy `_template/SYSTEM-orchestrator.agent.md` to `.agents/{system}-orchestrator.agent.md`.
+Replace every `{SYSTEM}` / `{system}` placeholder.
 
 **Step 2 — Create pipeline agents**
 
-Edit `subagents/{system}/agents/sdlc-developer.agent.md` — fill in layer paths, build commands, coding standards.
-Add additional agents (`sdlc-planner.agent.md`, `sdlc-reviewer.agent.md`, etc.) as the system matures.
+Copy `_template/SYSTEM-sdlc-developer.agent.md` to `.agents/{system}-sdlc-developer.agent.md`.
+Fill in layer paths, build commands, coding standards.
+Add additional agents (`.agents/{system}-sdlc-planner.agent.md`, `.agents/{system}-sdlc-reviewer.agent.md`, etc.) as the system matures.
 
 **Step 3 — Create system skills**
 ```
-mkdir -p skills/systems/{system}/{system}-code
-cp skills/_template/SKILL.md skills/systems/{system}/{system}-code/SKILL.md
+mkdir .agents/skills/systems/{system}/{system}-code
+cp .agents/skills/_template/SKILL.md .agents/skills/systems/{system}/{system}-code/SKILL.md
 ```
 Fill in layer table, naming conventions, build commands, testing patterns.
 
-**Step 4 — Register in `registry.json`**
-```json
-"{system}": {
-  "name": "{Full System Name}",
-  "subagent": "subagents/{system}/agent.md",
-  "pipeline_agents": [
-    "subagents/{system}/agents/sdlc-developer.agent.md"
-  ],
-  "skills": [
-    "skills/systems/{system}/{system}-code"
-  ]
-}
-```
+**Step 4 — Add to the generic orchestrator**
 
-**Step 5 — Add to the generic orchestrator**
-
-In `agents/orchestrator/agent.md`, add `{system}-orchestrator` to the `agents:` frontmatter list and add a routing rule in the **Routing Rules** section.
+In `.agents/gts-orchestrator.agent.md`, add `{system}-orchestrator` to the `agents:` frontmatter list and add a routing rule in the **Routing Rules** section.
 
 ---
 
@@ -130,7 +121,7 @@ In `agents/orchestrator/agent.md`, add `{system}-orchestrator` to the `agents:` 
 |------|-----------|---------|
 | System folder names | lowercase, no separators | `p7`, `t7`, `cue` |
 | Subagent `name` field | `{system}-orchestrator` | `t7-orchestrator` |
-| Pipeline agent file names | `sdlc-{role}.agent.md` | `sdlc-developer.agent.md` |
+| Pipeline agent file names | `{system}-sdlc-{role}.agent.md` | `t7-sdlc-developer.agent.md` |
 | Pipeline agent `name` field | `{system}-sdlc-{role}` | `t7-sdlc-developer` |
 | Skill folder names | `{system}-{topic}` (system) or plain noun (common) | `t7-code`, `github` |
 | Skill `name` field | matches folder name | `t7-code`, `github` |
@@ -147,14 +138,14 @@ User request
     │
     ▼
 ┌─────────────────────────────────┐
-│  gts-orchestrator  (Tier 1)     │  agents/orchestrator/agent.md
+│  gts-orchestrator  (Tier 1)     │  .agents/gts-orchestrator.agent.md
 │  "Which system?"                │
-│  Routes to system subagent      │
+│  Routes to system orchestrator  │
 └───────────┬─────────────────────┘
             │  delegates to
             ▼
 ┌─────────────────────────────────┐
-│  {system}-orchestrator (Tier 2) │  subagents/{system}/agent.md
+│  {system}-orchestrator (Tier 2) │  .agents/{system}-orchestrator.agent.md
 │  Plan → Gate → Develop →        │
 │  Review → PR                    │
 └──┬──────────┬────────────┬──────┘
@@ -165,8 +156,8 @@ planner   developer    reviewer      (Tier 3 pipeline agents)
    └──────────┴────────────┘
               │ load
     ┌─────────┴──────────┐
-    │   Common Skills    │  skills/common/  (github, jira, confluence, …)
-    │   System Skills    │  skills/systems/{system}/  ({system}-code, …)
+    │   Common Skills    │  .agents/skills/common/  (github, jira, confluence, …)
+    │   System Skills    │  .agents/skills/systems/{system}/  ({system}-code, …)
     └────────────────────┘
 ```
 
