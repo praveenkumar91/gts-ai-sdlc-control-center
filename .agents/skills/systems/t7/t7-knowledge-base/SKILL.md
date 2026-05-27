@@ -1,6 +1,6 @@
 ---
 name: t7-knowledge-base
-description: "Use when: answering questions about T7 source code implementation, coding guidelines, component ownership, terminology, and T7 domain knowledge. Covers: finding where a feature is implemented, explaining how a T7 component works internally, tracing logic through T7 modules (Matcher, Gateway, OFI, TES, PATE, RDD, TFH, PerfMon, ViewDB, Prisma, RDC, LDS, ETI, FIX), understanding configuration parameters, locating entry points or call chains, applying C++ coding standards, identifying component owners, and resolving T7 terminology. Sub-agent in the T7 Knowledge Chain — receives structured queries from the Knowledge or Orchestration Agent and returns structured results to those agents."
+description: "Use when: answering questions about T7 source code implementation, component ownership, terminology, and T7 domain knowledge. Covers: finding where a feature is implemented, explaining how a T7 component works internally, tracing logic through T7 modules (Matcher, Gateway, OFI, TES, PATE, RDD, TFH, PerfMon, ViewDB, Prisma, RDC, LDS, ETI, FIX), understanding configuration parameters, locating entry points or call chains, identifying component owners, and resolving T7 terminology. Sub-agent in the T7 Knowledge Chain — receives structured queries from the Knowledge or Orchestration Agent and returns structured results to those agents."
 user-invocable: false
 ---
 
@@ -21,10 +21,9 @@ Load these references when needed to guide your search strategy:
 - [T7 Component Ownership](./references/t7-component-owners.md) — which teams own which components and modules
 - [T7 Component Map](./references/t7-component-map.md) — directory paths for all components in the latest release baseline
 - [T7 Terminology](./references/t7-terminology.md) — domain glossary and search term guidance
-- [C++ Coding Guidelines v1.4](./references/coding-guidelines/C++_Coding_Guidelines_v1.4.md) — mandatory C++ coding standards, naming conventions, error handling, and Sonar rules
-- [Java Coding Guidelines v1.4](./references/coding-guidelines/Java_Coding_Guidelines_v1.4.md) — mandatory Java coding standards, naming conventions, error handling, and Sonar rules
-- [Python Coding Guidelines v1.4](./references/coding-guidelines/Python_Coding_Guidelines_v1.4.md) — mandatory Python coding standards, naming conventions, error handling, and Sonar rules
 - [Output Template](./assets/output-template.md) — required output format for the Knowledge or Orchestration Agent
+
+> **Coding guidelines** (C++, Java, Python) are handled by the **[coding-guidelines](../../../common/coding-guidelines/SKILL.md)** common skill. Delegate all coding standard queries there.
 
 ---
 
@@ -33,10 +32,11 @@ Load these references when needed to guide your search strategy:
 Your responsibility is to find and explain T7 knowledge relevant to the sub-query you receive. This includes:
 
 - **Implementation** — what the T7 system actually does in its current release baseline
-- **Coding guidelines** — C++ standards, naming conventions, formatting rules, and Sonar compliance requirements
 - **Component information** — component structure, module responsibilities, directory layout
 - **Component ownership** — which team or department owns a given repository or component
 - **Terminology** — T7-specific domain terms, abbreviations, and their correct usage
+
+> For **coding guideline** queries (C++, Java, Python naming, formatting, Sonar rules), delegate to the [coding-guidelines](../../../common/coding-guidelines/SKILL.md) common skill.
 
 You have access to the domain references listed above and exactly one tool group: `t7spec/*` (Cortex MCP).
 Do not attempt to use any other tool or data source.
@@ -50,8 +50,9 @@ When you receive a sub-query, follow these steps precisely:
 ### Step 1 — Parse the Query
 
 Read the sub-query carefully and identify:
-- The query type: **coding guideline**, **component info**, **ownership**, or **terminology**
-- Whether the question is about logic, structure, configuration, standards compliance, or team responsibility
+- The query type: **implementation**, **component info**, **ownership**, or **terminology**
+- If the query is about **coding guidelines** (naming conventions, formatting, Sonar rules), stop and delegate to the [coding-guidelines](../../../common/coding-guidelines/SKILL.md) common skill
+- Whether the question is about logic, structure, configuration, or team responsibility
 - Which T7 module or subsystem is most likely involved (consult [t7-modules.md](./references/t7-modules.md))
 
 ### Step 2 — Select the Right Source
@@ -60,9 +61,7 @@ Use the correct reference for the query type:
 
 | Query type | Primary source |
 |---|---|
-| C++ coding standards, naming, formatting, Sonar rules | [C++ Coding Guidelines](./references/coding-guidelines/C++_Coding_Guidelines_v1.4.md) |
-| Java coding standards, naming, formatting, Sonar rules | [Java Coding Guidelines](./references/coding-guidelines/Java_Coding_Guidelines_v1.4.md) |
-| Python coding standards, naming, formatting, Sonar rules | [Python Coding Guidelines](./references/coding-guidelines/Python_Coding_Guidelines_v1.4.md) |
+| C++/Java/Python coding standards | → delegate to [coding-guidelines](../../../common/coding-guidelines/SKILL.md) skill |
 | Component directory structure | [T7 Component Map](./references/t7-component-map.md) |
 | Component ownership / team | [T7 Component Ownership](./references/t7-component-owners.md) |
 | T7 domain terms / abbreviations | [T7 Terminology](./references/t7-terminology.md) |
@@ -84,9 +83,7 @@ For implementation queries, use the `t7spec/*` tools with the most specific term
 
 ### Step 4 — Reason Over the Content
 
-- Explain in plain language what the guideline specifies, not just what it is
 - For implementation: identify the entry point, the key decision logic, and the outcome
-- For coding guidelines: state the rule, its rationale (if documented), and any exceptions
 - For component ownership: identify the owning team and their scope
 - Note any flags, conditions, or configuration parameters that influence behavior
 
