@@ -32,7 +32,7 @@ Skills are reusable knowledge modules loaded by agents — not agents themselves
 ```
 gts.ai.sdlc/
 ├── README.md                                        # Repo overview, tier model, onboarding guide
-├── CODEOWNER                                        # PR Review by @gts-ai-developer
+├── CODEOWNERS                                        # PR Review by @gts-ai-developer
 │
 ├── .github/
 │   └── agents/                                      # VS Code Copilot auto-discovers *.agent.md here
