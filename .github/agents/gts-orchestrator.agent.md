@@ -35,7 +35,7 @@ When routing, pass the full user request context:
 
 ## Adding a New System
 
-1. Create `subagents/{system}/agent.md` following the template at `subagents/_template/agent.md`
-2. Create system skills under `skills/systems/{system}/`
-3. Register in `registry.json`
-4. Add the subagent name to this file's `agents:` frontmatter list
+1. Create `.github/agents/{system}-orchestrator.agent.md` orchestrator agent following the template at `_template/SYSTEM-orchestrator.agent.md`
+2. Create `.github/agents/{system}-sdlc-developer.agent.md` subagent(s) for the specific system following the template at `_template/SYSTEM-sdlc-developer.agent.md`
+3. Create system skills under `.agents/skills/systems/{system}/`
+4. Add the new system to the current agent definition under System Registry and Routing Rules
