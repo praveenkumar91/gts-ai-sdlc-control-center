@@ -20,7 +20,7 @@ Load these references when needed to guide your search strategy:
 - [T7 Applications](./references/t7-applications.md) — application-level component overview
 - [T7 Component Ownership](./references/t7-component-owners.md) — which teams own which components and modules
 - [T7 Component Map](./references/t7-component-map.md) — directory paths for all components in the latest release baseline
-- [T7 Terminology](./references/t7-terminology.md) — domain glossary and search term guidance
+- [T7 Abbreviations & Terminology](./references/t7-abbreviations.md) — domain glossary and search term guidance
 - [Output Template](./assets/output-template.md) — required output format for the Knowledge or Orchestration Agent
 
 > **Coding guidelines** (C++, Java, Python) are handled by the **[coding-guidelines](../../../common/coding-guidelines/SKILL.md)** common skill. Delegate all coding standard queries there.
