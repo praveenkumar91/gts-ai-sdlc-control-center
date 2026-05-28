@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, edit, search, execute]
 user-invocable: false
 system: p7
-skills_common: [github, jira, sdlc-debugging, sdlc-verification]
+skills_common: [github, jira, sdlc-debugging, sdlc-verification, coding-guidelines]
 ---
 
 # SDLC Developer

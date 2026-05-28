@@ -235,6 +235,8 @@ Before reviewing individual lines of code, evaluate the PR as a whole. Consider 
 
 ## Code Style & Formatting
 
+For language-level standards (C++ naming, formatting, Sonar compliance), refer to the `coding-guidelines` common skill. P7-specific review rules below take precedence.
+
 - **Use well-named constants instead of magic numbers.** No raw hex or decimal constants without explanation. Don't duplicate magic constants across files.
 - **Name methods to accurately reflect their behavior.** Update names when behavior changes. `get*` implies a return value; use `print*/display*` for void. `ThrowIf` not `ThrowExceptionIf`.
 - **Prefer early return to reduce nesting.** Use early returns for short/error cases to avoid unnecessary nesting. Put the error case first, success return last.
