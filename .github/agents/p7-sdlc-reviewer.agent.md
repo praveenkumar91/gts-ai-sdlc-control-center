@@ -6,7 +6,7 @@ tools: [read, search, agent]
 user-invocable: true
 argument-hint: "What would you like me to review?"
 system: p7
-skills_common: [github, jira, sdlc-debugging, sdlc-verification]
+skills_common: [github, jira, sdlc-debugging, sdlc-verification, coding-guidelines]
 skills: [skills/systems/p7/p7-code-review]
 ---
 

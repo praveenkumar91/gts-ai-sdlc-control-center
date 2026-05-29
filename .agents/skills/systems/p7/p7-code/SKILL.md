@@ -60,6 +60,8 @@ All P7 implementation work MUST follow these conventions. Match surrounding code
 
 ## Pricing Engine Conventions (C++17)
 
+For language-level C++ naming, formatting, and Sonar rules, refer to the `coding-guidelines` common skill. P7-specific conventions below take precedence where they conflict.
+
 ### What the PE Does
 
 The **P7 Pricing Engine** is a high-performance C++ options/futures theoretical pricing service that replaces the legacy Sol3 software in Deutsche Börse's Eurex trading infrastructure. It receives real-time market data from multiple sources, maintains order books, fits volatility surfaces, and exposes theoretical prices via a REST API (Crow), WebSockets, and AMQP.
