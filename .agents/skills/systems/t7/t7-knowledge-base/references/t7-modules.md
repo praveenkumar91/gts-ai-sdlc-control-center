@@ -13,12 +13,12 @@ a given area of T7 behavior. This guides which search terms and file paths to pr
 | Gateway | GW | Entry point for participant order flow — session management, ETI/FIX protocol handling, throttling | `eurex/gateway/gateway`, `eurex/gateway/common`, `eurex/gateway/gwconversion`, `eurex/intmsg/model/gateway` | AD Interface Design & Gateways (U) |
 | Order and Floor Interface | OFI | Floor broker and TES (Trade Entry Service) order entry and management | `eurex/gateway/oficonversion`, `eurex/apps/trade-entry-service`, `eurex/intmsg/model/tradeentryservice` | AD Interface Design & Gateways (U) / AD Trading Prague (U) |
 | Trade Entry Service | TES | Off-book trade negotiation, approval, and settlement initiation | `eurex/apps/trade-entry-service`, `eurex/apps/tesgwval`, `eurex/dataaccess/tradeentryservice`, `eurex/intmsg/model/tradeentryservice` | AD Trading Prague (U) |
-| Pre-Trade Risk Server | PATE | Pre-trade risk checks — risk limits, kill switch, position tracking per business unit | `eurex/apps/pate` | AD Trading Core (U) |
+| Post-Processing And Trade Engine | PATE | Bundles the already existing Order-book and Trade Manager services into one single service. Further information find here https://github.deutsche-boerse.de/dev/gts.eurex.apps.pate/wiki/Pate via the github mcp | `eurex/apps/pate` | AD Trading Core (U) |
 | Reference Data Distribution | RDD | Instrument and product reference data distribution to internal components | `eurex/apps/reference-data-distributor`, `eurex/apps/refdata`, `eurex/apps/refdata-application`, `eurex/apps/refdata-database`, `common/refdata/core`, `common/refdata/generator` | AD Trading RDS (U) |
 | Trade Feed Handler | TFH | Distribution of trade confirmations and execution reports to downstream systems | `eurex/apps/trade-feed-handler`, `eurex/intmsg/model/trade-feed-handler`, `eurex/intmsg/model/trade-feed-handler-internal` | AD Interface Design & Gateways (U) |
 | Performance Monitor | PerfMon | System performance metrics collection and alerting | `perfmon/core`, `perfmon/capture`, `perfmon/ackstat`, `perfmon/ipasm`, `perfmon/market-data-reader`, `perfmon/monsoapproxy`, `common/perfmon` | AD OPM & Cloud Simulation (U) |
-| ViewDB | ViewDB | Read-only market data views — order book snapshots, trade reports, instrument states | `eurex/dataaccess/viewdb-database`, `common/dataaccess/viewdb-database-common`, `common/dataaccess/view-service`, `eurex/specification/view-model` | AD Trading Architecture (U) |
-| Risk Data Controller | RDC | Aggregates and distributes risk data across components | `common/dataaccess/rdc`, `eurex/dataaccess/rda-common`, `eurex/dataaccess/rda-outbound-bridge`, `common/dataaccess/rda-inbound-bridge`, `common/dataaccess/rda-outbound-bridge-common` | AD Trading Architecture (U) |
+| ViewDB | ViewDB | Read-only market data views  — order book snapshots, trade reports, instrument states | `eurex/dataaccess/viewdb-database`, `common/dataaccess/viewdb-database-common`, `common/dataaccess/view-service`, `eurex/specification/view-model` | AD Trading Architecture (U) |
+| Reference Data Cache | RDC | Library that aggregates and distributes reference data across components | `common/dataaccess/rdc`, `eurex/dataaccess/rda-common`, `eurex/dataaccess/rda-outbound-bridge`, `common/dataaccess/rda-inbound-bridge`, `common/dataaccess/rda-outbound-bridge-common` | AD Trading Architecture (U) |
 | Logical Data Store | LDS | Persistence layer for recoverable state across components | `eurex/apps/persistence` | AD Trading Core (U) |
 
 ---
@@ -41,6 +41,7 @@ a given area of T7 behavior. This guides which search terms and file paths to pr
 | viewdb_\<marketplace\> | Per-marketplace ViewDB instance (e.g. `viewdb_eurex`, `viewdb_xetr`) | `eurex/dataaccess/viewdb-database`, `common/dataaccess/viewdb-database-common` |
 | tesdb | TES last-IDs and product off-book tracking | `eurex/dataaccess/tradeentryservice` |
 | patedb\<PartitionID\> | Per-partition PATE database instance | `eurex/apps/pate` |
+| 
 
 ---
 
