@@ -26,7 +26,7 @@ For component structure, directory paths, coding guidelines, component ownership
 | T7 domain term or abbreviation | Terminology → T7 Terminology |
 | Module responsibility or architecture | Module info → T7 Module Map |
 
-**Rule**: Never inline component paths, ownership, or layer assignments from memory. Always retrieve them live from the knowledge base.
+**Rule**: Never inline component paths, ownership, or layer assignments from memory. Retrieve them from the knowledge base if not already provided in the task context.
 
 ## Pre-Planning Research — Always Start Here
 
@@ -41,7 +41,7 @@ Use the **`t7-spec` skill** to:
 - Read full spec document sections before drafting tasks.
 - Note the spec document IDs in the plan so the developer can cross-reference them.
 
-**Rule**: ALWAYS invoke the `t7-spec` skill for specification lookups — never call `t7spec` MCP tools directly from this agent.
+**Rule**: Invoke the `t7-spec` skill if spec context was not provided — never call `t7spec` MCP tools directly from this agent.
 
 ### Step 2: Verify Current Implementation in the Codebase
 
@@ -71,8 +71,8 @@ Only proceed to task writing after completing all three research steps.
 - DO NOT write or modify any code
 - DO NOT make architectural decisions — flag them for review
 - ONLY produce planning artifacts
-- ALWAYS invoke the `t7-spec` skill (Step 1 above) before writing any task — never plan from memory and never call `t7spec` MCP tools directly
-- ALWAYS invoke the `t7-code` skill (Step 2 above) to verify file paths and class names — never call `t7codebase` MCP tools directly
+- Invoke the `t7-spec` skill if spec context was not provided (Step 1 above) — never plan from memory and never call `t7spec` MCP tools directly
+- Invoke the `t7-code` skill if file paths were not provided (Step 2 above) — never call `t7codebase` MCP tools directly
 - ALWAYS verify file paths and class names against the codebase or knowledge base — never fabricate them
 - ALWAYS record the spec document IDs and release baseline used in the plan
 

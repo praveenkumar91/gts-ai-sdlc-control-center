@@ -43,6 +43,15 @@ Write and run tests for P7 code changes. Verify acceptance criteria across all l
 - Schema validation via SQL scripts
 - No automated test framework — validate with manual queries
 
+## Test Scope Strategy
+
+Always prefer targeted tests over full suite runs:
+1. **If specific test files or test names are provided** — run only those tests
+2. **If changed files are provided** — run only tests related to those files
+3. **Run the full suite only if explicitly requested** or if targeted tests are unavailable
+
+If a test run is taking too long, report partial results captured so far rather than waiting for the full suite to complete.
+
 ## Approach
 
 1. **Review changes**: Read all modified files per layer.

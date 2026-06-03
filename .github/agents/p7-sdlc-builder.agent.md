@@ -38,6 +38,14 @@ CMake + make build. Reports compilation errors, linker failures.
 - DO NOT attempt to fix errors — only report them
 - If a layer has no build step (Database/SQL), skip it and note "No build required for SQL changes"
 
+## Timeout Handling
+
+Build commands (especially `cmake .. && make -j4`) may exceed the agent time budget. If a build command times out or is interrupted:
+- Report the exact command that was running when the timeout occurred
+- Report any partial output already captured
+- Do NOT silently retry — surface the timeout to the caller so it can decide next steps
+- Prefer `make -j2` over `make -j4` on resource-constrained environments to reduce build time
+
 ## Self-Review Before Output
 
 Before reporting results:

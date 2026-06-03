@@ -69,7 +69,7 @@ Use the **`t7-code` skill** to:
 
 ### 5. Write Code
 
-**Before writing any code**, query the **`t7-knowledge-base` skill** for the applicable coding guideline:
+Apply the applicable coding guideline from the knowledge-base context already loaded in Step 1:
 
 | Language | Knowledge base query |
 |---|---|
