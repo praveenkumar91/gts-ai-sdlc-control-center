@@ -3,10 +3,16 @@ name: t7-orchestrator
 description: "Orchestrate software development lifecycle for the T7 Trading System. Use when: implementing a T7 feature end-to-end, running the T7 development pipeline, coordinating planning-development-review phases for T7, managing multi-step T7 development workflows, any work touching gts.t7.core, gts.t7.gateway, gts.t7.admin, or T7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [t7-sdlc-planner, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-knowledge]
+agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-knowledge]
 argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDLC pipeline"
 user-invocable: true
 ---
+
+## Step 0: Clarify Request
+
+Before starting the pipeline, invoke `/gts-prompt-clarifier` with the raw user message. Use the clarified and enriched message for all subsequent pipeline steps.
+
+Skip this step only if the request was already forwarded by `gts-prompt-clarifier` (it will indicate this in its message).
 
 # T7 SDLC Orchestrator
 

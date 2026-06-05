@@ -3,10 +3,16 @@ name: p7-orchestrator
 description: "Orchestrate full software development lifecycle for the P7 Pricing & Risk Management Platform. Use when: implementing a P7 feature end-to-end, running the full P7 development pipeline, coordinating planning-architecture-development-testing-review-build-PR phases for P7, managing multi-step P7 development workflows, any work touching gts.p7.frontend, middleware, gts.p7.pricingengine, or P7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author]
+agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author]
 argument-hint: "Describe the P7 feature, bug fix, or task to run through the full SDLC pipeline"
 user-invocable: true
 ---
+
+## Step 0: Clarify Request
+
+Before starting the pipeline, invoke `/gts-prompt-clarifier` with the raw user message. Use the clarified and enriched message for all subsequent pipeline steps.
+
+Skip this step only if the request was already forwarded by `gts-prompt-clarifier` (it will indicate this in its message).
 
 # P7 SDLC Orchestrator
 
