@@ -3,7 +3,7 @@ name: t7-orchestrator
 description: "Orchestrate software development lifecycle for the T7 Trading System. Use when: implementing a T7 feature end-to-end, running the T7 development pipeline, coordinating planning-development-review phases for T7, managing multi-step T7 development workflows, any work touching gts.t7.core, gts.t7.gateway, gts.t7.admin, or T7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-knowledge]
+agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-knowledge, t7-sdlc-spec-author]
 argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDLC pipeline"
 user-invocable: true
 ---
@@ -110,6 +110,19 @@ Delegate to `/t7-sdlc-reviewer`:
 ### Step 5: PR Preparation
 Present the implementation summary to the user and suggest creating a PR via `skills/common/github`.
 
+## Spec Authoring (On-Demand — Specification Phase)
+
+Formal specification documents (DFS / DTS / SRQ) are **not** part of the default Plan → Develop → Review path. Run this phase **only when the user explicitly asks** for a specification document (e.g. "generate the DFS", "write the DTS for this", "author an SRQ").
+
+Delegate to `/t7-sdlc-spec-author`:
+> "Author a {DFS|DTS|SRQ} for this change. Approved plan: {plan or plan summary}. Source material: {Jira tickets, Confluence pages, notes}. Confirm the document type and short title for the filename if not provided."
+
+- This is a **document-authoring** step, not a code step — it does not require the Developer → Reviewer sequence.
+- The spec-author saves the document under `specs/t7/` and reports a completeness summary.
+- If required metadata is missing, the spec-author will ask the user — relay those questions.
+
+> **Boundary**: The planner produces a lightweight plan (no separate files, no DOCX metadata). The spec-author produces the separate, DOCX-ready DFS/DTS/SRQ files. Never conflate the two.
+
 ## Quality Gates
 
 | Gate | Pass Criteria | Fail Action |
@@ -118,6 +131,7 @@ Present the implementation summary to the user and suggest creating a PR via `sk
 | User Gate → Developer | User explicitly confirms plan | Wait — do NOT proceed |
 | Developer → Reviewer | Status = DONE or DONE_WITH_CONCERNS | Re-dispatch with context if NEEDS_CONTEXT or BLOCKED |
 | Reviewer → PR | No [REQUIRED] findings | Fix + re-review (max 2x) |
+| Spec Authoring (on-demand) | Required metadata complete; canonical structure satisfied | Spec-author asks user for missing metadata — relay questions |
 
 ## Mandatory Sequence
 
@@ -134,6 +148,7 @@ Users can request individual phases:
 - "Plan this feature" → Run only Step 1 (plan)
 - "Review my changes" → Run only Step 4
 - "Implement this plan" → Steps 2-5 (HARD-GATE still applies at Step 2)
+- "Generate the DFS/DTS/SRQ" / "Author the specification" → Run only the Spec Authoring phase (delegate to `/t7-sdlc-spec-author`)
 - "Debug this issue" → Invoke `skills/common/sdlc-debugging` skill, then delegate fix to `/t7-sdlc-developer`
 
 Detect intent and skip irrelevant phases.

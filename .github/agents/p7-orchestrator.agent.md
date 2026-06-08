@@ -3,7 +3,7 @@ name: p7-orchestrator
 description: "Orchestrate full software development lifecycle for the P7 Pricing & Risk Management Platform. Use when: implementing a P7 feature end-to-end, running the full P7 development pipeline, coordinating planning-architecture-development-testing-review-build-PR phases for P7, managing multi-step P7 development workflows, any work touching gts.p7.frontend, middleware, gts.p7.pricingengine, or P7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author]
+agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author, p7-sdlc-spec-author]
 argument-hint: "Describe the P7 feature, bug fix, or task to run through the full SDLC pipeline"
 user-invocable: true
 ---
@@ -139,6 +139,19 @@ Delegate to `/p7-sdlc-pr-author`:
 
 Present the PR description to the user for final approval.
 
+## Spec Authoring (On-Demand — Specification Phase)
+
+Formal specification documents (DFS / DTS / SRQ) are **not** part of the default Plan → … → PR pipeline. Run this phase **only when the user explicitly asks** for a specification document (e.g. "generate the DFS", "write the DTS for this", "author an SRQ").
+
+Delegate to `/p7-sdlc-spec-author`:
+> "Author a {DFS|DTS|SRQ} for this change. Approved plan: {plan or plan summary}. Source material: {Jira tickets, Confluence pages, notes}. Confirm the document type and short title for the filename if not provided."
+
+- This is a **document-authoring** step, not a code step — it does not require the Developer → Reviewer → Builder sequence.
+- The spec-author saves the document under `specs/p7/` and reports a completeness summary.
+- If required metadata is missing, the spec-author will ask the user — relay those questions.
+
+> **Boundary**: The planner produces a lightweight plan (no separate files, no DOCX metadata). The spec-author produces the separate, DOCX-ready DFS/DTS/SRQ files. Never conflate the two.
+
 ## Quality Gates
 
 | Gate | Pass Criteria | Fail Action |
@@ -151,6 +164,7 @@ Present the PR description to the user for final approval.
 | Tester (GREEN) → Reviewer | All tests pass, no regressions | Fix + re-test (max 2x) |
 | Reviewer → Builder | No [REQUIRED] findings | Fix + re-test + re-review (max 2x) |
 | Builder → PR | Build succeeds for all layers | Fix + re-test + re-review + rebuild (max 2x) |
+| Spec Authoring (on-demand) | Required metadata complete; canonical structure satisfied | Spec-author asks user for missing metadata — relay questions |
 
 ## Mandatory Sequence
 
@@ -169,6 +183,7 @@ Users can request individual phases:
 - "Build the project" → Run only Step 8
 - "Generate a PR" → Run only Step 9
 - "Implement this plan" → Steps 3-9 (HARD-GATE still applies at Step 3)
+- "Generate the DFS/DTS/SRQ" / "Author the specification" → Run only the Spec Authoring phase (delegate to `/p7-sdlc-spec-author`)
 - "Debug this issue" → Invoke `skills/systems/p7/p7-debugging` skill before any fix
 
 Detect intent and skip irrelevant phases.
