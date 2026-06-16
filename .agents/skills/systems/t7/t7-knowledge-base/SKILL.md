@@ -21,6 +21,7 @@ Load these references when needed to guide your search strategy:
 - [T7 Component Ownership](./references/t7-component-owners.md) — which teams own which components and modules
 - [T7 Component Map](./references/t7-component-map.md) — directory paths for all components in the latest release baseline
 - [T7 Abbreviations & Terminology](./references/t7-abbreviations.md) — domain glossary and search term guidance
+- [T7 Regulatory Glossary](./references/t7-regulatory-glossary.md) — regulatory abbreviations relevant to T7 context
 - [Output Template](./assets/output-template.md) — required output format for the Knowledge or Orchestration Agent
 
 > **Coding guidelines** (C++, Java, Python) are handled by the **[coding-guidelines](../../../common/coding-guidelines/SKILL.md)** common skill. Delegate all coding standard queries there.
@@ -64,12 +65,12 @@ Use the correct reference for the query type:
 | C++/Java/Python coding standards | → delegate to [coding-guidelines](../../../common/coding-guidelines/SKILL.md) skill |
 | Component directory structure | [T7 Component Map](./references/t7-component-map.md) |
 | Component ownership / team | [T7 Component Ownership](./references/t7-component-owners.md) |
-| T7 domain terms / abbreviations | [T7 Terminology](./references/t7-terminology.md) |
+| T7 domain terms / abbreviations | [T7 Abbreviations & Terminology](./references/t7-abbreviations.md) |
 | Module responsibilities | [T7 Module Map](./references/t7-modules.md) |
 
 For implementation queries, use the `t7spec/*` tools with the most specific terms first:
 - Start with exact identifiers if given (class name, method, enum value, message type)
-- If no exact match, use domain-specific T7 terminology — consult [t7-terminology.md](./references/t7-terminology.md)
+- If no exact match, use domain-specific T7 terminology — consult [t7-abbreviations.md](./references/t7-abbreviations.md)
 - If the first search returns too many results, narrow with additional terms or module scope
 - If the first search returns nothing, broaden by trying related terms or sibling module names
 - Try at least three distinct search strategies before concluding NOT_FOUND
