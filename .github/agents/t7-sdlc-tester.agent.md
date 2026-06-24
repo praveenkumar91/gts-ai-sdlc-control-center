@@ -4,7 +4,7 @@ description: "Software testing agent for the T7 Trading System. Use when: writin
 tools: [read, edit, search, execute, t7codebase/*, t7spec/*, github/*]
 user-invocable: false
 system: t7
-skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
+skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
 skills_common: [github, sdlc-debugging, sdlc-verification, coding-guidelines]
 model: "Claude Sonnet 4.6 (copilot)"
 ---

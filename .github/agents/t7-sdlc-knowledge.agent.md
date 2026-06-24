@@ -4,7 +4,7 @@ description: "Use when: asking questions about T7 without touching any code or f
 tools: [read, search, t7codebase/*, t7spec/*, github/*]
 user-invocable: false
 system: t7
-skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
+skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
 skills_common: [confluence, jira, github]
 model: "Claude Sonnet 4.6 (copilot)"
 ---

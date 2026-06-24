@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, edit, search, confluence/*, devops_jira/*, github/*, sharepoint/*, t7codebase/*, t7spec/*, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment]
 user-invocable: false
 system: t7
-skills: [skills/system/t7/t7-spec, skills/system/t7/t7-knowledge-base, skills/system/t7/t7-code]
+skills: [skills/systems/t7/t7-spec, skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-code]
 skills_common: [spec-authoring, confluence, jira, github]
 argument-hint: "Which document type (DFS/DTS/SRQ) to author, plus the approved plan and any source material (Jira tickets, Confluence pages, notes)."
 ---

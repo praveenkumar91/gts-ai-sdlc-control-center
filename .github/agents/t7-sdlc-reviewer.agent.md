@@ -4,7 +4,7 @@ description: "Use when: reviewing T7 source code; code review of T7 pull request
 tools: [read, search, t7spec/*, github/*]
 user-invocable: false
 system: t7
-skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
+skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
 skills_common: [github, sdlc-debugging]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
