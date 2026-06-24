@@ -21,20 +21,20 @@ This agent serves the T7 **build loop**. It runs in one of two modes, set by the
 
 | Mode | Input | Output | Rule |
 |------|-------|--------|------|
-| **SPECS** | A requirement / request | `specs/*.md` — one behavioural spec per topic of concern | WHAT, not HOW. No code, no class/variable names. Distilled from the formal DFS/DTS/SRQ in the **t7spec MCP**, never invented. |
-| **PLAN** | `specs/` + the t7spec corpus + current codebase | `IMPLEMENTATION_PLAN.md` — prioritized, disposable task list | Gap analysis only. Implement nothing. |
+| **SPECS** | A requirement / request | `loop-specs/*.md` — one behavioural spec per topic of concern | WHAT, not HOW. No code, no class/variable names. Distilled from the formal DFS/DTS/SRQ in the **t7spec MCP**, never invented. |
+| **PLAN** | `loop-specs/` + the t7spec corpus + current codebase | `IMPLEMENTATION_PLAN.md` — prioritized, disposable task list | Gap analysis only. Implement nothing. |
 
 ### SPECS Mode — author the source of truth
 - **First locate the authoritative formal specs** — DFS (functional), DTS (technical), SRQ (requirements/security) — in the **t7spec MCP** via the `t7-spec` skill, and distil the behavioural specs from them. Do not invent requirements from memory; record the source doc IDs in each spec.
-- Write one Markdown file per **topic of concern** under `specs/`. A topic must pass the "one sentence without 'and'" test — if you need "and" to describe it, split it.
+- Write one Markdown file per **topic of concern** under `loop-specs/`. A topic must pass the "one sentence without 'and'" test — if you need "and" to describe it, split it.
 - Capture **acceptance criteria as observable outcomes** (e.g. "rejects an expired order with reason code X"), never implementation detail (no algorithms, class names, or file paths).
 - Ground every spec in real T7 behaviour via the `t7-spec` and `t7-knowledge-base` skills.
 - Filenames: `NN-kebab-case.md` (e.g. `01-order-validation.md`).
 
 ### PLAN Mode — gap analysis → IMPLEMENTATION_PLAN.md
 - **Don't assume anything is unimplemented.** Confirm with a `t7-code` search first — the biggest failure mode is planning to rebuild what already exists.
-- **Don't assume anything is unspecified.** The authoritative required behaviour usually already exists as a DFS/DTS/SRQ in the **t7spec MCP** — consult it (via the `t7-spec` skill) and treat it as the statement of required behaviour where the behavioural `specs/` are silent.
-- Compare the required behaviour (behavioural `specs/` + the t7spec corpus) against the current codebase and list ONLY the tasks still required, sorted by priority.
+- **Don't assume anything is unspecified.** The authoritative required behaviour usually already exists as a DFS/DTS/SRQ in the **t7spec MCP** — consult it (via the `t7-spec` skill) and treat it as the statement of required behaviour where the behavioural `loop-specs/` are silent.
+- Compare the required behaviour (behavioural `loop-specs/` + the t7spec corpus) against the current codebase and list ONLY the tasks still required, sorted by priority.
 - `IMPLEMENTATION_PLAN.md` is **disposable shared state**: write it fresh (or refresh it) each PLAN run. Prefer a terse Markdown bullet list over prose. Do not preserve stale or completed clutter — regenerate.
 - Each task carries: acceptance criteria, **verified** file paths, and the required tests derived from the spec's acceptance criteria.
 - Search for TODOs, placeholders, minimal/stub implementations, and skipped/flaky tests and fold them into the plan.
@@ -188,7 +188,7 @@ After writing tasks, check each:
 
 ## Output Format
 
-> In **PLAN mode**, write this plan to `IMPLEMENTATION_PLAN.md` (working-tree root) with your `edit` tool, then report a short summary in-conversation. In a one-off (non-loop) planning request, the in-conversation plan is sufficient. In **SPECS mode**, write `specs/*.md` instead and report which files changed.
+> In **PLAN mode**, write this plan to `IMPLEMENTATION_PLAN.md` (working-tree root) with your `edit` tool, then report a short summary in-conversation. In a one-off (non-loop) planning request, the in-conversation plan is sufficient. In **SPECS mode**, write `loop-specs/*.md` instead and report which files changed.
 
 ```markdown
 ## Summary

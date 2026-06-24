@@ -62,13 +62,13 @@ This chain runs as an **autonomous build loop** ("Ralph"), not a single linear p
 
 | Artifact | Role | Lifetime | Owner |
 |---|---|---|---|
-| `specs/` | **Source of truth** — behavioural requirement specs, one file per topic of concern (WHAT, not HOW) | Durable | Authored in SPECS mode |
+| `loop-specs/` | **Source of truth** — behavioural requirement specs, one file per topic of concern (WHAT, not HOW) | Durable | Authored in SPECS mode |
 | `IMPLEMENTATION_PLAN.md` | **Disposable shared state** — prioritized bullet list of open tasks from gap analysis (specs vs code) | Disposable / regenerable | Written in PLAN mode, updated each BUILD iteration |
 | `AGENTS.md` | **Operational memory** — build/test/lint commands (backpressure) + operational learnings only (no status, no progress) | Durable, kept brief | Updated when a build/run learning is discovered |
 
-> These live in the **T7 working tree** (the target codebase), not in this framework repo. They are distinct from the formal DFS/DTS/SRQ documents under `specs/t7/` produced on-demand by `/t7-sdlc-spec-author` (see Spec Authoring below). `specs/` here = behavioural loop specs; `specs/t7/` = DOCX-ready governance specs.
+> These live in the **T7 working tree** (the target codebase), not in this framework repo. They are distinct from the formal DFS/DTS/SRQ documents under `specs/t7/` produced on-demand by `/t7-sdlc-spec-author` (see Spec Authoring below). `loop-specs/` here = behavioural loop specs (target working tree); `specs/t7/` = DOCX-ready governance specs (framework repo). The two use **deliberately different directory names** so the artifact types never collide or get confused, even if a checkout ever holds both.
 
-> **Existing spec corpus (t7spec MCP).** T7 already has a large body of authoritative formal specifications — DFS (functional), DTS (technical) and SRQ (requirements/security), plus interface/reference manuals (MFG/MTD/MFD) — indexed and queryable via the **`t7spec` MCP** (reached through the `t7-spec` skill, never called directly). The behavioural `specs/` are **distilled from** this corpus, not invented: SPECS mode grounds every behavioural spec in the relevant DFS/DTS/SRQ, and PLAN mode treats these documents as the authoritative statement of required behaviour. Always consult the t7spec corpus (via `/t7-sdlc-knowledge` or `/t7-sdlc-planner`) before deciding something is unspecified.
+> **Existing spec corpus (t7spec MCP).** T7 already has a large body of authoritative formal specifications — DFS (functional), DTS (technical) and SRQ (requirements/security), plus interface/reference manuals (MFG/MTD/MFD) — indexed and queryable via the **`t7spec` MCP** (reached through the `t7-spec` skill, never called directly). The behavioural `loop-specs/` are **distilled from** this corpus, not invented: SPECS mode grounds every behavioural spec in the relevant DFS/DTS/SRQ, and PLAN mode treats these documents as the authoritative statement of required behaviour. Always consult the t7spec corpus (via `/t7-sdlc-knowledge` or `/t7-sdlc-planner`) before deciding something is unspecified.
 
 ### Loop Principles
 - **One task per iteration, fresh context** — each BUILD iteration dispatches a fresh chain of subagents for a *single* task, then resets. Never batch many tasks into one context.
@@ -86,15 +86,15 @@ The orchestrator runs in one of three modes. Detect the mode from the request; d
 ### Mode: SPECS — maintain the source of truth
 Run only when specs are missing/stale or the user asks to define requirements.
 Delegate to `/t7-sdlc-planner`:
-> "Define/refresh behavioural requirement specs for: {request}. **First locate the authoritative formal specs in the t7spec MCP** (DFS/DTS/SRQ) via the `t7-spec` skill and distil the behavioural specs from them — do not invent requirements. One file per topic of concern under `specs/` (one sentence without 'and' per topic). Capture acceptance criteria as observable outcomes (WHAT to verify), never implementation detail (HOW). Cite the source DFS/DTS/SRQ IDs. Use `/t7-sdlc-knowledge` to ground every spec in real T7 components and terminology."
+> "Define/refresh behavioural requirement specs for: {request}. **First locate the authoritative formal specs in the t7spec MCP** (DFS/DTS/SRQ) via the `t7-spec` skill and distil the behavioural specs from them — do not invent requirements. One file per topic of concern under `loop-specs/` (one sentence without 'and' per topic). Capture acceptance criteria as observable outcomes (WHAT to verify), never implementation detail (HOW). Cite the source DFS/DTS/SRQ IDs. Use `/t7-sdlc-knowledge` to ground every spec in real T7 components and terminology."
 
 - Specs describe behaviour and acceptance criteria only — no code, no class/variable names.
 - Every behavioural spec is traceable to its source DFS/DTS/SRQ in the t7spec MCP (record the doc IDs).
-- Output: created/updated `specs/*.md`. No implementation.
+- Output: created/updated `loop-specs/*.md`. No implementation.
 
 ### Mode: PLAN — gap analysis → IMPLEMENTATION_PLAN.md
 Delegate to `/t7-sdlc-planner`:
-> "Study the behavioural `specs/`, the authoritative formal specs in the **t7spec MCP** (DFS/DTS/SRQ, via the `t7-spec` skill), and the current T7 codebase. Do a gap analysis (required behaviour vs code) — **don't assume anything is unimplemented; confirm with a code search first** — and treat the t7spec corpus as the authoritative statement of required behaviour where the behavioural `specs/` are silent. Produce/refresh `IMPLEMENTATION_PLAN.md` as a prioritized bullet list of the tasks still required, each with acceptance criteria, the source spec doc IDs, verified file paths, and required tests. Plan only — implement nothing. Request: {clarified request}"
+> "Study the behavioural `loop-specs/`, the authoritative formal specs in the **t7spec MCP** (DFS/DTS/SRQ, via the `t7-spec` skill), and the current T7 codebase. Do a gap analysis (required behaviour vs code) — **don't assume anything is unimplemented; confirm with a code search first** — and treat the t7spec corpus as the authoritative statement of required behaviour where the behavioural `loop-specs/` are silent. Produce/refresh `IMPLEMENTATION_PLAN.md` as a prioritized bullet list of the tasks still required, each with acceptance criteria, the source spec doc IDs, verified file paths, and required tests. Plan only — implement nothing. Request: {clarified request}"
 
 Then delegate to `/t7-sdlc-architect`:
 > "Review this plan against T7 architecture, component boundaries, ownership, and build dependencies. Approve, revise, or block: {planner output}"
@@ -129,7 +129,7 @@ After the gate, iterate until `IMPLEMENTATION_PLAN.md` has no open tasks (or a m
 
 Per-iteration sequence:
 
-1. **Orient** — read `specs/` + `IMPLEMENTATION_PLAN.md` (delegate `/t7-sdlc-knowledge` for any codebase/spec/ownership facts).
+1. **Orient** — read `loop-specs/` + `IMPLEMENTATION_PLAN.md` (delegate `/t7-sdlc-knowledge` for any codebase/spec/ownership facts).
 2. **Select** — pick the single most important open task from `IMPLEMENTATION_PLAN.md`.
 3. **Investigate** — *don't assume not implemented*: delegate `/t7-sdlc-knowledge` to confirm what already exists before changing anything.
 4. **RED** — `/t7-sdlc-tester`: "Write failing tests for this task's acceptance criteria; confirm they fail. Do NOT implement production code. Task: {task}". On **RED_READY**, capture the failing test paths.
