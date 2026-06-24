@@ -56,8 +56,12 @@ gts.ai.sdlc/
 │       │
 │       │  # ── Tier 3: T7 Pipeline Agents ──
 │       ├── t7-sdlc-planner.agent.md
+│       ├── t7-sdlc-architect.agent.md
 │       ├── t7-sdlc-developer.agent.md
+│       ├── t7-sdlc-tester.agent.md
 │       ├── t7-sdlc-reviewer.agent.md
+│       ├── t7-sdlc-builder.agent.md
+│       ├── t7-sdlc-pr-author.agent.md
 │       ├── t7-sdlc-knowledge.agent.md
 │       └── t7-sdlc-spec-author.agent.md             # On-demand DFS/DTS/SRQ authoring (post-planning)
 │
@@ -129,11 +133,12 @@ gts.ai.sdlc/
 │                   │   └── output-template copy.md
 │                   └── references/
 │                       ├── t7-applications.md       # T7 application inventory
+│                       ├── t7-abbreviations.md      # T7 domain glossary & search-term guidance
 │                       ├── t7-component-map.md      # T7 component dependency map
 │                       ├── t7-component-owners.md   # T7 component ownership directory
 │                       ├── t7-interfaces.md         # T7 interface definitions
 │                       ├── t7-modules.md            # T7 module catalog
-│                       └── t7-terminology.md        # T7 domain glossary
+│                       └── t7-regulatory-glossary.md  # Regulatory abbreviations (DBG context)
 │
 └── _template/                                       # Bootstrapping templates (NOT auto-discovered)
     ├── SYSTEM-orchestrator.agent.md                 # Template: system orchestrator (Tier 2)
@@ -148,7 +153,7 @@ gts.ai.sdlc/
 | System | Orchestrator | Pipeline Agents | System Skills |
 |--------|-------------|-----------------|---------------|
 | P7 — Pricing & Risk Management | `p7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, spec-author | p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github |
-| T7 — Trading System | `t7-orchestrator` | planner, developer, reviewer, knowledge, spec-author | t7-code, t7-spec, t7-knowledge-base |
+| T7 — Trading System | `t7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, knowledge, spec-author | t7-code, t7-spec, t7-knowledge-base |
 
 > The **spec-author** agent (`{system}-sdlc-spec-author`) runs **on-demand after planning** to produce formal DFS/DTS/SRQ documents under `specs/{system}/`, using the common `spec-authoring` skill. It is separate from the planner: the planner produces a lightweight plan, the spec-author produces DOCX-ready specification files. DFS/DTS/SRQ are a shared corporate standard, so every system reuses the same common skill.
 
