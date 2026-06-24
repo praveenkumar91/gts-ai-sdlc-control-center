@@ -84,6 +84,8 @@ gts.ai.sdlc/
 │       │   │   └── SKILL.md
 │       │   ├── sdlc-verification/
 │       │   │   └── SKILL.md
+│       │   ├── ralph-loop/                         # Canonical autonomous build-loop protocol (artifacts, modes, backpressure)
+│       │   │   └── SKILL.md
 │       │   │
 │       │   ├── spec-authoring/                     # Authors DFS/DTS/SRQ (DOCX-ready) after planning
 │       │   │   ├── SKILL.md
