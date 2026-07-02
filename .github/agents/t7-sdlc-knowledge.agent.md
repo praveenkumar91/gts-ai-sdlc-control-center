@@ -1,7 +1,7 @@
 ---
 name: t7-sdlc-knowledge
 description: "Use when: asking questions about T7 without touching any code or files; looking up T7 component ownership, directory paths, coding guidelines, terminology, or module responsibilities; searching the T7 codebase for classes, functions, or configuration parameters; reading T7 specifications (DFS/SRQ/DTS/SIR); understanding T7 order lifecycle, instrument types, matching rules, or protocol messages (ETI/FIX/EOBI); querying T7 Jira tickets or Confluence pages; browsing T7 GitHub repositories or PR history. Read-only — never modifies files or code."
-tools: [read, search, t7codebase/*, t7spec/*, github/*]
+tools: [read, search, t7codebase/*, t7spec/*, github/*, devops_jira/*]
 user-invocable: false
 system: t7
 skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
