@@ -1,11 +1,11 @@
 ---
 name: t7-sdlc-reviewer
 description: "Use when: reviewing T7 source code; code review of T7 pull requests; checking T7 implementation against coding standards; verifying correctness of changes in T7 modules (Matcher, Gateway, OFI, TES, PATE, RDD, TFH, PerfMon, ViewDB, RDC, LDS, ETI, FIX, RefDataBridge); reviewing T7 C++ implementation code; reviewing T7 Python operations scripts; reviewing T7 shell scripts; reviewing T7 MySQL schema, stored procedures, or queries; reviewing T7 Java GUI and GMC/LiveResults code; validating pool/view definitions, configuration parameters, or class hierarchies in T7."
-tools: [read, search, t7spec/*, github/*]
+tools: [read, search, t7spec/*, github/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: t7
 skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
-skills_common: [github, sdlc-debugging]
+skills_common: [github, jira, sdlc-debugging]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
 

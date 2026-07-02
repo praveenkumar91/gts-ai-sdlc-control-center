@@ -1,11 +1,11 @@
 ---
 name: t7-sdlc-developer
 description: "Use when: writing or analyzing T7 source code; implementing a T7 feature; understanding how a T7 component works internally; tracing logic through T7 modules (Matcher, Gateway, OFI, TES, PATE, RDD, TFH, PerfMon, ViewDB, RDC, LDS, ETI, FIX, RefDataBridge); understanding build dependencies between T7 components; navigating T7 GitHub repositories; reading or writing T7 C++ implementation code; writing T7 Python operations scripts (autoconversion, serviceManager, dbcleanup); writing T7 shell scripts; writing T7 MySQL schema, stored procedures, or queries; writing T7 Java GUI and GMC/LiveResults code; understanding pool/view definitions, configuration parameters, or class hierarchies in T7."
-tools: [read, edit, search, execute, t7spec/*, github/*]
+tools: [read, edit, search, execute, t7spec/*, github/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: t7
 skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
-skills_common: [github, sdlc-debugging]
+skills_common: [github, jira, sdlc-debugging]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
 

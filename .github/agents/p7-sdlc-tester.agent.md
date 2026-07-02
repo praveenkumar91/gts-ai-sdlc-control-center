@@ -2,7 +2,7 @@
 name: p7-sdlc-tester
 description: "Software testing agent for the P7 platform. Use when: writing unit tests, creating test suites, running tests, verifying test coverage, writing integration tests, checking regressions, validating acceptance criteria."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, edit, search, execute]
+tools: [read, edit, search, execute, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: p7
 skills_common: [github, jira, sdlc-debugging, sdlc-verification, coding-guidelines]

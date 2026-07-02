@@ -2,7 +2,7 @@
 name: p7-sdlc-architect
 description: "Software architecture review agent for the P7 platform. Use when: validating implementation plans against architecture, reviewing design patterns, checking for breaking changes, evaluating cross-cutting concerns, approving or revising technical approaches, ensuring consistency with existing codebase patterns."
 model: "Claude Opus 4.6 (copilot)"
-tools: [read, search]
+tools: [read, search, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: p7
 skills_common: [github, jira, sdlc-debugging, sdlc-verification]
