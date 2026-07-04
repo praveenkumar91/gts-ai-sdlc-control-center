@@ -2,100 +2,17 @@
 name: p7-code-review
 description: "P7 code review rules derived from historical PR feedback for the P7 Pricing Engine and platform. Use when: reviewing any P7 code change — covers all layers (Pricing Engine C++, Frontend, Middleware, Database)."
 systems: [p7]
+extends: skills/common/code-review
 argument-hint: "Paste or describe the code changes to review"
 ---
 
 # gts.p7.pricingengine Code Review
 
-Review code changes against conventions and patterns established by gts.p7.pricingengine maintainers. These rules were extracted from recurring reviewer feedback across all PR states (open, closed, merged) in `dev/gts.p7.pricingengine`. Don't build the code, only read it.
+**Extends: skills/common/code-review**
+
+Applies the shared review discipline ([`skills/common/code-review`](../../../common/code-review/SKILL.md) — independent assessment, holistic assessment, multi-model review, false-positive avoidance, severity→verdict, scope-to-change, coverage ledger, output skeleton) and delegates the **code-review concerns** (correctness, quality, security, performance, guideline, dependency, intent, architecture) to the [`code-review-lens`](../../../common/code-review-lens/SKILL.md) brain. This skill adds the **P7-specific** rules below: the review output format (with P7 verdict words), the Holistic PR Assessment's P7 log-ID rules, thread-safety/locking order, `LOGGER_TO`/`LOGWAR_TO` IDs, `library/gen` templates, strong typed IDs, double-vs-float pricing, Crow/PEDB/CMDB and RestEndPoints conventions, and Zustand/AG Grid/Socket.IO patterns. These rules were extracted from recurring reviewer feedback across all PR states in `dev/gts.p7.pricingengine`. Don't build the code, only read it.
 
 **Reviewer mindset:** Be polite but very skeptical. Your job is to help speed the review process for maintainers, which includes not only finding problems the PR author may have missed but also questioning the value of the PR in its entirety. Treat the PR description and linked issues as claims to verify, not facts to accept. Question the stated direction, probe edge cases, and don't hesitate to flag concerns even when unsure.
-
-## When to Use This Skill
-
-Use this skill when:
-- Reviewing a PR or code change in gts.p7.pricingengine
-- Checking code for correctness, performance, style, or consistency issues before submitting a PR
-- Asked to review, critique, or provide feedback on code changes
-- Validating that a change follows gts.p7.pricingengine conventions
-
-## Review Process
-
-### Step 0: Gather Code Context (No PR Narrative Yet)
-
-Before analyzing anything, collect as much relevant **code** context as you can. **Critically, do NOT read the PR description, linked issues, or existing review comments yet.** You must form your own independent assessment of what the code does, why it might be needed, what problems it has, and whether the approach is sound — before being exposed to the author's framing. Reading the author's narrative first anchors your judgment and makes you less likely to find real problems.
-
-1. **Diff and file list**: Fetch the full diff and the list of changed files.
-2. **Full source files**: For every changed file, read the **entire source file** (not just the diff hunks). You need the surrounding code to understand invariants, locking protocols, call patterns, and data flow. Diff-only review is the #1 cause of false positives and missed issues.
-3. **Consumers and callers**: If the change modifies a public/internal API, a type that others depend on, or a virtual/interface method, search for how consumers use the functionality. Grep for callers, usages, and test sites. Understanding how the code is consumed reveals whether the change could break existing behavior or violate caller assumptions.
-4. **Sibling types and related code**: If the change fixes a bug or adds a pattern in one type, check whether sibling types (e.g., other abstraction implementations, other collection types, platform-specific variants) have the same issue or need the same fix. Fetch and read those files too.
-5. **Key utility/helper files**: If the diff calls into shared utilities, read those to understand the contracts (thread-safety, idempotency, etc.).
-6. **Git history**: Check recent commits to the changed files (`git log --oneline -20 -- <file>`). Look for related recent changes, reverts, or prior attempts to fix the same problem. This reveals whether the area is actively churning, whether a similar fix was tried and reverted, or whether the current change conflicts with recent work.
-
-### Step 1: Discover Area-Specific Agents
-- Study **review** agents available in  `.github/agents` folder that are capable of reviewing specific areas of the codebase. Their yaml frontmatter description tells when they apply.
-- When performing the review, invoke sub-agents to perform those area-specific reviews as subtasks during all subsequent steps, integrating those results.
-- Depending on the PR, more subagents might be launched. Launch them in parallel. Always continue regular review described here as well - the subagents are addons, not replacements.
-
-### Step 2: Form an Independent Assessment
-
-Based **only** on the code context gathered above (without the PR description or issue), answer these questions:
-
-1. **What does this change actually do?** Describe the behavioral change in your own words by reading the diff and surrounding code. What was the old behavior? What is the new behavior?
-2. **Why might this change be needed?** Infer the motivation from the code itself. What bug, gap, or improvement does it appear to address?
-3. **Is this the right approach?** Would a simpler alternative be more consistent with the codebase? Could the goal be achieved with existing functionality? Are there correctness, performance, or safety concerns?
-4. **What problems do you see?** Identify bugs, edge cases, missing validation, thread-safety issues, performance regressions, API design problems, test gaps, and anything else that concerns you.
-
-Write down your independent assessment before proceeding. You must produce a holistic assessment (see [Holistic PR Assessment](#holistic-pr-assessment)) at this stage.
-
-### Step 3: Incorporate PR Narrative and Reconcile
-
-Now read the PR description, labels, linked issues (in full), author information, existing review comments, and any related open issues in the same area. Treat all of this as **claims to verify**, not facts to accept.
-
-1. **PR metadata**: Fetch the PR description, labels, linked issues, and author. Read linked issues in full — they often contain the repro, root cause analysis, and constraints the fix must satisfy.
-2. **Related issues**: Search for other open issues in the same area (same labels, same component). This can reveal known problems the PR should also address, or constraints the author may not be aware of.
-3. **Existing review comments**: Check if there are already review comments on the PR to avoid duplicating feedback.
-4. **Reconcile your assessment with the author's claims.** Where your independent reading of the code disagrees with the PR description or issue, investigate further — but do not simply defer to the author's framing. If the PR claims a bug fix, a performance improvement, or a behavioral correction, verify those claims against the code and any provided evidence. If your independent assessment found problems the PR narrative doesn't acknowledge, those problems are more likely to be real, not less.
-5. **Update your holistic assessment** if the additional context reveals information that genuinely changes your evaluation (e.g., a linked issue proves the bug is real, or an existing review comment already identified the same concern). But do not soften findings just because the PR description sounds reasonable.
-
-### Step 4: Detailed Analysis
-
-1. **Focus on what matters.** Prioritize bugs, performance regressions, safety issues, race conditions, resource management problems, incorrect assumptions about data or state, and API design problems. Do not comment on trivial style issues unless they violate an explicit rule below.
-2. **Consider collateral damage.** For every changed code path, actively brainstorm: what other scenarios, callers, or inputs flow through this code? Could any of them break or behave differently after this change? If you identify any plausible risk — even one you can't fully confirm — surface it so the author can evaluate. Do not dismiss behavioral changes because you believe the fix justifies them. The tradeoff is the author's decision — your job is to make it visible.
-3. **Be specific and actionable.** Every comment should tell the author exactly what to change and why. Reference the relevant convention. Include evidence of how you verified the issue is real, e.g., "looked at all callers and none of them validate this parameter".
-4. **Flag severity clearly:**
-    - ❌ **error** — Must fix before merge. Bugs, security issues, API violations, test gaps for behavior changes.
-    - ⚠️ **warning** — Should fix. Performance issues, missing validation, inconsistency with established patterns.
-    - 💡 **suggestion** — Consider changing. Style improvements, minor readability wins, optional optimizations.
-5. **Don't pile on.** If the same issue appears many times, flag it once on the primary file with a note listing all affected files. Do not leave separate comments for each occurrence.
-6. **Respect existing style.** When modifying existing files, the file's current style takes precedence over general guidelines.
-7. **Don't flag what CI catches.** Do not flag issues that a linter, typechecker, compiler, analyzer, or CI build step would catch, e.g., missing usings, unsupported syntax, formatting. Assume CI will run separately.
-8. **Avoid false positives.** Before flagging any issue:
-    - **Verify the concern actually applies** given the full context, not just the diff. Open the surrounding code to check. Confirm the issue isn't already handled by a caller, callee, or wrapper layer before claiming something is missing.
-    - **Skip theoretical concerns with negligible real-world probability.** "Could happen" is not the same as "will happen."
-    - **If you're unsure, either investigate further until you're confident, or surface it explicitly as a low-confidence question rather than a firm claim.** Do not speculate about issues you have no concrete basis for. Every comment should be worth the reader's time.
-    - **Trust the author's context.** The author knows their codebase. If a pattern seems odd but is consistent with the repo, assume it's intentional.
-    - **Never assert that something "does not exist," "is deprecated," or "is unavailable" based on training data alone.** Your knowledge has a cutoff date. When uncertain, ask rather than assert.
-9. **Ensure code suggestions are valid.** Any code you suggest must be syntactically correct and complete. Ensure any suggestion would result in working code.
-10. **Label in-scope vs. follow-up.** Distinguish between issues the PR should fix and out-of-scope improvements. Be explicit when a suggestion is a follow-up rather than a blocker.
-
-## Multi-Model Review
-
-When the environment supports launching sub-agents with different models (e.g., the `task` tool with a `model` parameter), run the review in parallel across multiple model families to get diverse perspectives. Different models catch different classes of issues. If the environment does not support this, proceed with a single-model review.
-
-**How to execute (when supported):**
-1. Inspect the available model list and select models from 2-3 distinct model families, up to 3 sub-agent models total. If fewer than 2 eligible families are available, use what is available. **Model selection rules:**
-    - Pick only from models explicitly listed as available in the environment. Do not guess or assume model names.
-    - From each selected family, pick the model with the highest capability tier (prefer "premium" or "standard" over "fast/cheap").
-    - Never pick models labeled "mini", "fast", or "cheap" for code review.
-    - Do not select the same model that is already running the primary review (i.e., your own model). The goal is diverse perspectives from different model families.
-    - **Do not use `gpt-5.4`** — it has known reliability issues causing sub-agent timeouts in >90% of affected runs. For the OpenAI/GPT family, prefer `gpt-5.3-codex` if it is explicitly listed as available; otherwise, fall back to the highest-version non-blocked GPT model that satisfies the other rules here.
-    - If multiple standard-tier models exist in the same family (excluding blocked models above), pick the one with the highest version number. Prefer "-codex" variants over general-purpose for code review tasks.
-2. Launch a sub-agent for each selected model in parallel, giving each the same review prompt: the PR diff, the review rules from this skill, and instructions to produce findings in the severity format defined above.
-3. Wait for all agents to complete, then synthesize: deduplicate findings that appear across models, elevate issues flagged by multiple models (higher confidence), and include unique findings from individual models that meet the confidence bar. **Timeout handling:** If a sub-agent has not completed after 10 minutes and you have results from other agents, proceed with the results you have. Do not block the review indefinitely waiting for a single slow model. Note in the output which models contributed.
-4. Present a single unified review to the user, noting when an issue was flagged by multiple models. **After posting the review, immediately exit.** Do not wait for any remaining sub-agents. Do not attempt retries if the comment was posted successfully. The review is complete once the post operation succeeds or returns a comment URL.
-
----
 
 ## Review Output Format
 
