@@ -40,14 +40,14 @@ Layers changed:
 
 ## P7 Branch Naming
 
-Follow the common pattern `{type}/{jira-ticket}-{short-description}` using P7 Jira project keys:
+Follow the common pattern `{jira-ticket}-{short-description}` using P7 Jira project keys:
 
 | Jira Project | Layer Focus | Example Branch |
 |-------------|-------------|---------------|
-| `P7` | Any P7 feature/bug | `feat/P7-123-add-divident-view` |
-| `P7` | Frontend-only | `feat/P7-456-volas-grid-columns` |
-| `P7` | PE fix | `fix/P7-789-theo-price-ws-push` |
-| `P7` | Database migration | `feat/P7-321-pedb-snapshot-table` |
+| `P7` | Any P7 feature/bug | `P7-123-add-divident-view` |
+| `P7` | Frontend-only | `P7-456-volas-grid-columns` |
+| `P7` | PE fix | `P7-789-theo-price-ws-push` |
+| `P7` | Database migration | `P7-321-pedb-snapshot-table` |
 
 Branch names must use P7 terminology as-is: `divident` not `dividend`, `volas` not `volatilities`.
 
