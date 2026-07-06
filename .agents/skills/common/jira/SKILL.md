@@ -222,6 +222,54 @@ Tie code to the ticket so the Jira **development panel** auto-links the branch, 
 
 ## Operations (for SDLC agents)
 
+> **Prerequisite (access):** the calling agent must whitelist the Jira MCP server in its `tools:`
+> frontmatter — `devops_jira/*`, or specific tools like `devops_jira/get_my_issues`. VS Code surfaces
+> these as `mcp_devops_jira_<tool>`; **do not** prefix the names yourself (`get_my_issues`, *not*
+> `devops_jira_get_my_issues`). If an agent claims "no Jira integration is configured", the tool grant
+> is missing — the server itself is available.
+
+### Jira MCP tools (`devops_jira`)
+
+Call these directly, guided by the conventions in this skill. The common ones:
+
+| Intent | Tool | Notes |
+|--------|------|-------|
+| **List my assigned tickets** | `get_my_issues` | `assignee = currentUser()`, newest first — the one-call happy path. Optional `extra_jql` (e.g. `resolution = Unresolved`). Spans **every** project. |
+| Tickets assigned to someone | `get_issues_assigned_to` | pass the `user`. |
+| Run arbitrary JQL | `search_issues` (alias `run_jql`) | anything the convenience tools don't cover — see the JQL cookbook below. |
+| Read one ticket | `get_issue` | full detail by key (e.g. `T7-573588`). |
+| Comments / changelog / links / worklogs | `get_issue_comments` · `get_issue_changelog` · `get_issue_links` · `get_issue_worklogs` | read-only. |
+| Available transitions | `get_transitions` | **read before transitioning** — never assume state names. |
+| Create / update / transition / comment / link | `create_issue` · `update_issue` · `transition_issue` · `add_comment` · `link_issues` | respect the workflows above; do not skip states. |
+| Boards / sprints / epics | `list_boards` · `list_sprints` · `get_sprint_issues` · `get_epic_issues` | Agile queries. |
+
+> **"List all my assigned tickets"** (no project/status filter) = `get_my_issues` with no extra JQL — it
+> already spans every project (`T7`, `P7`, `T7DEP`, `P7DEP`, …). Do not restrict to one project, and do
+> not ask the user to pick a status, unless they said so.
+
+### Access model — least privilege by agent
+
+Jira access is **scoped per agent to its role**: an agent is granted only the specific `devops_jira/<tool>`
+names it needs (not the whole server). **No agent** is granted `delete_issue`, `delete_comment` or bulk
+creation — write access is confined to the two roles that genuinely mutate Jira.
+
+| Agent | Access | Jira tools granted | What it does with them |
+|-------|--------|--------------------|------------------------|
+| **Planner** (p7/t7) | **write** (triage) | `get_issue`, `get_issue_comments`, `get_issue_links`, `search_issues`, `get_transitions`, `get_create_meta`, `create_issue`, `update_issue`, `transition_issue`, `add_comment`, `link_issues` | Triage: create/refine the Issue & SIR, set Component/Fix Version, transition through analysis, link to the Container |
+| **PR author** (p7) | **write** (PR link/status) | `get_issue`, `get_issue_links`, `search_issues`, `get_transitions`, `transition_issue`, `add_comment`, `link_issues`, `create_remote_issue_link` | Link the PR to the ticket, move it to its review/verification state, comment; resolve only after merge |
+| **Developer** (p7/t7) | **read** | `get_issue`, `get_issue_comments`, `get_issue_links`, `search_issues` | Read the SIR/Issue being implemented for requirements & linked context |
+| **Reviewer** (p7/t7) | **read** | `get_issue`, `get_issue_comments`, `get_issue_links`, `search_issues` | Read the ticket & linked issues to check the change against stated intent |
+| **Architect** (p7) | **read** | `get_issue`, `get_issue_comments`, `get_issue_links`, `search_issues` | Read the referenced ticket for design context |
+| **Tester** (p7) | **read** | `get_issue`, `get_issue_comments`, `get_issue_links`, `search_issues` | Read acceptance criteria & linked test context |
+| **Knowledge** (t7) | **read** (query endpoint) | `get_my_issues`, `get_issues_assigned_to`, `search_issues`, `run_jql`, `get_issue`, `get_issue_comments`, `get_issue_links`, `get_issue_changelog`, `get_transitions`, `get_project_issues`, `get_epic_issues`, `list_projects` | Cross-system read-only: "list my tickets", look up any ticket, run JQL across all projects |
+| **Builder** (p7) | **none** | — | Compilation only — no Jira touchpoint |
+| **Orchestrators** (gts/p7/t7) | **none** (delegate) | — | Coordinate only; **delegate** any Jira write to the phase agent |
+| **Clarifier** | **none** | — | Carries the jira *skill* for routing knowledge; performs no Jira calls |
+
+> Only **Planner** (triage/create) and **PR author** (PR linking/status) may write; everyone else is
+> **read-only** or has no Jira access. Respect the workflows above, never skip states, and escalate
+> role-owned transitions (approvals, STT/ACT test-task ownership) instead of forcing them.
+
 Agents may **create, transition, comment on and link** any of the documented types
 (Epic, Issue, SIR, Container, Deployment Request, DCCR, Sub-task, STT/ACT Test-task). When creating:
 

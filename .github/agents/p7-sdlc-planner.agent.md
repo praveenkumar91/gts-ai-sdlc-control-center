@@ -2,7 +2,7 @@
 name: p7-sdlc-planner
 description: "Software development planner agent for the P7 platform. Use when: breaking down features into tasks, creating implementation plans, analyzing requirements, identifying affected files, estimating scope, writing acceptance criteria, triaging bugs."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, search]
+tools: [read, search, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues, devops_jira/get_transitions, devops_jira/get_create_meta, devops_jira/create_issue, devops_jira/update_issue, devops_jira/transition_issue, devops_jira/add_comment, devops_jira/link_issues]
 user-invocable: false
 system: p7
 skills_common: [github, jira, sdlc-debugging, sdlc-verification]

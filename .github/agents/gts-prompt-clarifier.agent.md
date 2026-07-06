@@ -4,6 +4,7 @@ description: "Prompt clarification agent for GTS systems. Resolves ambiguous ter
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent]
 agents: [gts-orchestrator]
+skills_common: [jira]
 argument-hint: "Describe your task — I'll clarify it and route it correctly"
 user-invocable: true
 ---
@@ -26,6 +27,11 @@ Check the user message for these common ambiguities:
 - **"test"** without scope: Which tests? (unit / integration / full suite / specific file)
 - **"review"** without files: Which files to review?
 - **"deploy"** without environment: Which environment?
+
+### Jira / ticket queries
+- **"my tickets" / "list/show my assigned tickets" / "tickets assigned to me"**: already a COMPLETE query (`assignee = currentUser()` across every project). Do **not** ask which project (T7/P7/…) or which status — forward immediately unless the *user* named a project, status, sprint or label.
+- **Never enumerate Jira statuses from memory.** They are workflow-specific: a `SIR` uses `Submitted → Analysis started → …`; only Sub-tasks / some Epics use `To Do` / `In Progress`. If a status filter is genuinely required, read it live (via the `jira` skill or the issue) — do not invent example states.
+- A Jira/ticket query with no code or system scope is a **cross-system** request → let the orchestrator route it to the read-only query endpoint; do not force a P7/T7 build pipeline.
 
 ### P7-specific
 - **"rebase"**: Always means `gts-rebase` in P7 — never `git rebase`. Enrich silently.
@@ -56,4 +62,5 @@ Once all ambiguities are resolved, forward the enriched message to `/gts-orchest
 - If the message is already clear and complete, forward immediately without asking anything
 - Never ask for information the user already provided
 - Never add scope or features beyond what the user asked for
+- For Jira/ticket requests, rely on the `jira` skill's project list and workflows — never invent projects, statuses or filters the user didn't ask for
 - Be fast — this is a lightweight pass, not a deep analysis
