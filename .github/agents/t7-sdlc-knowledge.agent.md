@@ -1,7 +1,7 @@
 ---
 name: t7-sdlc-knowledge
 description: "Read-only query endpoint. Use when: asking questions about T7 (component ownership, directory paths, coding guidelines, terminology, module responsibilities); searching the T7 codebase; reading T7 specifications (DFS/SRQ/DTS/SIR); understanding T7 order lifecycle, instrument types, matching rules, or protocol messages (ETI/FIX/EOBI). ALSO the cross-system endpoint for read-only Jira and GitHub queries across ALL projects and systems (T7 and P7 alike): listing or looking up Jira tickets — e.g. 'list all my assigned tickets' in any project (T7, P7, T7DEP, P7DEP, …) — via the common jira skill, and browsing GitHub repos, PRs and commits. Read-only — never modifies files or code."
-tools: [read, search, t7codebase/*, t7spec/*, github/*, devops_jira/get_my_issues, devops_jira/get_issues_assigned_to, devops_jira/search_issues, devops_jira/run_jql, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/get_issue_changelog, devops_jira/get_transitions, devops_jira/get_project_issues, devops_jira/get_epic_issues, devops_jira/list_projects]
+tools: [read, search, t7codebase/*, t7spec/*, github_dbg/*, github/*, devops_jira/get_my_issues, devops_jira/get_issues_assigned_to, devops_jira/search_issues, devops_jira/run_jql, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/get_issue_changelog, devops_jira/get_transitions, devops_jira/get_project_issues, devops_jira/get_epic_issues, devops_jira/list_projects]
 user-invocable: false
 system: t7
 skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
