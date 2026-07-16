@@ -59,7 +59,7 @@ Route every query to the correct source:
 | Finding classes, functions, or symbols in the T7 source code | **`t7-code` skill** |
 | Listing files in a component, reading source file sections | **`t7-code` skill** |
 | Confirming the latest T7 release baseline | **`t7-code` skill** |
-| Browsing GitHub repos, commits, PRs, diffs (any system) | `github/*` MCP tools directly |
+| Browsing GitHub repos, commits, PRs, diffs | `github_dbg/*` MCP tools directly |
 | Jira tickets, sprint boards, issue history (ALL projects — `T7`, `P7`, `T7DEP`, `P7DEP`, …) | `jira` skill (common); "list my assigned tickets" = `get_my_issues`, arbitrary JQL = `search_issues` |
 | Confluence pages, architecture docs, ADRs | `confluence` skill (common) |
 
