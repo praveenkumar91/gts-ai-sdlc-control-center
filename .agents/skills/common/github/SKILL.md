@@ -24,9 +24,9 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `ci`
 ## Branch Naming
 
 ```
-{type}/{jira-ticket}-{short-description}
+{jira-ticket}-{short-description}
 ```
-Examples: `feat/P7-123-add-dividend-view`, `fix/T7-456-order-routing-null`
+Examples: `P7-123-add-dividend-view`, `T7-456-order-routing-null`
 
 ## Pull Request
 

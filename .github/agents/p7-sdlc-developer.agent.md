@@ -2,7 +2,7 @@
 name: p7-sdlc-developer
 description: "Software developer agent for the P7 platform. Use when: implementing features, fixing bugs, writing code, modifying existing files, creating new components, adding API endpoints, updating database queries, building UI components."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, edit, search, execute]
+tools: [read, edit, search, execute, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: p7
 skills_common: [github, jira, sdlc-debugging, sdlc-verification, coding-guidelines]
