@@ -1,3 +1,24 @@
+# T7 Component Ownership
+
+> Source: `SELECT * FROM CMDB.ComponentOwnership ORDER BY Repository` — queried 2026-05-20.
+> Enhanced: 2026-05-28 — added missing MARS and market-data-republisher entries; corrected duplicate `(U) (U)` department labels.
+>
+> **Department legend:**
+> - `AD Trading Core (U)` — Application Development, Trading Core (Matching Engine, PATE, market data)
+> - `AD Interface Design & Gateways (U)` — Application Development, Interface Design & Gateways (ETI, FIX, OFI, ODC, MARS)
+> - `AD Trading Prague (U)` — Application Development, Trading Prague (TES, trade utilities)
+> - `AD Trading Architecture (U)` — Application Development, Trading Architecture (infrastructure, controller-monitor, data access)
+> - `AD Trading RDS (U)` — Application Development, Trading Reference Data Systems
+> - `AD OPM & Cloud Simulation (U)` — Application Development, Online Performance Monitor & Cloud Simulation
+> - `AD Trading GUI (U)` — Application Development, Trading GUI (GMC, Live Results)
+> - `Integr.,Configur.Mgmt&Dev.OpsTool (U)` — Integration, Configuration Management & DevOps Tools
+> - `Trading System Analytics (U)` — Trading System Analytics (packet capture, performance tooling)
+> - `Mainframe Application Development (U)` — Mainframe Application Development (FAGSE legacy gateway)
+> - `Calibration & Analytics Services (U)` — Calibration & Analytics Services (AMQP messaging)
+> - `Xetra/Eurex Operations (Dpt)` — Xetra/Eurex Operations Department
+
+---
+
 | REPOSITORY | COMPONENT | DEPARTMENT |
 | --- | --- | --- |
 | build | gts.build | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
@@ -55,12 +76,12 @@
 | common/intmsg/model/dataaccess | gts.common.intmsg.model.dataaccess | AD Trading Architecture (U) |
 | common/intmsg/model/gatewaycommon | gts.common.intmsg.model.gatewaycommon | AD Trading Architecture (U) |
 | common/intmsg/model/messaging | gts.common.intmsg.model.messaging | AD Trading Architecture (U) |
-| common/intmsg/model/perfmon | gts.common.intmsg.model.perfmon | AD OPM & Cloud Simulation (U) (U) |
+| common/intmsg/model/perfmon | gts.common.intmsg.model.perfmon | AD OPM & Cloud Simulation (U) |
 | common/intmsg/model/playground | gts.common.intmsg.model.playground | AD Trading Architecture (U) |
 | common/message-docu-generator | gts.common.message-docu-generator | AD Trading Architecture (U) |
 | common/messaging | gts.common.messaging | AD Trading Architecture (U) |
 | common/messaging-jni | gts.common.messaging-jni | AD Trading Architecture (U) |
-| common/perfmon | gts.common.perfmon | AD OPM & Cloud Simulation (U) (U) |
+| common/perfmon | gts.common.perfmon | AD OPM & Cloud Simulation (U) |
 | common/redundancy | gts.common.redundancy | AD Trading Architecture (U) |
 | common/refdata/core | gts.common.refdata.core | AD Trading RDS (U) |
 | common/refdata/generator | gts.common.refdata.generator | AD Trading RDS (U) |
@@ -88,7 +109,7 @@
 | common/service/util | gts.common.service.util | AD Trading Architecture (U) |
 | common/shell | gts.common.shell | AD Trading Architecture (U) |
 | common/tool/d2sg3 | gts.common.tool.d2sg3 | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
-| common/tool/d2sg_frontend | gts.common.tool.d2sg_frontend | AD Trading Prague (U) (U) |
+| common/tool/d2sg_frontend | gts.common.tool.d2sg_frontend | AD Trading Prague (U) |
 | common/tool/fastgen | gts.common.tool.fastgen | AD Trading Architecture (U) |
 | common/tool/grobi/eurex/elisting-model | gts.common.tool.grobi.eurex.elisting-model | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
 | common/tool/grobi/xml-report-model | gts.common.tool.grobi.xml-report-model | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
@@ -116,13 +137,16 @@
 | eurex/apps/contractmanager-comm | gts.eurex.apps.contractmanager-comm | AD Trading Architecture (U) |
 | eurex/apps/contractmanager-xsd | gts.eurex.apps.contractmanager-xsd | AD Trading Architecture (U) |
 | eurex/apps/data-distributor-common | gts.eurex.apps.data-distributor-common | AD Trading Core (U) |
-| eurex/apps/etiasm | gts.eurex.apps.etiasm | AD OPM & Cloud Simulation (U) (U) |
+| eurex/apps/etiasm | gts.eurex.apps.etiasm | AD OPM & Cloud Simulation (U) |
 | eurex/apps/fagse | gts.eurex.apps.fagse | Mainframe Application Development (U) |
 | eurex/apps/ldsgwval | gts.eurex.apps.ldsgwval | AD Interface Design & Gateways (U) |
 | eurex/apps/liquidity-discovery-service | gts.eurex.apps.liquidity-discovery-service | AD Interface Design & Gateways (U) |
 | eurex/apps/market-data-heartbeat | gts.eurex.apps.market-data-heartbeat | AD Trading Core (U) |
 | eurex/apps/market-data-netted | gts.eurex.apps.market-data-netted | AD Trading Core (U) |
 | eurex/apps/market-data-obo-incremental | gts.eurex.apps.market-data-obo-incremental | AD Trading Core (U) |
+| eurex/apps/market-data-republisher | gts.eurex.apps.market-data-republisher | AD Trading Core (U) |
+| eurex/apps/mars | gts.eurex.apps.mars | AD Interface Design & Gateways (U) |
+| eurex/apps/marsgwval | gts.eurex.apps.marsgwval | AD Interface Design & Gateways (U) |
 | eurex/apps/matcher | gts.eurex.apps.matcher | AD Trading Core (U) |
 | eurex/apps/matcherexternal | gts.eurex.apps.matcherexternal | AD Trading Core (U) |
 | eurex/apps/matchergwval | gts.eurex.apps.matchergwval | AD Trading Core (U) |
@@ -136,11 +160,11 @@
 | eurex/apps/refdata-database | gts.eurex.apps.refdata-database | AD Trading RDS (U) |
 | eurex/apps/refdata-graphql | gts.eurex.apps.refdata-graphql | AD Trading RDS (U) |
 | eurex/apps/reference-data-distributor | gts.eurex.apps.reference-data-distributor | AD Trading Core (U) |
-| eurex/apps/tesgwval | gts.eurex.apps.tesgwval | AD Trading Prague (U) (U) |
+| eurex/apps/tesgwval | gts.eurex.apps.tesgwval | AD Trading Prague (U) |
 | eurex/apps/test/tools/auditstream | gts.eurex.apps.test.tools.auditstream | AD Trading Core (U) |
-| eurex/apps/trade-entry-service | gts.eurex.apps.trade-entry-service | AD Trading Prague (U) (U) |
+| eurex/apps/trade-entry-service | gts.eurex.apps.trade-entry-service | AD Trading Prague (U) |
 | eurex/apps/trade-feed-handler | gts.eurex.apps.trade-feed-handler | AD Interface Design & Gateways (U) |
-| eurex/apps/tradecommonutils | gts.eurex.apps.tradecommonutils | AD Trading Prague (U) (U) |
+| eurex/apps/tradecommonutils | gts.eurex.apps.tradecommonutils | AD Trading Prague (U) |
 | eurex/apps/trademanagergwval | gts.eurex.apps.trademanagergwval | AD Trading Core (U) |
 | eurex/apps/tradestatslib | gts.eurex.apps.tradestatslib | AD Trading Core (U) |
 | eurex/apps/utility | gts.eurex.apps.utility | AD Trading Core (U) |
@@ -176,7 +200,7 @@
 | eurex/dataaccess/rda-outbound-bridge | gts.eurex.dataaccess.rda-outbound-bridge | AD Trading Architecture (U) |
 | eurex/dataaccess/rdb-database | gts.eurex.dataaccess.rdb-database | AD Trading Architecture (U) |
 | eurex/dataaccess/rdsgen-transformation | gts.eurex.dataaccess.rdsgen-transformation | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
-| eurex/dataaccess/tradeentryservice | gts.eurex.dataaccess.tradeentryservice | AD Trading Prague (U) (U) |
+| eurex/dataaccess/tradeentryservice | gts.eurex.dataaccess.tradeentryservice | AD Trading Prague (U) |
 | eurex/dataaccess/viewdb-database | gts.eurex.dataaccess.viewdb-database | AD Trading Architecture (U) |
 | eurex/gateway/common | gts.eurex.gateway.common | AD Interface Design & Gateways (U) |
 | eurex/gateway/edci | gts.eurex.gateway.edci | AD Interface Design & Gateways (U) |
@@ -217,7 +241,7 @@
 | eurex/intmsg/model/referencedata | gts.eurex.intmsg.model.referencedata | AD Trading Architecture (U) |
 | eurex/intmsg/model/trade-feed-handler | gts.eurex.intmsg.model.trade-feed-handler | AD Interface Design & Gateways (U) |
 | eurex/intmsg/model/trade-feed-handler-internal | gts.eurex.intmsg.model.trade-feed-handler-internal | AD Interface Design & Gateways (U) |
-| eurex/intmsg/model/tradeentryservice | gts.eurex.intmsg.model.tradeentryservice | AD Trading Prague (U) (U) |
+| eurex/intmsg/model/tradeentryservice | gts.eurex.intmsg.model.tradeentryservice | AD Trading Prague (U) |
 | eurex/intmsg/model/trademanager | gts.eurex.intmsg.model.trademanager | AD Trading Core (U) |
 | eurex/intmsg/model/tradestats | gts.eurex.intmsg.model.tradestats | Integr.,Configur.Mgmt&Dev.OpsTool (U) |
 | eurex/messaging | gts.eurex.messaging | AD Trading Architecture (U) |
@@ -231,10 +255,10 @@
 | eurex/specification/view-model | gts.eurex.specification.view-model | AD Trading Architecture (U) |
 | eurex/test/functional/sample-refdata | gts.eurex.test.functional.sample-refdata | TIED: AD Trading Architecture (U)/Integr.,Configur.Mgmt&Dev.OpsTool (U)/Payment & FX Settlement AD (U)/Quality Assurance (U)/Repo Trading Functionality & Quality Assurance (U)/Xetra/Eurex Clearing Applications Administration (U) |
 | eurex/test/functional/sample-refdata-nodal | gts.eurex.test.functional.sample-refdata-nodal | AD Trading RDS (U) |
-| perfmon/ackstat | gts.perfmon.ackstat | AD OPM & Cloud Simulation (U) (U) |
-| perfmon/capture | gts.perfmon.capture | AD OPM & Cloud Simulation (U) (U) |
-| perfmon/core | gts.perfmon.core | AD OPM & Cloud Simulation (U) (U) |
-| perfmon/ipasm | gts.perfmon.ipasm | AD OPM & Cloud Simulation (U) (U) |
-| perfmon/market-data-reader | gts.perfmon.market-data-reader | AD OPM & Cloud Simulation (U) (U) |
-| perfmon/monsoapproxy | gts.perfmon.monsoapproxy | AD OPM & Cloud Simulation (U) (U) |
+| perfmon/ackstat | gts.perfmon.ackstat | AD OPM & Cloud Simulation (U) |
+| perfmon/capture | gts.perfmon.capture | AD OPM & Cloud Simulation (U) |
+| perfmon/core | gts.perfmon.core | AD OPM & Cloud Simulation (U) |
+| perfmon/ipasm | gts.perfmon.ipasm | AD OPM & Cloud Simulation (U) |
+| perfmon/market-data-reader | gts.perfmon.market-data-reader | AD OPM & Cloud Simulation (U) |
+| perfmon/monsoapproxy | gts.perfmon.monsoapproxy | AD OPM & Cloud Simulation (U) |
 | tsa/pcapdump | gts.tsa.pcapdump | Trading System Analytics (U) |

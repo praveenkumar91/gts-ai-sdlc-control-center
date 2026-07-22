@@ -1,11 +1,58 @@
 ---
 name: coding-guidelines
 description: "Use when: applying or checking C++, Java, or Python coding standards; reviewing naming conventions, formatting rules, indentation, comments, or file organization; answering questions about SonarQube rules; verifying exception handling patterns; checking security coding requirements; enforcing code quality standards. Covers: C++ Coding Guidelines v1.4, Java Coding Guidelines v1.4, Python Coding Guidelines v1.4, naming conventions, formatting, Sonar compliance, clean code principles, unit testing practices."
+tools: [codereviewer-lens/ask_guideline, codereviewer-lens/explain_rule, codereviewer-lens/list_guidelines]
 ---
 
 # Coding Guidelines
 
-This skill provides authoritative answers about mandatory coding standards for C++, Java, and Python.
+This skill provides authoritative answers about mandatory coding standards for C++, Java, and Python. It is the **write-time** reference for authoring compliant code and for answering coding-standard questions.
+
+> **Authoritative fallback (complete corpus).** The reference files below are a curated, bounded
+> subset. For the **complete or authoritative text of any rule** — especially anything not covered
+> here — query the full embedded guideline corpus via `codereviewer-lens/ask_guideline(question,
+> language)` (RAG over the full C++/Java/Python coding-guideline PDFs, returning page-cited answers);
+> use `explain_rule(rule_id)` to expand a specific SonarQube/tool rule. At **review** time, guideline
+> compliance is enforced by the `code-review-lens` skill (the review brain), not here.
+
+> **Version & canonical source.** Pinned to **v1.4**. The **canonical** documents are the PDFs
+> embedded in `codereviewer-lens` (`guidelines/<lang>/source/*.pdf`); the reference files here are a
+> readable **projection** for authoring. On a version bump, update lens's PDFs **and** these
+> references together.
+
+> **SonarQube rules are not a static list.** The guidelines describe standards in prose and reference
+> the DBAG SonarQube **quality profile** — they do **not** enumerate every rule ID. The SonarQube
+> instance holds **~798 C++, ~2190 Java, ~416 Python** rules — far too many, and too fast-changing, to
+> mirror here — so the complete, enforced rule set is the **live quality profile queried by
+> `code-review-lens` at review time**. For authoring, browse the authoritative live catalogue at
+> **https://sonarp1.deutsche-boerse.de/coding_rules** (filter by language / quality profile), ask
+> `codereviewer-lens/ask_guideline` for the prose standard, or `explain_rule(<rule_id>)` to expand a
+> specific finding. Do **not** inline or maintain a rule-ID catalogue here.
+
+### Languages: prose guidelines vs SonarQube enforcement
+
+Written DBAG coding-guideline documents exist for **C++, Java, Python** (the reference files below).
+But code review is **not limited to those three** — the project's SonarQube quality profiles enforce
+**13 languages**, and `code-review-lens` surfaces those findings at review time. For a language with
+no prose guideline here, the standard **is** its SonarQube profile (browse `/coding_rules`).
+
+| Language | Quality profile | Active rules¹ |
+|---|---|---|
+| C | Trading_C_2022_Default_Level | 248 |
+| C++ | Trading_C++_2022_Default_Level | 409 |
+| Java | Trading_Java_2022_Default_Level | 1341 |
+| Python | Trading_Python_2022_Default_Level | 205 |
+| JavaScript | Trading_JavaScript_2022_Default_Level | 190 |
+| TypeScript | Trading_TypeScript_2025_Default_Level | 257 |
+| PL/SQL | Trading 2019 | 115 |
+| PHP | Sonar way (built-in) | 196 |
+| HTML | Sonar way (built-in) | 53 |
+| CSS | Sonar way (built-in) | 27 |
+| XML | Sonar way (built-in) | 25 |
+| Shell | Sonar way (built-in) | 23 |
+| YAML | YAML Analyzer (built-in) | 20 |
+
+¹ Point-in-time counts; the live profiles at `sonarp1.deutsche-boerse.de/coding_rules` are authoritative.
 
 ## References
 

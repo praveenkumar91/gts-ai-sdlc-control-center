@@ -9,7 +9,8 @@ systems: [all]
 Standard Jira operations for the **T7** and **P7** SDLC pipelines.
 Both systems share one Jira instance — `https://devopsjira.deutsche-boerse.com` — and the
 same issue-type catalogue and workflows. Every issue key has the form `PROJECT-NNNN`
-(e.g. `T7-573588`, `P7-3099`, `T7DEP-7820`).
+(e.g. `T7-573588`, `P7-3099`, `T7DEP-7820`). Colloquially, issue keys are referred to as ticket
+numbers.
 
 > Ground rule: never invent issue types, statuses, components or transitions. Use only the
 > types and states documented here, or read them live from the issue before acting.
@@ -212,7 +213,7 @@ Short tokens used in DCCR / Deployment summaries map to the promotion stages abo
 Tie code to the ticket so the Jira **development panel** auto-links the branch, commits and PR.
 (See the `github` skill for the commit/branch/PR templates.)
 
-- **Branch name** contains the key: `{type}/{KEY}-{short-desc}` — e.g. `fix/P7-3099-theo-price-sim`.
+- **Branch name** contains the key: `{KEY}-{short-desc}` — e.g. `P7-3099-theo-price-sim`.
 - **Commit message** references the key, optionally as a **Smart Commit**:
   `P7-3099 #comment Fix theo-price simulation #time 2h`
   (`#comment` and `#time` are safe. **Avoid `#resolve`/`#close`** in commits — they jump the issue to a
