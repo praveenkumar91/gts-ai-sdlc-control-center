@@ -4,7 +4,7 @@ description: "Read-only query endpoint. Use when: asking questions about T7 (com
 tools: [read, search, t7codebase/*, t7spec/*, github_dbg/*, github/*, devops_jira/get_my_issues, devops_jira/get_issues_assigned_to, devops_jira/search_issues, devops_jira/run_jql, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/get_issue_changelog, devops_jira/get_transitions, devops_jira/get_project_issues, devops_jira/get_epic_issues, devops_jira/list_projects]
 user-invocable: false
 system: t7
-skills: [skills/system/t7/t7-knowledge-base, skills/system/t7/t7-spec, skills/system/t7/t7-code]
+skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
 skills_common: [confluence, jira, github]
 model: "Claude Sonnet 4.6 (copilot)"
 ---

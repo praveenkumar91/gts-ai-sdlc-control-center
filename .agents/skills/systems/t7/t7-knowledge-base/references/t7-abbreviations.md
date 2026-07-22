@@ -1,8 +1,9 @@
 # T7 Abbreviations & Terminology Reference
 
 > Comprehensive glossary of T7 trading system terms, abbreviations, and definitions.
-> Sources: MFG141002 T7 Functional Reference v14.1 (March 2026), T7 spec corpus (DFS/SRQ/MTD documents), T7 Knowledge Base reference files (t7-interfaces.md, t7-modules.md, t7-applications.md, t7-terminology.md).
-> Last updated: 2026-05-28
+> Sources: MFG141002 T7 Functional Reference v14.1 (March 2026), T7 spec corpus (DFS/SRQ/MTD documents), T7 Knowledge Base reference files (t7-interfaces.md, t7-modules.md, t7-applications.md), Confluence T7 PaTe Knowledge Base.
+> Last updated: 2026-06-11 — definition audit against the 338-file spec corpus + codebase: corrected GMC (= GUI Middleware Cluster, not "Generic Memory Cluster"); standardized TES expansion to "T7 Entry Service"; fixed Cross ID/SMP wording (opposite side, not same side); split conflated AVD/VDO into separate Auction Volume Discovery (DFS141445) and Volume Discovery Order (DFS11000/DFS120110) entries; flagged MARS/GAME expansions as unverified; corrected PATE rename timing (Audit Trail Engine expansion present from R13, not R14.1). Source: t7spec + t7codebase MCP.
+> Earlier (2026-06-04): corrected OCO definition (single order, not linked pair); enriched Iceberg Order with randomization/constraint details; added EDC/EDCI disambiguation; added EFP-Fin/EPF-Index TES subtypes; enriched BOC, MMP, SMP definitions; added TRR (Trade to Request Ratio); extended codebase search terms for SMP, MMP, EDC; added EDC section to t7-interfaces.md; added EOBI characteristics from spec; added Quote Activation / MMP and SMP sections to t7-interfaces.md. Source: t7spec MCP (Eurex EOBI Manual v1.0.2, MFG141002, DFS141420, DFS3008, DFS140420, DFS3001, SRQ8115, MTD141011, MTD141015).
 
 ---
 
@@ -29,6 +30,8 @@
     - [Protocols](#protocols)
     - [TES](#tes)
     - [Configuration](#configuration)
+    - [Market Data](#market-data)
+    - [Risk and Drop Copy](#risk-and-drop-copy)
 
 ---
 
@@ -37,34 +40,39 @@
 | Abbreviation | Full Name | Definition |
 |---|---|---|
 | Baseline | — | A named T7 software release (e.g., 14.0, 14.1); each has its own indexed codebase instance. |
-| CoMa | Contract Manager | Manages creation and configuration of complex instrument contracts. Repos: `eurex/apps/contractmanager`. |
+| auditfilter | Audit Trail Filter | T7 component that filters and processes Matcher audit trail messages; provides selective forwarding and transformation of audit records for downstream consumers. Owner: AD Trading Core (U). |
+| CoMa | Contract Manager | Manages creation and configuration of complex instrument contracts. |
 | commondb | Common Database | Central configuration DB storing process topology, partition/market mapping, and pool definitions. |
-| GMC | Generic Memory Cluster | The underlying in-memory data distribution framework used by Live Results (LR). |
-| GW / Gateway | Gateway | Entry point for participant order flow — handles session management, ETI/FIX protocol handling, and throttling. Repos: `eurex/gateway/gateway`. |
-| LDS | Liquidity Discovery Service | A negotiation service for selective request-for-quote workflows; predecessor/related to SRQS. Repos: `eurex/apps/liquidity-discovery-service`. |
+| EDCI | External Data and Clearing Interface | Protocol library for clearing-integration data exchange between T7 trading components and Eurex Clearing AG (ECAG). An internal (non-participant-facing) interface. Owner: AD Interface Design & Gateways (U). |
+| FAGSE / GatewayGSE | Frankfurt Application GSE Gateway | Legacy mainframe-oriented gateway component for specialized order flow. The CMDB application type is `GatewayGSE` (ShortName: `GwGSE`). Owner: Mainframe Application Development (U). |
+| GMC | GUI Middleware Cluster | Java technical component of the T7 Graphical User Interface; hosts Live Results (LR) and processes CEF / StatistiX / Market-Supervision and netted (iMDI) market data. (Spec corpus is unanimous on "GUI Middleware Cluster".) |
+| GW / Gateway | Gateway | Entry point for participant order flow — handles session management, ETI/FIX protocol handling, and throttling. |
+| LDS | Liquidity Discovery Service | A negotiation service for selective request-for-quote workflows; predecessor/related to SRQS. **Note:** the abbreviation `LDS` is also used informally for the Logical Data Store (persistence layer, `eurex/apps/persistence`) in the module map. Context determines which is intended. |
 | LR | Live Results | In-memory distributed cluster (GMC-based) providing real-time state replication across components. |
+| MARS | Market Access Risk Shield *(expansion unverified — not found in the spec corpus or codebase)* | T7 risk-management service: consumes the Matcher → PATE → ODC audit-trail stream plus ODC position updates, evaluates risk limits per user group, and on breach broadcasts risk notifications and stop instructions to all Matchers and ODCServers. Accessed via the `gameinterface` gateway component (the "GAME" expansion is likewise unverified). Owner: AD Interface Design & Gateways (U). |
 | Market | — | A trading venue identified by a MarketID and MIC (e.g., `XEUR` = Eurex derivatives, `XETR` = Xetra cash). |
 | Marketplace | — | A logical grouping of markets sharing the same matching engine instance. |
-| MON | System Monitor | Monitors the state of T7 components. Repos: `common/controller-monitor/monitor`. |
-| ME / Matcher | Matching Engine | Central matching engine — manages the order book, executes matching algorithms, determines prices and order priority. Repos: `eurex/apps/matcher`. |
-| ODC / ODCS | Order Drop Copy Service | Service that provides drop-copy of order and execution data to additional recipients. Repos: `eurex/apps/odcserver`. |
-| OFI | Outbound Feed Interface / Order and Floor Interface | Handles floor broker and TES order entry and management; routes outbound feeds. Repos: `eurex/gateway/outboundfi`, `eurex/gateway/oficonversion`. |
-| PATE / PaTe | Post-Processor Trading Engine / Pre-Trade Risk Server | Handles pre-trade risk checks — risk limits, kill switch, position tracking per business unit. Repos: `eurex/apps/pate`. |
-| patedb | PATE Database | Per-partition PATE database instance for pre-trade risk state. |
+| MON | System Monitor | Monitors the state of T7 components. |
+| ME / Matcher | Matching Engine | Central matching engine — manages the order book, executes matching algorithms, determines prices and order priority. |
+| ODC / ODCS | Order Drop Copy Service | Service that provides drop-copy of order and execution data to additional recipients. |
+| OFI | Outbound Feed Interface | Outbound post-trade feed component that distributes the Matching Engine's (adjusted) audit-trail records — deals, trades, instrument-state changes — to downstream systems (public path: PATE → OFI → TFH → C7 Clearing). Not an order-entry interface. The CMDB application name is `OutboundFeedInterface` (ShortName: `Ofi`). |
+| PATE / PaTe | Post Processing and Audit Trail Engine (this expansion appears in specs from R13 onward; the *PaTe* acronym originally derived from "Post-Processing And Trade Engine" when PoPE + TRAM merged at R10.0) | Post-trade processing component that consumes Matching Engine audit trail messages, creates deal and trade records, distributes trade notifications, and provides legally durable trade persistence. Sits between the Matcher and all downstream consumers: public output via OFI → TFH → C7 (Clearing); private output via GW → ETI/FIX → participants. The `patedb` database also stores Pre-Trade Risk Limit (PTRL) state per partition. Not a pre-trade enforcement engine. |
+| patedb | PATE Database | Per-partition PATE database instance. Stores audit trail persistence data and Pre-Trade Risk Limit (PTRL) state. |
 | Partition | — | A logical grouping of processes which share the same functional responsibilities. Each partition runs on dedicated server capacity. |
-| PerfMon | Performance Monitor | System performance metrics collection and alerting. Repos: `perfmon/core`, `common/perfmon`. |
+| PerfMon | Performance Monitor | System performance metrics collection and alerting. |
 | Pool | — | A set of partitions assigned to a physical matching server. |
-| RDC | Reference Data Cache | Aggregates and distributes reference data across components. Repos: `common/dataaccess/rdc`. |
+| RDC | Reference Data Cache | Aggregates and distributes reference data across components. |
 | rdb | Reference Database | Reference data DB for products, instruments, markets, and business units. |
-| RDD | Reference Data Distributor | Distributes instrument and product reference data to internal components. Repos: `eurex/apps/reference-data-distributor`. |
-| RDS | Reference Data System | The system managing instrument and product reference data. Repos: `eurex/apps/refdata`. |
-| SCS | System Controller | Central controller managing T7 process lifecycle and topology. Repos: `common/controller-monitor/bos`. |
-| SEM | Session Manager | Manages session state for trading participants. Repos: `eurex/common/controller-monitor/session`. |
+| RDD | Reference Data Distributor | Distributes instrument and product reference data to internal components. |
+| RDS | Reference Data System | The system managing instrument and product reference data. |
+| SCS | System Controller | Central controller managing T7 process lifecycle and topology. |
+| SEM | Session Manager | Manages session state for trading participants. |
 | T7 | T7 Trading System | The cash and derivatives trading platform developed by Deutsche Börse Group, used by Eurex, EEX, Nodal Exchange, Xetra, and partner exchanges. |
-| TES | Trade Entry Service | Off-book trade negotiation, approval, and settlement initiation. Supports bilateral and multilateral off-book trades. Repos: `eurex/apps/trade-entry-service`. |
+| TES | T7 Entry Service | Off-book trade negotiation, approval, and settlement initiation. Supports bilateral and multilateral off-book trades. (Spec corpus predominantly expands TES as "T7 Entry Service"; "Trade Entry Service" is also seen.) |
 | tesdb | TES Database | Per-product TES last-IDs and off-book tracking. |
-| TFH | Trade Feed Handler | Distributes trade confirmations and execution reports to downstream systems. Repos: `eurex/apps/trade-feed-handler`. |
-| ViewDB | ViewDB | Read-only market data views — order book snapshots, trade reports, instrument states. Repos: `eurex/dataaccess/viewdb-database`. |
+| TFH | Trade Feed Handler | Distributes trade confirmations and execution reports to downstream systems. |
+| TSA | Trading System Analytics | The department (Trading System Analytics (U)) responsible for performance measurement, packet capture, and analytics tooling. |
+| ViewDB | ViewDB | Read-only MySQL database that materializes `rdb` (reference data) and `commondb` (configuration) into denormalized, GUI-consumable views — mimicking materialized views. Contains `Rda*` instrument/product reference tables, `GUI*` views, contract/security statistics, and instrument/market state; refreshed via post-processing procedures, not a live market-data feed. |
 
 ---
 
@@ -86,7 +94,7 @@
 | MM | Market Maker | A participant providing liquidity by continuously quoting bid and ask prices (account type M). |
 | NCM | Non-Clearing Member | Deprecated term. Now called DC market participant (Direct Client). A participant without direct clearing rights who clears through a GCM. |
 | Participant | — | A legal entity admitted to trade on a T7 exchange. Synonymous with Member. |
-| PTRL | Pre-Trade Risk Limit | A configurable limit on order/quote activity per BU/user, enforced pre-trade by PATE. Can be expressed as quantity or notional value. |
+| PTRL | Pre-Trade Risk Limit | A configurable limit on order/quote activity per BU/user, checked pre-trade. PTRL definitions are persisted in `patedb.pretraderisklimits`. Can be expressed as quantity or notional value. |
 | RLP | Retail Liquidity Provider | A participant providing liquidity specifically for the Xetra Retail Execution (XRE) service with dedicated quote/order types. |
 | RMM | Regulated Market Maker | A participant on ETF/ETP markets providing liquidity as required by regulation. |
 | SA / SpA | Sponsored Access | A mechanism allowing non-participant entities to access the exchange order book directly via a sponsoring member. |
@@ -155,19 +163,20 @@
 
 | Abbreviation | Full Name | Definition |
 |---|---|---|
-| AVD / VDO | Auction Volume Discovery Order | An order type used during auctions to express interest in executing at the potential auction price; helps determine executable volume at the indicative auction price. |
+| AVD | Auction Volume Discovery | A Xetra auction-only order type (Opening/Intraday/Closing) that executes non-displayed at the auction price without impacting price determination. Distinct from VDO. Source: DFS141445. |
+| VDO | Volume Discovery Order | A Xetra continuous-trading hidden order type that executes hidden volume subject to a minimum execution (large-in-scale) volume. Distinct from AVD. Source: DFS11000, DFS120110. |
 | BBO Flag | Best Bid or Offer Setting Flag | An attribute on an order or quote indicating whether it set a new best bid or best ask price at the time of entry or price-modifying amendment. |
-| BOC | Book-Or-Cancel | An order attribute requiring the order to be posted to the order book without any immediate execution; rejected if it would execute immediately. Also valid for quotes. |
+| BOC | Book-Or-Cancel | An order attribute requiring the order to be posted to the order book without any immediate execution; rejected if it would execute immediately. Also valid for quotes. **For BOC quotes:** if one side of a two-sided BOC quote would be executable on entry, both sides are rejected. After posting, a BOC quote can be matched passively (e.g., if spread falls below market order matching range). BOC quotes are enabled for Eurex. Source: MFG141002 §5. |
 | CAO | Closing-Auction-Only Order | An order that participates only in the closing auction; deleted if not executed by end of closing auction. |
 | Cross Announcement | — | A notification to the market that a trader intends to execute buy and sell orders for the same instrument on behalf of different clients (cross trade). |
-| Cross ID | — | An order attribute used with SMP Type A — orders with matching Cross IDs on the same side of the same BU will not match against each other. |
+| Cross ID | — | An order attribute used with SMP Type A — an incoming order will not match against a sitting order/quote on the **opposite** side of the same Business Unit when both carry the same Cross ID (crossing prevention). |
 | Day Order | — | An order that expires at end of the trading day if not executed. Synonym for Good-for-Day (GFD). |
 | FOK | Fill-Or-Kill | An order validity condition requiring the order to be fully executed immediately or cancelled entirely. No partial fills allowed. |
 | GFD | Good-for-Day | An order validity that expires at end of the current trading day. Synonym for Day Order. |
 | GTC | Good-Till-Cancelled | An order validity that keeps the order active in the book until it is fully executed or explicitly cancelled. Persists across trading sessions and days. |
 | GTD | Good-Till-Date | An order validity that keeps the order active until a specified expiry date, after which it is automatically deleted. |
 | IAO | Intraday-Auction-Only Order | An order that participates only in intraday auctions. |
-| Iceberg Order | — | An order with a disclosed (peak) quantity and a hidden reserve quantity. Only the peak quantity is visible in the order book; replenished as executions occur. |
+| Iceberg Order | — | An order with a disclosed (peak) quantity and a hidden reserve quantity. Only the peak quantity is visible in the order book; replenished as executions occur. **Key rules (MFG141002 §7):** (1) Peak can optionally be randomized using a random low quantity and random high quantity — both must be specified together. (2) Must meet exchange-defined *Minimum Iceberg Volume* (total qty × price) and *Minimum Peak Volume* (peak qty × price). (3) If *Maximum Iceberg Ratio* is set, ratio of total qty to initial display qty must not exceed it. (4) Cannot be converted to/from a non-iceberg order. (5) Increasing total qty → new priority timestamp; reducing total qty → no priority impact. (6) Changing the limit price → treated as a new order (new priority and new display qty). (7) The full open quantity participates in auction uncrossing; display qty is reset after uncrossing. |
 | IOC | Immediate-Or-Cancel | An order validity condition requiring the order to execute immediately (fully or partially) and cancel any unexecuted remainder. Never rests in the book. |
 | Lean Order | — | A non-persistent order with restricted status message distribution — confirmations only sent to the submitting session. Cannot be GTD or GTC. |
 | Limit Order | — | An order to buy or sell at a specified limit price or better. Rests in the order book if not immediately executable. |
@@ -180,7 +189,7 @@
 | Multi Order FOK | — | A special order type allowing a set of orders to be submitted together with Fill-Or-Kill semantics applied across the entire set. |
 | Non-Persistent Order | — | An order not stored in the database. Deleted on session disconnect, volatility interruption, or system restart. |
 | OAO | Opening-Auction-Only Order | An order that participates only in the opening auction. |
-| OCO | One-Cancels-the-Other Order | A pair of linked orders where the execution of one triggers the automatic cancellation of the other. Typically a stop order linked to a limit order. |
+| OCO | One-Cancels-the-Other Order | A **single** order (not two linked orders) combining the behavior of a limit order and a stop market order. Has both a limit price and a stop limit trigger. Initially behaves as a regular limit order (participates in matching, contributes to market data). When the stop trigger condition is fulfilled, it is converted to an incoming market order with a new priority timestamp; the limit price no longer applies. Unlike a stop order, an OCO order that fulfills the trigger condition **on entry is rejected** (not immediately converted). T7 assigns one Exchange Order ID that does not change throughout the order's lifetime — even after trigger. Source: MFG141002 §7. |
 | Open-Close Indicator | — | A clearing-related attribute distinguishing whether a trade opens a new position or closes an existing one. |
 | Peak Quantity | — | The disclosed (visible) quantity of an iceberg order. |
 | Persistent Order | — | An order that is stored in the database and survives system restarts. Reloaded after recovery. |
@@ -226,7 +235,7 @@
 | Locked Stock (LS) | — | A state in the Continuous Auction with Specialist trading model where orders are temporarily frozen during a freeze phase. |
 | MAQ | Minimum Acceptable Quantity | An execution condition for midpoint orders specifying the minimum partial fill quantity acceptable. |
 | Match / Matching | — | The process by which compatible buy and sell orders are paired and a trade is created. |
-| MMP | Market Maker Protection | A configurable protection mechanism automatically deactivating a market maker's quotes if a defined number of executions or cumulative volume threshold is breached within a defined time window. |
+| MMP | Market Maker Protection | A configurable protection mechanism automatically deactivating a market maker's quotes if a defined number of executions or cumulative volume threshold is breached within a defined time window. Scope: per product. Thresholds configured by the market maker. Deactivation triggered automatically; reactivation is manual (via `QuoteActivationRequest`). On reactivation, all quotes receive a new priority timestamp. Source: MFG141002 §5.6. |
 | Net Price | — | The net price of a complex instrument order, calculated from the leg prices. |
 | Off-book | — | Trading functionality not involving the central order book; includes TES, Eurex EnLight (SRQS), and basket trading. |
 | On-book | — | Trading functionality of the central order book (CLOB); orders matched by the matching engine. |
@@ -239,7 +248,7 @@
 | Pro-Rata Allocation | — | An order allocation method where execution quantity is distributed proportionally across all orders at the same price level. |
 | QRS | Quote Request Solution | A mechanism allowing a market maker to express a price in response to an RfQ, and for the requester to trade against that quote. |
 | Request for Quote (RfQ) | — | A mechanism allowing a trader to request quotes from market makers for a specific instrument, typically when there is no sufficient visible market. |
-| SMP | Self-Match Prevention | A feature preventing orders/quotes from the same Business Unit (or same Cross ID group) from matching against each other. Available as Type A (Cross ID-based) and Type B (session-based). |
+| SMP | Self-Match Prevention | A feature preventing orders/quotes from the same Business Unit (or same Cross ID group) from matching against each other. Available as: **Type A** — Cross ID-based (orders with matching `MatchInstCrossID` in the same BU will not match against each other; requires Cross ID explicitly set); **Type B** — session-based (orders from the same session will not match each other). A default SMP Instruction per product can be configured in RDA, applied when incoming orders carry a `MatchInstCrossID` but no explicit SMP instruction. Optional; not available on all T7 venues. Source: DFS3008, DFS140420. |
 | Sold-Out | — | An instrument state indicating all available supply has been sold, applicable to warrant-like products. |
 | Static Collar | — | A fixed price range defined around the reference price; execution outside this range triggers a volatility interruption. |
 | Synthetic Matching | — | Matching of complex instrument (strategy/spread) orders against combinations of simple instrument orders, allowing execution even when no direct complex instrument counterpart exists. Also called Implied Matching. |
@@ -264,10 +273,11 @@
 | ClOrdID | Client Order ID | FIX tag 11 — a unique order identifier assigned by the client, max 20 characters. |
 | DeleteAllQuoteRequest | — | ETI message to cancel all quotes for a product/instrument. |
 | DeleteOrderRequest | — | ETI message to cancel a specific order. |
-| EMDI | Extended / Enhanced Market Data Interface | T7's enhanced version of MDI with additional price levels and information. |
+| EDC | Enhanced Drop Copy | A participant-facing order monitoring service providing a complete overview of all orders (including lean orders) per Business Unit. Accessible by Trading Participants for their own BU, and by authorized Clearing Members. Connects via a dedicated TCP/IP EDCI session. Initial restatement followed by continuous incremental updates. Source: DFS141420, DFS130315. |
+| EDCI | Enhanced Drop Copy Interface **or** External Data and Clearing Interface | **Disambiguation — two distinct uses:** (1) **Enhanced Drop Copy Interface** (participant-facing): the TCP/IP connection protocol used by Trading Participants and Clearing Members to receive comprehensive order drop-copy data, including lean orders, for risk monitoring and reconciliation. Delivers `ExtendedOrderInformation` messages. (2) **External Data and Clearing Interface** (internal): the clearing-integration protocol library between T7 and Eurex Clearing AG (ECAG), housed in `eurex/gateway/edci`. Owner of the internal library: AD Interface Design & Gateways (U). Context determines which meaning is intended. |
 | EMDS | Extended Market Data Service | T7's extended market data service providing additional data beyond EMDI. |
 | EOBI | Enhanced Order Book Interface | T7's primary public market data interface. Delivers the full visible order book in real-time, order-by-order, via multicast UDP binary protocol. |
-| ETI | Enhanced Transaction Interface | T7's primary binary order entry protocol. High performance, low latency, session-based. Used directly or as the backend for FIX LF. Repos: `eurex/gateway/eti`. |
+| ETI | Enhanced Transaction Interface | T7's primary binary order entry protocol. High performance, low latency, session-based. Used directly or as the backend for FIX LF. |
 | ExecutionReport | — | FIX/ETI message notifying participants of order state changes (new, fill, cancel, reject). |
 | FIX / FIX LF | Financial Information eXchange / Low Frequency Gateway | T7's FIX protocol adapter based on FIX 5.0 SP2. A secondary order entry interface for participants who cannot use ETI directly. |
 | FullOrderExecution | — | EOBI message for a fully executed order. |
@@ -347,12 +357,12 @@
 | Frankfurt | — | Frankfurt Stock Exchange's floor-based venue (Deutsche Börse Frankfurt), operated on T7. MIC: `XFRA`. |
 | Halt | — | A product state suspending all trading activity across all instruments in a product. |
 | Infoscreen | — | An operational display service providing market state information. |
-| Instrument State | — | The lifecycle state of a specific tradeable instrument (e.g., `Book`, `Continuous`, `Auction`, `Freeze`, `Closed`, `Restricted`, `Suspended`, `Knock-Out`, `Expired`). |
+| Instrument State | — | The lifecycle state of a specific tradeable instrument. Controls whether order/quote maintenance is possible, whether matching occurs, and what market data is published. States include: `Continuous` (continuous matching), `Pre-Call` (pre-auction buffer in Continuous Auction models), `Opening Auction` / `Intraday Auction` / `Closing Auction` / `Volatility Auction` / `Auction-Call` (call phases — orders collect, no matching until uncrossing), `Freeze` (auction frozen by operator), `Trade-at-Close` (matching at fixed closing price only, no price discovery), `Restricted` (limited maintenance, no matching), `Suspended` (halted — no activity), `Knock-Out` (structured product knocked out), `Expired` (past expiry, inactive). Source: MFG141002 §3. |
 | Lot Size | — | The minimum tradeable quantity for a given instrument (minimum order size). |
 | MSE | Malta Stock Exchange | A cash market exchange operating on T7. |
 | NATS | — | A lightweight messaging infrastructure used in newer T7 components alongside the internal messaging bus. |
 | NTA | Network Time Authority | The time server providing synchronized timestamps to all T7 components. |
-| Product State | — | The lifecycle state of a product group (e.g., `Pre-Trading`, `Trading`, `Post-Trading`, `End-of-Day`, `Closed`, `Halt`, `Prepare`, `Ready`). |
+| Product State | — | The lifecycle state of a product group. Structures the business day and controls general access to the system. States: `Pre-Trading` (system ready, no trading), `Opening Auction` / `Intraday Auction` / `Closing Auction` (auction call active across the product), `Trading` (continuous trading active), `Post-Trading` (trading ended), `End-of-Day` (EOD processing complete), `Halt` (product-wide trading suspended), `Closed` (product closed for the day). |
 | Segment MIC | — | The MIC identifying the trading segment (venue segment) associated with a specific TES trade for reporting purposes. |
 | SOAP | Simple Object Access Protocol | A web service protocol used for some T7 administrative interfaces (monitoring, reference data). |
 | Tick Size | — | The minimum price increment for a given instrument; defined per instrument in reference data. |
@@ -368,7 +378,9 @@
 | Auto-Approval | — | A TES feature where the submitting participant's side is automatically approved without manual action. |
 | Bilateral TES Trade | — | A TES trade between exactly two counterparties (one buyer, one seller). |
 | Block Trade | — | A large off-book trade entered via TES, typically above a minimum quantity threshold defined per product. |
-| EFP | Exchange for Physical | A TES trade type where a futures position is exchanged for the corresponding physical (cash) position. |
+| EFP | Exchange for Physical | A TES trade type where a futures position is exchanged for the corresponding physical (cash) position. Two subtypes: **EFP-Fin** (financial underlying) and **EFP-Index** (index underlying). |
+| EFP-Fin | Exchange for Physical — Financial | A subtype of EFP TES trade where the physical leg is a financial instrument (e.g., bonds) rather than a commodity or equity. Source: DFS3001 TES Migration. |
+| EPF-Index | Exchange for Physical — Index | A subtype of EFP TES trade where the physical leg is an index instrument. Also referred to as EFP-Index in some documents. Source: DFS3001 TES Migration. |
 | EFS | Exchange for Swaps | A TES trade type where a futures position is exchanged for an OTC swap. |
 | Multilateral TES Trade | — | A TES trade with multiple sides (counterparties), e.g., in a give-up scenario. |
 | Non-Disclosure Limit | — | A TES parameter specifying above which size a trade is published immediately vs. with a publication delay. |
@@ -394,6 +406,7 @@
 | Respondent | — | A participant invited to respond to an SRQS negotiation event with a quote. |
 | SMART RfQ | — | An automated SRQS feature that selects the best available respondents for a negotiation event based on predefined criteria. |
 | SRQS | Selective Request for Quote Service | T7's electronic negotiation service for off-book trades. Branded as Eurex EnLight (derivatives) and Xetra EnLight (cash). |
+| TRR | Trade to Request Ratio | A metric in Eurex EnLight tracking the ratio of completed deals to opened negotiation requests for a respondent. Used to assess respondent engagement quality; may affect respondent selection in anonymous negotiations. Source: SRQ8115 Eurex EnLight Anonymous Negotiation. |
 | Working Delta Negotiation | — | An SRQS workflow for options strategies where the delta hedge is negotiated dynamically as part of the deal. |
 | Xetra EnLight | — | The SRQS service on the Xetra cash market. |
 
@@ -427,6 +440,9 @@ before searching.
 If a release is requested then use the following mapping.
 E.g. 14.0 maps to `140.000.000`, 15.0 maps to `150.000.000`, 15.1 maps to `151.000.000`, and so on.
 The mapping is not one-to-one, so if the query references a release that does not have a direct mapping, use the closest release. For example for 14.0 it can be 140.001.000 or 140.002.000, for 15.1 it can be 151.001.000, and so on.
+
+**Upcoming releases (as of 2026):**
+- **T7 15.0** — planned simulation: 31 August 2026; planned production: 9 November 2026 (Eurex derivatives and Cash Market). Not backwards-compatible; TPs, ISVs, and TPIPs will need to update their trading software.
 
 ### Order Types
 
@@ -524,3 +540,25 @@ The mapping is not one-to-one, so if the query references a release that does no
 | Price collar | `price_collar`, `PriceCollar`, `collar_range` |
 | Tick size | `tick_size`, `TickSize`, `minimum_price_increment` |
 | Lot size | `lot_size`, `LotSize`, `minimum_quantity` |
+
+### Market Data
+
+| Concept | T7 Terms to Search |
+|---------|-------------------|
+| EOBI / order-by-order market data | `eobi`, `order_book_update`, `OrderAdd`, `OrderDelete`, `OrderModify`, `FullOrderExecution` |
+| Netted market data | `mdi`, `netted`, `price_level`, `BestBidAsk`, `depth_update` |
+| Market data multicast | `multicast`, `multicaster`, `udp_feed` |
+| Potential auction price | `IEP`, `PAP`, `indicative_price`, `uncrossing_price` |
+| Settlement price | `settlement_price`, `closing_price`, `SettlementPrice` |
+
+### Risk and Drop Copy
+
+| Concept | T7 Terms to Search |
+|---------|-------------------|
+| MARS / member risk shield | `mars`, `game_interface`, `GAME`, `risk_shield` |
+| Order drop copy | `drop_copy`, `odc`, `odcserver`, `odcgw` |
+| Enhanced drop copy (EDC) | `edci`, `extended_order_information`, `ExtendedOrderInformation`, `edc_session` |
+| Pre-trade risk check | `pre_trade_risk`, `PTRL`, `risk_limit`, `risk_check` |
+| Kill switch / Emergency Mass Delete | `kill_switch`, `KillSwitch`, `emergency_mass_delete`, `EMD` |
+| SMP / self-match prevention | `smp`, `self_match`, `MatchInstCrossID`, `SelfMatchPreventionInstruction`, `CrossMatchInstruction` |
+| MMP / market maker protection | `mmp`, `market_maker_protection`, `QuoteActivation`, `mmp_threshold` |

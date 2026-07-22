@@ -52,12 +52,18 @@ gts.ai.sdlc/
 │       ├── p7-sdlc-reviewer.agent.md
 │       ├── p7-sdlc-builder.agent.md
 │       ├── p7-sdlc-pr-author.agent.md
+│       ├── p7-sdlc-spec-author.agent.md             # On-demand DFS/DTS/SRQ authoring (post-planning)
 │       │
 │       │  # ── Tier 3: T7 Pipeline Agents ──
 │       ├── t7-sdlc-planner.agent.md
+│       ├── t7-sdlc-architect.agent.md
 │       ├── t7-sdlc-developer.agent.md
+│       ├── t7-sdlc-tester.agent.md
 │       ├── t7-sdlc-reviewer.agent.md
-│       └── t7-sdlc-knowledge.agent.md
+│       ├── t7-sdlc-builder.agent.md
+│       ├── t7-sdlc-pr-author.agent.md
+│       ├── t7-sdlc-knowledge.agent.md
+│       └── t7-sdlc-spec-author.agent.md             # On-demand DFS/DTS/SRQ authoring (post-planning)
 │
 ├── .agents/
 │   └── skills/                                      # Vendor-neutral skills (VS Code + Codex + CLI)
@@ -82,6 +88,15 @@ gts.ai.sdlc/
 │       │   │   └── SKILL.md
 │       │   ├── sdlc-verification/
 │       │   │   └── SKILL.md
+│       │   ├── ralph-loop/                         # Canonical autonomous build-loop protocol (artifacts, modes, backpressure)
+│       │   │   └── SKILL.md
+│       │   │
+│       │   ├── spec-authoring/                     # Authors DFS/DTS/SRQ (DOCX-ready) after planning
+│       │   │   ├── SKILL.md
+│       │   │   └── references/
+│       │   │       ├── DFS.md                       # Detailed Functional Specification model
+│       │   │       ├── DTS.md                       # Detailed Technical Specification model
+│       │   │       └── SRQ.md                       # System Requirement Specification model
 │       │   │
 │       │   └── coding-guidelines/
 │       │       ├── SKILL.md
@@ -118,15 +133,17 @@ gts.ai.sdlc/
 │                   │   └── output-template copy.md
 │                   └── references/
 │                       ├── t7-applications.md       # T7 application inventory
+│                       ├── t7-abbreviations.md      # T7 domain glossary & search-term guidance
 │                       ├── t7-component-map.md      # T7 component dependency map
 │                       ├── t7-component-owners.md   # T7 component ownership directory
 │                       ├── t7-interfaces.md         # T7 interface definitions
 │                       ├── t7-modules.md            # T7 module catalog
-│                       └── t7-terminology.md        # T7 domain glossary
+│                       └── t7-regulatory-glossary.md  # Regulatory abbreviations (DBG context)
 │
 └── _template/                                       # Bootstrapping templates (NOT auto-discovered)
     ├── SYSTEM-orchestrator.agent.md                 # Template: system orchestrator (Tier 2)
-    └── SYSTEM-sdlc-developer.agent.md               # Template: developer pipeline agent (Tier 3)
+    ├── SYSTEM-sdlc-developer.agent.md               # Template: developer pipeline agent (Tier 3)
+    └── SYSTEM-sdlc-spec-author.agent.md             # Template: on-demand DFS/DTS/SRQ spec-author (Tier 3)
 ```
 
 ---
@@ -135,8 +152,10 @@ gts.ai.sdlc/
 
 | System | Orchestrator | Pipeline Agents | System Skills |
 |--------|-------------|-----------------|---------------|
-| P7 — Pricing & Risk Management | `p7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author | p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github |
-| T7 — Trading System | `t7-orchestrator` | planner, developer, reviewer, knowledge | t7-code, t7-spec, t7-knowledge-base |
+| P7 — Pricing & Risk Management | `p7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, spec-author | p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github |
+| T7 — Trading System | `t7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, knowledge, spec-author | t7-code, t7-spec, t7-knowledge-base |
+
+> The **spec-author** agent (`{system}-sdlc-spec-author`) runs **on-demand after planning** to produce formal DFS/DTS/SRQ documents under `specs/{system}/`, using the common `spec-authoring` skill. It is separate from the planner: the planner produces a lightweight plan, the spec-author produces DOCX-ready specification files. DFS/DTS/SRQ are a shared corporate standard, so every system reuses the same common skill.
 
 ---
 
@@ -160,7 +179,14 @@ cp .agents/skills/_template/SKILL.md .agents/skills/systems/{system}/{system}-co
 ```
 Fill in layer table, naming conventions, build commands, testing patterns.
 
-**Step 4 — Add to the generic orchestrator**
+**Step 4 — (Optional) Add the spec-author agent**
+
+If the system produces formal DFS/DTS/SRQ documents, copy `_template/SYSTEM-sdlc-spec-author.agent.md` to `.github/agents/{system}-sdlc-spec-author.agent.md`.
+Replace the `{SYSTEM}` / `{system}` placeholders, wire `skills:` to the system's content-grounding skill(s), and set the output folder to `specs/{system}/`.
+Register it in the system orchestrator's `agents:` list and add an on-demand **Spec Authoring** phase + partial-run entry (mirror the T7/P7 orchestrators).
+The DFS/DTS/SRQ structure, metadata contract, and filename rules are reused from the common `spec-authoring` skill — no per-system spec skill is required.
+
+**Step 5 — Add to the generic orchestrator**
 
 In `.github/agents/gts-orchestrator.agent.md`, add `{system}-orchestrator` to the `agents:` frontmatter list and add a routing rule in the **Routing Rules** section.
 

@@ -127,6 +127,19 @@ Terminal states: **Filled**, **Cancelled**, **Rejected** — no further transiti
 
 EOBI is T7's primary **public market data** interface. It delivers the full visible order book in real-time, order-by-order, via multicast UDP. It is a binary protocol.
 
+### Key Characteristics (Source: Eurex EOBI Member Manual v1.0.2; MTD141032 EMDI Manual R14.1)
+
+- **Full order depth** — no depth restriction; all visible orders and quotes are published without limit.
+- **Fixed-length binary messages** using FIX-standard encoding to minimise integration effort.
+- **Incremental messages** (triggered by each state change) plus **Snapshot messages** (periodic full-book rebuild).
+- Snapshot message publishing order:
+  1. Side — bid side published first, offer side second.
+  2. Price — best price first.
+  3. Time — highest time-priority order first within same price.
+- Separate multicast address/port combinations from EMDI and MDI feeds.
+- Feeds are organised by **partition** (matching engine partition). Participants subscribe per product.
+- Driven by the Matcher audit trail via the EOBI Publisher component (`eurex/apps/market-data-obo-incremental`).
+
 ### Key EOBI Message Types
 
 | Message | Description |
@@ -142,8 +155,6 @@ EOBI is T7's primary **public market data** interface. It delivers the full visi
 | `InstrumentSummary` | Snapshot of instrument-level state |
 | `PacketHeader` | Multicast packet header (sequence number, timestamp) |
 
-EOBI feeds are organised by **partition** (matching engine partition). Participants subscribe per product.
-
 ---
 
 ## ETI — Enhanced Transaction Interface
@@ -155,9 +166,177 @@ ETI is T7's primary **order entry** interface. It is a binary, session-based pro
 | Family | Example Messages |
 |--------|------------------|
 | Order management | `NewOrderRequest`, `ModifyOrderRequest`, `DeleteOrderRequest` |
-| Quote management | `MassQuoteRequest`, `DeleteAllQuoteRequest` |
+| Mass operations | `MassOrderRequest`, `DeleteAllOrderRequest` |
+| Quote management | `MassQuoteRequest`, `DeleteAllQuoteRequest`, `QuoteActivationRequest` |
 | TES (T7 Entry Service) | `TESNewTradeRequest`, `TESApproveTrade` |
 | SRQS (Selective RfQ) | `SRQSOpenNegotiationRequest`, `SRQSDealNotification` |
 | Session / risk | `UserLoginRequest`, `Subscribe`, `RetransmitRequest` |
+| EDC (Enhanced Drop Copy) | `ExtendedOrderInformation` (received; via separate EDCI connection) |
 
 Broadcast (push) notifications are returned on a separate **broadcast connection** per session.
+
+### ETI Session Types
+
+| Session Type | Purpose |
+|--------------|---------|
+| High-Frequency (HF) | Order entry — lowest latency, typically for automated trading |
+| Low-Frequency (LF) | Order entry — standard latency for manual or semi-automated trading |
+| Back-Office (BACKOFFICE) | Receiving drop copies of order/execution data for the BU |
+| GUI | Used by T7 Trader GUI; lower throughput than HF/LF |
+
+> Source: MTD141011 ETI Reference Derivatives R14.1; MTD141015 FIX LF Manual R14.1.
+
+---
+
+## EDCI — External Data and Clearing Interface
+
+EDCI is T7's clearing integration protocol library used for exchanging clearing-related data flows between T7 and Eurex Clearing AG (ECAG). It is an internal interface — not participant-facing.
+
+- Repository: `eurex/gateway/edci`, `eurex/gateway/edci-docu`
+- Owner: AD Interface Design & Gateways (U)
+- Used for: clearing member data, position data, and settlement-related messages flowing between T7 trading components and the Eurex Clearing infrastructure.
+
+> **Abbreviation note:** The abbreviation `EDCI` is shared between two distinct concepts:
+> 1. **External Data and Clearing Interface** — internal clearing integration library (described above).
+> 2. **Enhanced Drop Copy Interface** — the participant-facing order drop-copy connection (described in the EDC section below).
+> Context determines which is intended.
+
+---
+
+## EDC — Enhanced Drop Copy Interface
+
+> Source: DFS141420 Enhanced Drop Copy Enhancements Part 1 R14.1; DFS130315 Enhanced Drop Copy Authorization Concept.
+
+The **Enhanced Drop Copy (EDC)** service (also referred to as EDCI — Enhanced Drop Copy Interface) is a participant-facing interface for comprehensive order monitoring and pre-trade risk management. It is conceptually separate from the ODCS (Order Drop Copy Service) and the internal EDCI clearing library.
+
+### Purpose
+
+- Designed for participants seeking **enhanced pre-trade risk monitoring** or a **complete overview of their order inventory**, including lean orders (which are not included in standard ETI/FIX confirmations).
+- Accessible by **Trading Participants** for their own Business Unit, and by **Clearing Members** who provide clearing services to those Trading Participants (CM requires authorization from the TP).
+
+### Connection and Data Flow
+
+1. Participant application opens a TCP/IP connection to T7.
+2. The drop-copy stream starts with a `TradingSessionEvent` message (_Start of Order Book Synchronization_) per partition.
+3. Active orders are restated via `ExtendedOrderInformation` messages.
+4. `TradingSessionEvent` (_End of Order Book Synchronization_) marks the end of the initial restatement.
+5. Ongoing updates are delivered as additional `ExtendedOrderInformation`, `TradingSessionEvent`, and `Order(Mass)CancellationNotification` messages.
+6. `TradingSessionEvent` (_End of Service_) marks end of the drop-copy stream for the business day.
+
+> **Note:** Quotes, Cross Requests, RfQs, and CLIP Requests are currently out of scope for EDC.
+
+### Configuration
+
+EDC sessions are ordered and configured via the **T7 Clearer GUI** or **T7 Admin GUI**. The Clearing Member accesses the TP's data via the _Enhanced Drop Copy Access Requests_ view after the TP grants authorization.
+
+### R14.1 Enhancements (planned at time of writing)
+
+- EDCI will send volatility interruption events in correct logical sequence (separate NEW + CANCEL instead of conflated CANCEL only).
+- New EDC notifications for CLIP Requests and Cross Requests covering every step.
+- New RfQ Notification for request-for-quote workflows.
+- SMP-related fields added: `MatchInstCrossID`, `SelfMatchPreventionInstruction`, `CrossMatchInstruction`.
+- Retransmission support: participants can request retransmission from a specific sequence number or from start of business day.
+
+---
+
+## Instrument States Reference
+
+T7 controls order and quote activity per instrument through a set of well-defined instrument states. The following table summarises the key states:
+
+| Instrument State | Matching Active? | Order Maintenance? | Description |
+|------------------|-----------------|-------------------|-------------|
+| `Continuous` | Yes | Yes | Continuous price-time matching; orders matched immediately on entry. |
+| `Pre-Call` | Limited | Yes | Pre-auction phase; limited matching in some trading models before the Auction-Call. |
+| `Opening Auction` | No (until uncrossing) | Yes | Opening auction call — orders collect before uncrossing at open. |
+| `Intraday Auction` | No (until uncrossing) | Yes | Intraday auction triggered by VI or scheduled event. |
+| `Closing Auction` | No (until uncrossing) | Yes | Closing auction call — determines official closing price. |
+| `Volatility Auction` | No (until uncrossing) | Yes | Volatility interruption — triggered when potential execution falls outside the price collar. |
+| `Freeze` | No | Restricted | Auction frozen by operator; awaiting manual intervention before uncrossing. |
+| `Trade-at-Close` | At closing price only | Yes | Post-closing auction phase — matching occurs at the fixed closing auction price only; no price discovery. |
+| `Restricted` | No | Restricted | Order maintenance severely restricted; no matching. |
+| `Suspended` | No | No | Instrument halted; no trading activity permitted. |
+| `Knock-Out` | No | No | Structured product knocked out; no further trading. |
+| `Expired` | No | No | Instrument past its expiry date; inactive. |
+
+Source: MFG141002 T7 Functional Reference v14.1, §3 Instrument States.
+
+---
+
+## Trading Models
+
+T7 supports several trading models, each defining the sequence of instrument states during the business day:
+
+| Trading Model | Typical Exchanges | Description |
+|---------------|------------------|-------------|
+| *Continuous Trading with Auctions* | Eurex, Xetra, EEX | Standard model — opening auction → continuous trading → (optional intraday auctions) → closing auction. Most derivatives and cash products. |
+| *Continuous Auction with Market Maker* | WBAG (Vienna, Budapest, etc.) | Market maker provides quotes; order book uncrosses immediately on matching quote entry (Auction-Call phase). |
+| *Continuous Auction with Specialist* | Deutsche Börse Frankfurt | Specialist controls trading phases manually; Freeze state allows operator-controlled uncrossing; Pre-Call and Freeze alternate. |
+
+---
+
+## Volatility Interruption (VI)
+
+A **Volatility Interruption** is triggered automatically when the potential execution price of an order would fall outside the configured price corridor:
+
+- **Static collar** — a fixed price band around the reference price (e.g. settlement price or previous close).
+- **Dynamic collar** — an adaptive band updated after each trade to track recent market prices.
+
+On VI trigger:
+1. Continuous trading is suspended immediately.
+2. Instrument transitions to `Volatility Auction` call state.
+3. An auction call phase begins (configurable duration).
+4. The instrument either uncrosses or transitions to `Freeze` if the order book is still outside the collar.
+
+Source: MFG141002 T7 Functional Reference v14.1, §7.5 Volatility Interruptions.
+
+---
+
+## Quote Lifecycle and Market Maker Protection (MMP)
+
+> Source: MFG141002 T7 Functional Reference v14.1, §5.5–5.6.
+
+### Quote Activation / Deactivation
+
+A session's quotes can be **deactivated** per product. When deactivated:
+- Quotes do **not** participate in matching and are not used for market price calculations.
+- Quotes can still be maintained (modified, deleted) while inactive.
+- New quotes entered while the session is inactive for a product remain inactive.
+- Deactivation status is **persistent**: it survives session disconnect and Matcher restart. At start of day, all sessions are reset to active.
+
+On **reactivation**, for each quote in sequence:
+1. Priority timestamp is updated (new time priority).
+2. Extended Price Range Validation applied — quote deleted if outside allowed range.
+3. If instrument state is `Continuous` and the quote is executable, it is matched as an incoming quote.
+
+### Market Maker Protection (MMP)
+
+MMP automatically deactivates a market maker's quotes when configurable breach thresholds are hit within a defined time window. Thresholds can be based on:
+- **Number of executions** within the window.
+- **Cumulative executed volume** within the window.
+
+The scope of MMP parameters (deactivation thresholds) must match the scope of the quote activation — both apply per **product**. MMP triggers an automatic deactivation, which then follows the same reactivation flow as a manual deactivation.
+
+> MMP protects liquidity providers from excessive automated execution against their quotes in fast market conditions.
+
+### Book-Or-Cancel (BOC) Quotes
+
+BOC quotes are posted to the order book **without matching on entry**. If the BOC quote would be executable on entry, it is **rejected** entirely. After posting, a BOC quote can be matched passively (e.g., if a market order arrives). If one side of a two-sided BOC quote is rejected, the other side is also rejected.
+
+---
+
+## Self-Match Prevention (SMP)
+
+> Source: DFS3008 Self-Match Prevention v1.4; DFS140420 SMP Enhancements R14.0.
+
+SMP prevents an incoming order from matching against a resting order or quote from the **same Business Unit** in the same instrument. Two variants:
+
+| SMP Type | Scope | Mechanism |
+|----------|-------|-----------|
+| **Type A** | Cross ID group | Orders with matching `Cross ID` (MatchInstCrossID) in the same BU will not match each other. Requires Cross ID to be explicitly set on both orders. |
+| **Type B** | Session-based | Orders from the same ETI/FIX session will not match each other. Applies without requiring a Cross ID. |
+
+A **default SMP Instruction** can be configured per product (from RDA): applied when the incoming order does not carry an explicit SMP instruction but has a `MatchInstCrossID` set.
+
+> SMP is optional and configured per market/product. It is not available on all T7 venues.
+
+---

@@ -1,8 +1,8 @@
 
 # T7 Component Map
 
-Full component path reference for T7 release `150.001.010`, project=`t7`, env=`eurex`.  
-Use these paths as the `component` parameter in `mcp_t7codebase_list_files` and `mcp_t7codebase_search_codebase`.
+Full component path reference for T7 release `150.002.010`, project=`t7`, env=`eurex`.  
+Use these paths as the `component` parameter in `mcp_codebase-expl_list_files` and `mcp_codebase-expl_search_code`.
 
 ## Applications (eurex/apps/)
 
