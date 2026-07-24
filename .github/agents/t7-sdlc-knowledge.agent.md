@@ -5,7 +5,7 @@ tools: [read, search, t7codebase/*, t7spec/*, github_dbg/*, github/*, devops_jir
 user-invocable: false
 system: t7
 skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
-skills_common: [confluence, jira, github]
+skills_common: [confluence, jira, github, coding-guidelines]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
 
