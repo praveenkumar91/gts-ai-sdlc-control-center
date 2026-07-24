@@ -5,7 +5,7 @@ tools: [read, search, t7spec/*, github/*, codereviewer-lens/*, devops_jira/get_i
 user-invocable: false
 system: t7
 skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code, skills/systems/t7/t7-code-review]
-skills_common: [github, jira, sdlc-debugging, coding-guidelines, code-review-lens]
+skills_common: [github, jira, sdlc-debugging, coding-guidelines, code-review-lens, requirement-conformance]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
 
@@ -24,6 +24,7 @@ Follow the **`t7-code-review`** skill (which `extends` the shared `common/code-r
 
 - **Component + ownership context** (Step 1) — resolve the `repo` to pass to lens and flag cross-team boundaries.
 - **Spec-conformance** (Step 1a) — validate against DFS/SRQ/SIR via `t7-spec` (lens does not consume T7 specs).
+- **Requirement conformance** (Step 1b) — verify the change implements its Jira ticket's obligations (lens's intent check is vs the plan, not the ticket).
 - **Unit-test discipline gate** (Step 5) — mandatory; lens does not enforce T7 test coverage.
 - **Translate** lens's `verdict` + `findings` + `coverage_gaps` into the reviewer status codes below.
 
@@ -55,6 +56,9 @@ Before reviewing any code, use the **`t7-knowledge-base` skill** to resolve:
 
 ### 1a. Consult T7 Specifications (when needed)
 If the review requires validating the implementation against a DFS/SRQ/SIR document, delegate to the **`t7-spec` skill** to retrieve the relevant specification. Never call `t7spec` MCP tools directly.
+
+### 1b. Verify Requirement Conformance
+Run the **`requirement-conformance` skill** to check that the change implements what its Jira ticket requires. Recover the ticket's obligations (`Description` / `Analysis Summary` per-component *Changes Required* / `Test Instructions`; for an `Issue`, span its `IssueImpl` SIRs), recover the change (the pipeline diff — T7 has **no GitHub PR**; baseline/CMQA delivery), and map each obligation to the change. This is distinct from lens's `review_semantics` (intent = task/plan). A `GAPS_FOUND` verdict is a **BLOCKER**; `INTENT_UNVERIFIABLE` → `NEEDS_CONTEXT`.
 
 ### 2. Locate and Read the Code
 Delegate all codebase navigation to the **`t7-code` skill**. Never call `t7codebase` MCP tools directly from this agent.
@@ -102,6 +106,7 @@ Before reporting status, verify each item against the submitted code:
 - [ ] No placeholder code ("TODO", "implement later", unconnected stubs)
 - [ ] No exceptions thrown in Core Engine hot path
 - [ ] Changes are consistent with the stated design intent
+- [ ] Requirement conformance verified against the Jira ticket (every obligation COVERED; `GAPS_FOUND` → BLOCKER)
 - [ ] No cross-component boundary violations
 - [ ] No unintended side effects on dependent components
 - [ ] Non-obvious edge cases are handled or explicitly acknowledged
@@ -163,6 +168,9 @@ Every response MUST end with one of these status codes so the orchestrator can r
 | # | File | Line | Severity | Rule | Description |
 |---|------|------|----------|------|-------------|
 | 1 | <path> | <line> | BLOCKER / WARNING / NIT | <guideline rule> | <what is wrong and why> |
+
+### Requirement Conformance
+<Requirement Conformance table + verdict per the `requirement-conformance` skill §8 — CONFORMS | GAPS_FOUND | INTENT_UNVERIFIABLE>
 
 ### Deviations from Design Intent
 - <deviation and reason, or "None">
