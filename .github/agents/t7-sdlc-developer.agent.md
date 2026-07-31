@@ -5,7 +5,7 @@ tools: [read, edit, search, execute, t7spec/*, t7codebase/*, github/*, github_db
 user-invocable: false
 system: t7
 skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
-skills_common: [github, jira, sdlc-debugging, coding-guidelines]
+skills_common: [github, jira, sdlc-debugging, coding-guidelines, sdlc-verification, requirement-conformance]
 model: "Claude Sonnet 4.6 (copilot)"
 ---
 
@@ -104,6 +104,14 @@ A fix that greens one assertion but leaves the root cause partly live is an **in
 - **Ground the fix direction.** When a symptom admits more than one defensible fix (fix at the source vs. add a downstream guard), choose the option the **spec and the existing design** imply — verify via `t7-spec` and the surrounding code. If it is a genuine design trade-off, implement the spec-aligned option and **flag the alternative for the architect** rather than deciding it silently.
 - Before DONE, check **downstream consumers** (`used_by` in `component.json`) for regressions the change could cause.
 
+#### Confirm Requirement Conformance — Every Obligation Implemented
+An incomplete fix is usually a **missed obligation**, not mis-coded logic — the tester's RED tests may only cover part of what the ticket asks. Before reporting DONE, run the **`requirement-conformance`** skill as a self-check (its in-pipeline mode reads your local diff; your read-only Jira grant already satisfies its prerequisite):
+- Recover **every** obligation the ticket states — `Description` (expected behaviour), `Analysis Summary` **Changes Required** (each per-component bullet is a *separate* obligation, e.g. RDS + RDA + GUI + TES — miss one and the fix is incomplete), and every `Test Instruction`.
+- Confirm each obligation is **COVERED** by your change with file evidence. Any `PARTIAL` / `MISSING` obligation means you are **not** DONE — implement it, or return `NEEDS_CONTEXT` if it is genuinely unverifiable.
+- This is a developer **self-check** to catch a partial fix before handoff; it does **not** replace the reviewer's conformance gate (the reviewer still owns the `CONFORMS` / `GAPS_FOUND` verdict).
+
+Then run the generic **`sdlc-verification`** pre-completion checklist before DONE (every acceptance criterion has a passing test, no regressions, dependent consumers not broken).
+
 #### Fill Coverage Gaps (only where the tester did not reach)
 - If your implementation introduces a new public method or branch that the tester's RED tests do not cover, add a focused test for it following the component's existing framework and naming convention.
 - Locate existing tests with the **`t7-code` skill** (`pattern=*Test*` or `*_test*`) and mirror their fixture style before adding any test.
@@ -166,6 +174,7 @@ Before reporting status, check each item:
 - [ ] No placeholder code ("TODO", "implement later", stub functions not connected)
 - [ ] On a confirmed hot path: no exceptions, no new per-event heap allocation, no new locks — and the preserved fast-path lines cited in Notes for Reviewer
 - [ ] Fix addresses the **root cause across all coordinated sites** (not just the one failing assertion); any deliberately narrower scope + the chosen fix direction flagged in Notes
+- [ ] Every ticket obligation (Description, per-component *Changes Required*, Test Instructions) is **COVERED** by the change — verified via the `requirement-conformance` self-check; no `PARTIAL` / `MISSING` left
 - [ ] Gap tests written for any new public method/branch **not** already covered by the tester's RED suite (do not re-author the tester's tests)
 - [ ] Gap tests cover both positive and negative / edge-case paths
 - [ ] The tester's RED tests and my gap tests pass locally; full-suite GREEN is the Tester's gate (list failures under DONE_WITH_CONCERNS)
