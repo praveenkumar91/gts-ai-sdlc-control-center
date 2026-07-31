@@ -6,49 +6,36 @@ systems: [all]
 
 # GitHub Skill
 
-Provides standard GitHub operations reusable across all GTS systems. For system-specific commit conventions (e.g., P7 layer scopes), use the system-specific github skill overlay.
+Provides standard GitHub operations reusable across all GTS systems.
 
 ## Commit Message Format
 
-Follow Conventional Commits:
 ```
-{type}({scope}): {short description}
-
-{optional body}
-
-{optional footer: BREAKING CHANGE, Closes #issue}
+{ticket} {Description}
 ```
 
-Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `ci`
+Example: `T7-12345 Differentiate on-book vs off-book trade`
+
+- `{ticket}` is the Jira ticket key (e.g. `T7-12345`, `P7-678`).
+- `{Description}` is a short imperative summary, capitalised, no trailing period.
+- No type prefix, no scope, no conventional-commits format — this applies to all GTS baseline repos (T7, P7, etc.).
+
+> For repositories that are **not** part of a GTS system baseline, conventional commits or another project-specific scheme may apply instead.
 
 ## Branch Naming
 
 ```
-{jira-ticket}-{short-description}
+{jira-ticket}_{short_description}
 ```
-Examples: `P7-123-add-dividend-view`, `T7-456-order-routing-null`
+Examples: `P7-123_add_dividend_view`, `T7-456__order_routing_null`
 
 ## Pull Request
 
 ### Title
-Match the primary commit message: `{type}({scope}): {description}`
+Match the primary commit message: `{ticket} {Description}`
 
-### Description Template
-```markdown
-## Summary
-{What does this PR do?}
-
-## Changes
-- {file/component}: {what changed}
-
-## Testing
-- [ ] Unit tests pass
-- [ ] Manual verification performed
-- [ ] No regressions introduced
-
-## Linked Issues
-Closes #{issue-number}
-```
+In the description, summarize what the PR does. If issues are fixed, add respective
+`Closes #{issue-number}` clauses.
 
 ### Review Checklist
 - All CI checks pass before requesting review
@@ -57,6 +44,6 @@ Closes #{issue-number}
 - Delete branch after merge
 
 ## Conventions
-- Never force-push to `main` or `develop`
+- Never force-push
 - Draft PRs for work-in-progress
 - Add `[WIP]` prefix to draft PR titles
