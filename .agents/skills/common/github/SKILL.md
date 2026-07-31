@@ -27,7 +27,7 @@ Example: `T7-12345 Differentiate on-book vs off-book trade`
 ```
 {jira-ticket}_{short_description}
 ```
-Examples: `P7-123_add_dividend_view`, `T7-456__order_routing_null`
+Examples: `P7-123_add_dividend_view`, `T7-456_order_routing_null`
 
 ## Pull Request
 
