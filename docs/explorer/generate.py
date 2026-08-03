@@ -35,26 +35,37 @@ GROUP_LABEL = {"generic": "Generic · router & clarifier",
                "p7": "P7 · Pricing & Risk Management", "t7": "T7 · Trading System"}
 GROUP_ORDER = {"generic": 0, "p7": 1, "t7": 2}
 
-# curated, grounded invocation examples for the user-invocable agents
-INVOKE_EXAMPLES = {
-    "gts-orchestrator": ["/gts-orchestrator Fix the SMP Type-B reason code on cancel in T7",
-                          "/gts-orchestrator Add a validation rule to the P7 pricing engine"],
-    "gts-prompt-clarifier": ["/gts-prompt-clarifier rebase my branch and rerun the failing tests"],
-    "p7-orchestrator": ["/p7-orchestrator Add a validation rule to the pricing-engine request handler"],
-    "t7-orchestrator": ["/t7-orchestrator Reject expired orders in the Matcher on new-order entry"],
-    "p7-sdlc-reviewer": ["/p7-sdlc-reviewer Review the diff on this branch"],
+OBJECTIVE = {
+    "router": "Send the request to the correct system orchestrator so the right pipeline runs.",
+    "clarifier": "Turn an ambiguous request into a precise, enriched instruction before any agent acts.",
+    "orchestrator": "Drive the whole SDLC pipeline to a reviewed, shipped change — delegating every phase, coding nothing itself.",
+    "planner": "Produce a grounded, evidence-located plan with tasks and acceptance criteria.",
+    "architect": "Validate the plan against architecture and gate it — approve, revise or block.",
+    "spec-author": "Turn an approved plan into a governance-grade DFS / DTS / SRQ.",
+    "tester": "Write a discriminating failing test (RED), then verify GREEN — proving the change.",
+    "developer": "Implement the minimal code that turns the failing tests green, following the plan.",
+    "reviewer": "Judge the change for correctness, security, patterns and requirement-conformance.",
+    "builder": "Compile the affected components in dependency order and report pass or fail.",
+    "pr-author": "Package the change into a clean, ticket-linked pull request.",
+    "knowledge": "Answer read-only questions about the codebase, specs, ownership and terminology.",
 }
-# how an orchestrator typically dispatches each internal role (representative instruction)
-DISPATCH = {
-    "planner": "Analyze this request and produce a plan with tasks, affected files and acceptance criteria.",
-    "architect": "Review this plan against architecture, boundaries and build order — approve, revise or block.",
-    "tester": "Write failing tests for each acceptance criterion; confirm they fail (RED).",
-    "developer": "Implement the minimal code to make the failing tests pass (GREEN).",
-    "reviewer": "Review these changed files for correctness, security, performance and patterns.",
-    "builder": "Build the affected components in dependency order.",
-    "pr-author": "Write the PR title, description and changelog; link the Jira ticket.",
-    "spec-author": "Author the DFS/DTS/SRQ from the approved plan.",
-    "knowledge": "Where is the Matcher and who owns it?",
+
+# Real, grounded scenarios threaded through the invocation examples.
+# T7 uses actual SIRs from the study corpus; P7 uses realistic pricing-engine tasks.
+SCEN = {
+    "t7": [
+        ("T7-574620", "reject a TradingActionRequest from a SpAProvider user without the QUALIFIED_BACKOFFICE_USER role"),
+        ("T7-574466", "exclude volume-only trades from the VWAP settlement-price waterfall"),
+        ("T7-502218", "fix the Pope deadlock crash by reverting BatchDelete() to Delete()"),
+    ],
+    "p7": [
+        ("", "reject negative bid-ask spreads in the pricing-engine request handler"),
+        ("", "add the missing risk-limit check that lets over-limit quotes through in middleware"),
+    ],
+    "generic": [
+        ("T7-574620", "reject unauthorised TradingActionRequests in T7"),
+        ("", "add a validation rule to the P7 pricing engine"),
+    ],
 }
 
 
@@ -113,15 +124,54 @@ def role_info(name):
     return (role, labels.get(role, role.replace("-", " ").title()), "")
 
 
+def _ref(sid):
+    return f" ({sid})" if sid else ""
+
+
+def role_examples(system, role):
+    """2-3 grounded example instructions for a role, using real scenarios."""
+    scen = SCEN.get(system, SCEN["t7"])
+    if role in ("orchestrator", "router"):
+        return [t[0].upper() + t[1:] + _ref(s) for s, t in scen[:3]]
+    if role == "clarifier":
+        return ["rebase and rebuild the FAGSE gateway after the viewdb-name fix",
+                "run the tests for the SpA rejection change and open a PR"]
+    if role == "knowledge":
+        return ["Where is the TradingActionRequest role check, and who owns it?",
+                "Which spec covers the VWAP settlement-price waterfall?"]
+    if role == "spec-author":
+        return ["Author the DFS for the SpA Cash Market Risk requirements (T7-571121 / DFS150510).",
+                "Turn the approved plan into a DTS with the full metadata header."]
+    verb = {
+        "planner":   "Plan{ref}: {task}.",
+        "architect": "Review the plan to {task}{ref} — approve, revise or block.",
+        "tester":    "Write a failing test proving: {task}{ref}.",
+        "developer": "Implement the minimal change so the failing tests pass — {task}{ref}.",
+        "reviewer":  "Review the change to {task}{ref} for correctness, security and spec-conformance.",
+        "builder":   "Build the components affected by the {task} change in dependency order.",
+        "pr-author": "Write the PR for the {task} change{ref} and link the ticket.",
+    }.get(role, "{task}{ref}.")
+    return [verb.format(task=t, ref=_ref(s)) for s, t in scen[:2]]
+
+
+def use_when(desc):
+    tail = re.split(r"(?i)\buse when:\s*", desc, maxsplit=1)
+    tail = tail[1] if len(tail) > 1 else desc
+    parts = [p.strip(" .") for p in re.split(r";\s+", tail) if p.strip(" .")]
+    if len(parts) < 2:
+        parts = [p.strip(" .") for p in re.split(r",\s+", tail) if p.strip(" .")]
+    return parts[:6]
+
+
 def invoke_of(name, system, role, invocable):
+    ex = role_examples(system, role)
     if invocable:
-        return {"mode": "command", "examples": INVOKE_EXAMPLES.get(name) or [f"/{name}"],
-                "note": "", "dispatch": ""}
+        return {"mode": "command", "note": "", "examples": [f"/{name} {e}" for e in ex]}
     orch = "p7-orchestrator" if system == "p7" else "t7-orchestrator" if system == "t7" else ""
     phase = PHASE_LABEL.get(role, "its phase")
-    note = (f"Internal — you don't call it directly. The {orch} dispatches it during {phase}."
-            if orch else f"Internal — dispatched during {phase}.")
-    return {"mode": "internal", "examples": [], "note": note, "dispatch": DISPATCH.get(role, "")}
+    note = (f"Internal — you don't call it directly. The {orch} dispatches it during {phase}. Typical dispatch:"
+            if orch else f"Internal — dispatched during {phase}. Typical dispatch:")
+    return {"mode": "internal", "note": note, "examples": ex}
 
 
 def model_kind(model):
@@ -173,6 +223,8 @@ for path in sorted(glob.glob(os.path.join(AGENT_DIR, "*.agent.md"))):
         "typeNote": type_note,
         "phase": ROLE_PHASE.get(role, -1),
         "description": unquote(fm.get("description", "")),
+        "useWhen": use_when(unquote(fm.get("description", ""))),
+        "objective": OBJECTIVE.get(role, ""),
         "argHint": unquote(fm.get("argument-hint", "")),
         "userInvocable": invocable,
         "model": unquote(fm.get("model", "")),
@@ -199,7 +251,7 @@ TEMPLATE = r"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GTS AI SDLC · Agent Explorer</title>
+<title>GTS AI SDLC · Agent Playground</title>
 <style>
   :root{
     --ink:#1F2733; --body:#5B6472; --muted:#8A92A0; --faint:#AEB6C0;
@@ -239,7 +291,7 @@ TEMPLATE = r"""<!doctype html>
   .agent .an{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600}
   .agent .ar{font-size:11.5px;color:var(--muted);margin-top:2px}
   .agent .sb{position:absolute;right:10px;top:11px;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
-  .detail{padding:22px 24px;position:sticky;top:16px}
+  .detail{padding:22px 24px;position:sticky;top:16px;min-width:0}
   .dhead{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
   .dname{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:21px;font-weight:700}
   .badges{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
@@ -261,7 +313,7 @@ TEMPLATE = r"""<!doctype html>
   .pill.go{cursor:pointer}
   .none{color:var(--muted);font-size:13px;font-style:italic}
   .cmd{background:#1F2733;color:#E9EEF5;border-radius:8px;padding:9px 12px;margin:7px 0;
-    font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;overflow-x:auto;white-space:nowrap}
+    font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5;white-space:normal;word-break:break-word}
   .cmd .sl{color:#7DE3D0;font-weight:700}
   .inote{color:var(--body);font-size:13px;margin:2px 0 6px}
   .disp{color:var(--muted);font-size:12.5px;font-style:italic}
@@ -280,6 +332,16 @@ TEMPLATE = r"""<!doctype html>
     font-size:12.5px;color:var(--body);margin-bottom:14px;display:flex;gap:10px;align-items:center}
   .xnote b{color:var(--ink)}
   .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
+  .tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin:2px 0 16px}
+  .tab{padding:9px 16px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;border:0;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.12s}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--ink);border-bottom-color:#3F6FB5}
+  .uw{font-size:11.5px;font-weight:700;color:var(--body);margin:0 0 3px}
+  ol.uwl{margin:2px 0 0;padding-left:20px}
+  ol.uwl li{font-size:13px;color:var(--body);line-height:1.5;margin:3px 0}
+  .obj{font-size:13.5px;color:var(--body);margin-top:12px}
+  .obj b{color:var(--ink)}
+  .dsuffix{margin-left:7px;font-weight:600;font-size:14px;color:var(--muted)}
   footer{margin-top:26px;color:var(--muted);font-size:12px;text-align:center}
   @media(max-width:820px){.layout{grid-template-columns:1fr}.list{max-height:none}.detail{position:static}}
 </style>
@@ -291,12 +353,12 @@ TEMPLATE = r"""<!doctype html>
   <p class="sub">Pick an agent to see what it does, what it can touch, the status it returns, and how to invoke it — the whole team, P7 and T7 side by side.</p>
 </div></header>
 <main class="wrap">
+  <div class="tabs" id="tabs"></div>
   <div class="controls">
     <label class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9AA1AB" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
       <input id="q" type="search" placeholder="Search agents, roles, skills…" autocomplete="off">
     </label>
-    <div class="chips" id="sysChips"></div>
     <div class="legend" id="legend"></div>
   </div>
   <div class="layout">
@@ -311,12 +373,13 @@ const GROUPS = /*__GROUPS__*/;
 const SYS = /*__SYS__*/;
 const PIPE = /*__PIPE__*/;
 let sel = "/*__DEFAULT__*/";
-let fSys = "all", fSkill = null, q = "";
+let fTab = "t7", fSkill = null, q = "";
 
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byName = n => AGENTS.find(a => a.name === n);
-function go(n){ if(byName(n)){ sel=n; try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
+function syncTab(){ const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
+function go(n){ if(byName(n)){ sel=n; syncTab(); try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
 
 function legend(){
   const s = Object.entries(SYS).map(([k,v]) =>
@@ -332,7 +395,7 @@ function chipBar(el, opts, cur, on){
   el.querySelectorAll(".chip").forEach(b => b.onclick = () => on(b.dataset.v));
 }
 function match(a){
-  if(fSys!=="all" && a.system!==fSys) return false;
+  if(a.system!=="generic" && a.system!==fTab) return false;
   if(fSkill && !(a.skills.includes(fSkill) || a.skillsCommon.includes(fSkill))) return false;
   if(q){
     const hay = (a.name+" "+a.roleLabel+" "+a.description+" "+a.skills.join(" ")+" "+
@@ -384,7 +447,7 @@ function invokeBlock(iv){
     }).join("");
   }
   return `<div class="inote">${esc(iv.note)}</div>` +
-    (iv.dispatch?`<div class="disp">e.g. “${esc(iv.dispatch)}”</div>`:"");
+    iv.examples.map(e=>`<div class="disp">↳ “${esc(e)}”</div>`).join("");
 }
 function renderDetail(){
   const a = byName(sel) || AGENTS[0];
@@ -416,7 +479,7 @@ function renderDetail(){
   $("#detail").innerHTML = x + `
     <div class="dhead">
       <div>
-        <div class="dname">${esc(a.name)}</div>
+        <div class="dname">${esc(a.name)}<span class="dsuffix">Agent</span></div>
         <div class="reach">${reach}</div>
       </div>
       <div class="badges">
@@ -428,7 +491,8 @@ function renderDetail(){
     ${a.typeNote?`<div class="dtype">${esc(a.typeNote)}</div>`:""}
     ${pipe(a)}
     <div class="sect">What it does</div>
-    <div class="ddesc">${esc(a.description)}</div>
+    ${a.useWhen.length?`<div class="uw">Use when</div><ol class="uwl">${a.useWhen.map(u=>`<li>${esc(u)}</li>`).join("")}</ol>`:`<div class="ddesc">${esc(a.description)}</div>`}
+    ${a.objective?`<div class="obj"><b>Objective</b> — ${esc(a.objective)}</div>`:""}
     <div class="sect">Invoke it</div>
     ${invokeBlock(a.invoke)}
     <div class="sect">System skills</div>${sysSkills}
@@ -447,19 +511,25 @@ function renderDetail(){
 }
 function render(){
   renderList(); renderDetail();
-  document.querySelectorAll("#sysChips .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===fSys));
+  document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.v===fTab));
 }
 function init(){
   legend();
-  chipBar($("#sysChips"),
-    [{v:"all",t:"All"},{v:"generic",t:"Generic"},{v:"p7",t:"P7"},{v:"t7",t:"T7"}],
-    fSys, v => { fSys=v; render(); });
+  $("#tabs").innerHTML = [{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
+    .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
+  $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+    fTab=b.dataset.v;
+    const cur=byName(sel);
+    if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
+    render();
+  });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
   if(fromHash && byName(fromHash)) sel = fromHash;
+  syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if(byName(n)){ sel = n; render(); }
+    if(byName(n)){ sel = n; syncTab(); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
     `regenerate with <code>python3 docs/explorer/generate.py</code>`;
