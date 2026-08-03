@@ -881,7 +881,7 @@ function renderSetup(){
     <div class="hintro"><b>Set it up in VS Code — there's no build step.</b> The repo <i>is</i> the agent &amp; skill definitions, so setup is just pointing VS Code at it and giving the skills their tools. Five steps:</div>
     <ol class="setup">
       <li><b>Prerequisites.</b> VS Code with <b>GitHub Copilot</b> in <b>Agent mode</b> (custom agents enabled).</li>
-      <li><b>Open this repo.</b> Clone <code>dev/gts.ai.sdlc</code> and open the folder — Copilot auto-discovers all <b>21</b> <code>.github/agents/*.agent.md</code> and every skill under <code>.agents/skills/</code>. Nothing to build.</li>
+      <li><b>Open this repo.</b> Clone <code>dev/gts.ai.sdlc</code> and open the folder — Copilot auto-discovers all <b>${AGENTS.length}</b> <code>.github/agents/*.agent.md</code> and every skill under <code>.agents/skills/</code>. Nothing to build.</li>
       <li><b>Add the MCP servers</b> the skills reach their tools through, in <code>.vscode/mcp.json</code> — only the ones your work needs:<span class="setsrv">Cortex-hosted (HTTP): <code>github</code> · <code>t7codebase</code> · <code>t7spec</code> · <code>devops_jira</code> · <code>feedback</code></span><span class="setsrv">Review lenses (local): <code>codereviewer-lens</code> · <code>jenkins-lens</code> · <code>sonarqube-lens</code></span></li>
       <li><b>Add your tokens</b> when VS Code prompts: the <b>Cortex bearer</b> (shared by github / t7codebase / t7spec / feedback) and your <b>Jira PAT</b> (devops_jira). Secrets stay local — never in the repo.</li>
       <li><b>Start.</b> Open Copilot Chat, pick <code>gts-orchestrator</code>, and describe your task. New here? See <a href="#howto">How to use GTS AI SDLC Agents</a> for examples.</li>
