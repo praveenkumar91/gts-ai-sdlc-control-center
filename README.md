@@ -17,8 +17,12 @@
 
 <p align="center">
   <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/">
-    <img src="https://img.shields.io/badge/Explore%20live-GTS%20AI%20SDLC%20%C2%B7%20SDLC%20Agent%20Exploration-1f9e89?style=for-the-badge" alt="Open the interactive SDLC Agent Exploration — every agent, what it does, and how to invoke it">
+    <img src="https://img.shields.io/badge/Open%20the%20interactive%20explorer-1f9e89?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Open the interactive SDLC Agent Exploration">
   </a>
+</p>
+
+<p align="center">
+  ▶ <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/"><b>GTS AI SDLC · SDLC Agent Exploration</b></a> — click to open in your browser
 </p>
 
 <h3 align="center">

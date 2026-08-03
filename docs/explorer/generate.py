@@ -619,6 +619,15 @@ TEMPLATE = r"""<!doctype html>
   .hintro{background:#fff;border:1px solid var(--line);border-radius:0;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
   .hintro b{color:var(--ink)}
   .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
+  ol.setup{counter-reset:s;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  ol.setup li{position:relative;background:#fff;border:1px solid var(--line);padding:13px 16px 13px 54px;font-size:13.5px;color:var(--body);line-height:1.55;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  ol.setup li b{color:var(--ink)}
+  ol.setup li a{color:#2B5CB8;font-weight:700}
+  ol.setup li code{background:#F1F5FA;border:1px solid #E1E8F0;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#2B5CB8}
+  ol.setup li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:#3F6FB5;color:#fff;font-weight:800;font-size:14px}
+  .setsrv{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
+  .setnote{margin-top:14px;background:#EEF3FA;border:1px solid #DCE6F3;padding:11px 14px;font-size:12.5px;color:var(--body);line-height:1.55}
+  .setnote b{color:var(--ink)}
   .subtabs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 20px;border-bottom:2px solid var(--line)}
   .subtab{display:inline-flex;align-items:center;gap:8px;border:2px solid #C4D8F0;background:#DCE8F8;color:#3F6FB5;border-radius:11px 11px 0 0;padding:9px 15px 9px 10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.14s;position:relative;top:3px;margin-bottom:-2px}
   .subtab:hover:not(.on){background:#CFE0F5;top:1px}
@@ -666,6 +675,7 @@ TEMPLATE = r"""<!doctype html>
     <section class="detail card" id="detail"></section>
   </div>
   <div class="howto" id="howto" style="display:none"></div>
+  <div class="howto" id="setup" style="display:none"></div>
   <footer id="foot"></footer>
 </main>
 <script>
@@ -682,7 +692,7 @@ let hStep = HOWTO[0].key;
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byName = n => AGENTS.find(a => a.name === n);
-function syncTab(){ if(fTab==="howto") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
+function syncTab(){ if(fTab==="howto"||fTab==="setup") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
 function go(n){ if(byName(n)){ sel=n; syncTab(); try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
 
 function legend(){
@@ -838,36 +848,50 @@ function renderHowto(){
   $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; renderHowto(); });
   $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=t.system; go(el.dataset.go); });
 }
+function renderSetup(){
+  $("#setup").innerHTML = `
+    <div class="hintro"><b>Set it up in VS Code — there's no build step.</b> The repo <i>is</i> the agent &amp; skill definitions, so setup is just pointing VS Code at it and giving the skills their tools. Five steps:</div>
+    <ol class="setup">
+      <li><b>Prerequisites.</b> VS Code with <b>GitHub Copilot</b> in <b>Agent mode</b> (custom agents enabled).</li>
+      <li><b>Open this repo.</b> Clone <code>dev/gts.ai.sdlc</code> and open the folder — Copilot auto-discovers all <b>21</b> <code>.github/agents/*.agent.md</code> and every skill under <code>.agents/skills/</code>. Nothing to build.</li>
+      <li><b>Add the MCP servers</b> the skills reach their tools through, in <code>.vscode/mcp.json</code> — only the ones your work needs:<span class="setsrv">Cortex-hosted (HTTP): <code>github</code> · <code>t7codebase</code> · <code>t7spec</code> · <code>devops_jira</code> · <code>feedback</code></span><span class="setsrv">Review lenses (local): <code>codereviewer-lens</code> · <code>jenkins-lens</code> · <code>sonarqube-lens</code></span></li>
+      <li><b>Add your tokens</b> when VS Code prompts: the <b>Cortex bearer</b> (shared by github / t7codebase / t7spec / feedback) and your <b>Jira PAT</b> (devops_jira). Secrets stay local — never in the repo.</li>
+      <li><b>Start.</b> Open Copilot Chat, pick <code>gts-orchestrator</code>, and describe your task. New here? See <a href="#howto">How to use GTS AI SDLC Agents</a> for examples.</li>
+    </ol>
+    <div class="setnote"><b>Why only servers, never agents?</b> Skills follow <b>skill-first tool access</b> — an agent never calls an MCP tool directly; it goes through a skill that wraps the server. So you configure servers once in <code>mcp.json</code>, and every agent that needs them just works.</div>`;
+}
 function render(){
-  const howto = fTab==="howto";
-  document.querySelector(".controls").style.display = howto ? "none" : "";
-  document.querySelector(".layout").style.display = howto ? "none" : "";
-  $("#howto").style.display = howto ? "" : "none";
-  if(howto) renderHowto();
+  const guide = fTab==="howto" || fTab==="setup";
+  document.querySelector(".controls").style.display = guide ? "none" : "";
+  document.querySelector(".layout").style.display = guide ? "none" : "";
+  $("#howto").style.display = fTab==="howto" ? "" : "none";
+  $("#setup").style.display = fTab==="setup" ? "" : "none";
+  if(fTab==="howto") renderHowto();
+  else if(fTab==="setup") renderSetup();
   else { renderList(); renderDetail(); }
   document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.v===fTab));
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
+  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"Set it up"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;
-    if(fTab!=="howto"){
+    if(fTab!=="howto" && fTab!=="setup"){
       const cur=byName(sel);
       if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
     }
-    try{history.replaceState(null,"",fTab==="howto"?"#howto":"#"+sel)}catch(e){}
+    try{history.replaceState(null,"",fTab==="howto"?"#howto":fTab==="setup"?"#setup":"#"+sel)}catch(e){}
     render();
   });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
-  if(fromHash==="howto") fTab="howto";
+  if(fromHash==="howto"||fromHash==="setup") fTab=fromHash;
   else if(fromHash && byName(fromHash)) sel = fromHash;
   syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if(n==="howto"){ fTab="howto"; render(); }
+    if(n==="howto"||n==="setup"){ fTab=n; render(); }
     else if(byName(n)){ sel = n; syncTab(); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
