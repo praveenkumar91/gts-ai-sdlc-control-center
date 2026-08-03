@@ -81,12 +81,12 @@ Guideline compliance (C++/Java/Python v1.4 + SonarQube rules) is a **lens concer
 
 ### 5. Review Unit Tests
 
-**Unit tests are mandatory for every code change.** Raise a BLOCKER finding if tests are absent or insufficient.
+**Unit tests are mandatory for every behavioural code change.** Raise a BLOCKER finding if tests are absent or insufficient. **Archetype exception (verify, don't trust the label)**: a genuinely non-behavioural change (SQL/schema migration, config-only, compile-only / warnings-hygiene, pure non-behavioural refactor, prose/generated) legitimately has **no** unit test — but confirm the diff is *actually* non-behavioural (classify **per hunk**; any behavioural hunk still needs a test) and that its **fit gate** actually ran (build / characterisation-tests-green / migration apply+rollback) before waiving. See `t7-code-review` §1 for the full guard. This matches the tester's `NOT_APPLICABLE`.
 
 #### Locate Test Files
 - Use the **`t7-code` skill** to list files with `pattern=*Test*` or `pattern=*_test*` in the component directory to find test files.
 - Use the **`t7-code` skill** to verify tests reference the changed classes or functions.
-- If no test files are found for the changed code, raise an immediate BLOCKER: "No unit tests provided for changed code".
+- If no test files are found for a **behavioural** change, raise an immediate BLOCKER: "No unit tests provided for changed code".
 
 #### Test Quality Checks
 - **Coverage**: Every new or modified public method must have at least one positive and one negative/edge-case test.

@@ -21,9 +21,23 @@ and apply the T7-specific rules and **retained gates** below.
 
 ## Retained gates (T7 owns these — lens does not)
 
-### 1. Unit-test discipline (mandatory — BLOCKER if absent/inadequate)
-- **Presence**: every new/modified public method has tests. If none exist for the changed code, raise
-  an immediate BLOCKER ("No unit tests provided for changed code").
+### 1. Unit-test discipline (mandatory for behavioural changes — BLOCKER if absent/inadequate)
+- **Presence**: every new/modified public method with behavioural logic has tests. If none exist for a
+  behavioural change, raise an immediate BLOCKER ("No unit tests provided for changed code").
+  **Archetype exception (verify — never trust the label):** a genuinely **non-behavioural** change
+  (SQL/schema migration, config-only, compile-only / warnings-hygiene, pure non-behavioural refactor,
+  prose/generated) legitimately has **no** unit test. Before waiving the requirement, confirm all three:
+    1. **The diff is actually non-behavioural** — read it: no new/changed control flow, calculation,
+       validation, or state transition in *production* code. A change is often **mixed** (a "config" or
+       "refactor" that also alters logic); classify **per hunk** — any behavioural hunk still needs a
+       test, so the waiver is partial, not blanket.
+    2. **The fit verification actually ran — don't just skip it.** Compile evidence for compile-only; an
+       apply **+ rollback** check for a migration; for a refactor, the component's **existing tests
+       staying green** (characterisation). A refactor with **no** covering tests cannot prove behaviour
+       is preserved → flag it (`APPROVED_WITH_COMMENTS` / risk), don't silently pass.
+    3. Only then skip the "no unit test" BLOCKER (this matches the tester's `NOT_APPLICABLE`). If the
+       label says non-behavioural but the diff changes behaviour, the exception does **not** apply —
+       BLOCK for missing tests.
 - **Coverage**: at least one positive and one negative/edge-case test per changed public method.
 - **Independence**: tests must not share mutable state or depend on execution order.
 - **No tautological tests**: assert observable behaviour, not a mirror of the implementation.
