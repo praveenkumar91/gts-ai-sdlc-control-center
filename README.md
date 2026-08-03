@@ -17,11 +17,11 @@
 
 <p align="center">
   <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/">
-    <img src="https://img.shields.io/badge/Open%20the%20interactive%20explorer-1f9e89?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Open the interactive explorer">
+    <img src="https://img.shields.io/badge/Open%20the%20Interactive%20SDLC%20Agent%20Explorer-1f9e89?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Open the Interactive SDLC Agent Explorer">
   </a>
   &nbsp;
   <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/#setup">
-    <img src="https://img.shields.io/badge/Set%20up%20%26%20Getting%20started-2b5cb8?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Set up and Getting started">
+    <img src="https://img.shields.io/badge/Set%20Up%20%26%20Getting%20Started%20in%20VS%20Code%20Guide-2b5cb8?style=for-the-badge&logo=rocket&logoColor=white" alt="Set Up & Getting Started in VS Code Guide">
   </a>
 </p>
 
