@@ -15,12 +15,17 @@
   <b>A VS Code-based agentic SDLC</b> — specialist AI agents that run the full development lifecycle across <b>P7</b> and <b>T7</b>.
 </p>
 
+<p align="center">
+  <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/">
+    <img src="https://img.shields.io/badge/Explore%20live-GTS%20AI%20SDLC%20%C2%B7%20SDLC%20Agent%20Exploration-1f9e89?style=for-the-badge" alt="Open the interactive SDLC Agent Exploration — every agent, what it does, and how to invoke it">
+  </a>
+</p>
+
 <h3 align="center">
   <a href="#where--when-you-use-it">Where &amp; When</a> &nbsp;·&nbsp;
   <a href="#architecture-at-a-glance">Architecture</a> &nbsp;·&nbsp;
   <a href="#the-sdlc-pipeline">The Pipeline</a> &nbsp;·&nbsp;
   <a href="#supported-systems">Systems</a> &nbsp;·&nbsp;
-  <a href="#skills">Skills</a> &nbsp;·&nbsp;
   <a href="#design-principles">Design</a> &nbsp;·&nbsp;
   <a href="#get-started">Get Started</a>
 </h3>
@@ -51,12 +56,6 @@ the middle, and single-purpose pipeline agents at the bottom — all drawing on 
 <p align="center">
   <img src="docs/assets/architecture.svg" alt="GTS AI SDLC architecture — a 3-tier composition. A developer request passes through gts-prompt-clarifier, then Tier 1 (gts-orchestrator) routes it to the right system; Tier 2 is the p7-orchestrator (linear TDD pipeline) and t7-orchestrator (autonomous Ralph loop); Tier 3 is eight-to-nine single-purpose agents — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author and T7 knowledge — each returning a status code, only the developer writing code; all draw on shared common and system skills." width="100%">
 </p>
-
-Read it top-down: the clarifier normalises the request, **Tier 1** routes to a system, **Tier 2** runs that
-system's pipeline, and **Tier 3** does the work — one job per agent, each ending on a routable **status
-code**. No agent touches a tool directly; it goes **through a skill** (which wraps a differently-named MCP
-server — the bottom lane), and every path, command and spec value is **retrieved live** so the work tracks
-the current baseline, not a memorised guess.
 
 <p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
@@ -91,22 +90,6 @@ converges one task under tester + builder backpressure.
 
 <p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
-## Skills
-
-A **skill** is a reusable knowledge module — *not* an agent. **Common** skills apply to every system
-(`systems: [all]`); **system** skills are scoped (`systems: [t7]`) and may `extend` a common one to add
-rules on top. The full inventory — 15 common skills (review & specs, integrations, SDLC discipline) plus
-each system's skills — is enumerated in the diagram above.
-
-> **Skill vs. MCP server — two different names.** A skill is the *wrapper*; the engine it delegates to is a
-> separate **MCP server** with its own name. `code-review-lens` wraps the **`codereviewer-lens`** MCP;
-> `t7-code` wraps **`t7codebase`**; `t7-spec` wraps **`t7spec`**; `github` wraps the **`github`** MCP; `jira`
-> wraps **`devops_jira`**. Agents reach a server **only through its skill**, never by calling the MCP tool
-> directly (the *skill-first tool access* principle) — so a raw namespace like `codereviewer-lens/review_pr`
-> only ever appears inside the skill's `tools:`, not in an agent body.
-
-<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
-
 ## Design principles
 
 <p align="center">
@@ -137,14 +120,6 @@ The framework needs no build step — it *is* the agent and skill definitions. T
    PR loop to a reviewed, evidence-linked change.
 
 ---
-
-## Extending & further reading
-
-- **[Adding a new system →](docs/adding-a-new-system.md)** — copy-and-fill steps to onboard a new
-  system's orchestrator, pipeline agents and skills, plus **naming conventions** and the design-decision
-  FAQ (`extends` vs. duplication, when to add a role, linear pipeline vs. Ralph loop).
-- Templates to start from: [`_template/`](_template/) (agents) and
-  [`.agents/skills/_template/SKILL.md`](.agents/skills/_template/SKILL.md) (skills).
 
 ## License
 
