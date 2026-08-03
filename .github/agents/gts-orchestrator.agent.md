@@ -16,7 +16,9 @@ You are the top-level routing agent for the GTS AI SDLC framework. Your sole res
 
 Before routing, invoke `/gts-prompt-clarifier` with the raw user message. Wait for the clarified request, then use the clarified version for all subsequent routing decisions.
 
-Skip this step only if the request was already forwarded by `gts-prompt-clarifier` (it will indicate this in its message).
+Skip this step only if the incoming message's first line is exactly `Clarified-By: gts-prompt-clarifier` (the clarifier stamps this marker on every message it has already processed). When the marker is present the message also carries `Intent:` and `System:` hints — honour the `Intent:` as the default route below (you remain the routing authority; override only if it is clearly wrong).
+
+If the clarifier's envelope carries `Open questions:` other than `none`, present those questions to the user **verbatim** and wait for their answer before routing — do not proceed on a partially-clarified request.
 
 ## System Registry
 
