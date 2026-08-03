@@ -2,6 +2,7 @@
 name: jira
 description: "Jira operations skill for the T7 and P7 SDLC pipelines on devopsjira.deutsche-boerse.com. Use when: creating or updating T7/P7 tickets; working with Epic, Issue, SIR, Container, Deployment Request, DCCR, Sub-task, STT Test-task or ACT Test-task; transitioning issue status; linking tickets (contains / in container, relates, blocks); referencing tickets in branches, commits and PRs; or querying boards with JQL."
 systems: [all]
+tools: [devops_jira/*]
 ---
 
 # Jira Skill — T7 / P7
@@ -11,6 +12,8 @@ Both systems share one Jira instance — `https://devopsjira.deutsche-boerse.com
 same issue-type catalogue and workflows. Every issue key has the form `PROJECT-NNNN`
 (e.g. `T7-573588`, `P7-3099`, `T7DEP-7820`). Colloquially, issue keys are referred to as ticket
 numbers.
+
+Use the `/devops_jira` MCP to access Jira.
 
 > Ground rule: never invent issue types, statuses, components or transitions. Use only the
 > types and states documented here, or read them live from the issue before acting.
