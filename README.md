@@ -39,7 +39,7 @@
 ## Where & when you use it
 
 <p align="center">
-  <img src="docs/assets/where-when.svg" alt="Where and when you use GTS AI SDLC — four ways in from VS Code Copilot (Agent mode): describe the work and let gts-orchestrator route it; target a system with /p7-orchestrator or /t7-orchestrator; run one phase on demand such as a planner, reviewer, tester or spec-author; or ask a read-only knowledge query with /t7-sdlc-knowledge. Auto-discovered the moment the repo is open." width="100%">
+  <img src="docs/assets/where-when.svg" alt="Where and when you use GTS AI SDLC — five ways in from VS Code Copilot (Agent mode): describe the work and let gts-orchestrator route it; target a system with /p7-orchestrator or /t7-orchestrator; run one phase on demand such as a planner, reviewer, tester or spec-author; ask a read-only knowledge query with /t7-sdlc-knowledge; or diagnose a signal with /gts-issue-analyst — a red build, a Sonar finding, a security alert, an issue or a SIR — for a read-only root-cause verdict. Auto-discovered the moment the repo is open." width="100%">
 </p>
 
 Open the repo in VS Code and the whole team is already there — Copilot auto-discovers every
