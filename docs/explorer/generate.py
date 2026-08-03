@@ -68,6 +68,102 @@ SCEN = {
     ],
 }
 
+# 'How to use it' guide: the SDLC journey as stages (sub-tabs), each with boxed,
+# categorised example asks. Every example shows how /gts-orchestrator delegates.
+# Grounded in real T7 SIRs (T7-574620, T7-574466, T7-502218, T7-571121/DFS150510).
+HOWTO = [
+    {
+        "key": "ask", "label": "Ask & understand",
+        "lead": "Read-only questions about either codebase, its specs, ownership or terminology. No pipeline, no code changes \u2014 you just get an answer.",
+        "handled": ["t7-sdlc-knowledge"],
+        "examples": [
+            {"cat": "Ask a question about the code",
+             "ask": "Where is the TradingActionRequest role check enforced, and who owns that module?",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+            {"cat": "Look up a specification",
+             "ask": "Which T7 spec (DFS/SRQ) covers the VWAP settlement-price waterfall?",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+            {"cat": "Query Jira or GitHub (any project)",
+             "ask": "List my assigned tickets across T7 and P7, and show the open PRs on gts.t7.core.",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+        ],
+    },
+    {
+        "key": "analyse", "label": "Analyse an issue",
+        "lead": "Turn a raw bug, SIR or feature request into a grounded plan \u2014 tasks, affected files, acceptance criteria and risks. Stops at the plan for your review.",
+        "handled": ["t7-sdlc-planner", "p7-sdlc-planner"],
+        "examples": [
+            {"cat": "Perform a Jira SIR issue analysis",
+             "ask": "Analyse SIR T7-502218 \u2014 triage the Pope deadlock crash and produce a fix plan.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
+            {"cat": "Scope a feature",
+             "ask": "Plan the change to exclude volume-only trades from the VWAP settlement-price waterfall (T7-574466).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner \u2192 t7-sdlc-architect"},
+            {"cat": "Triage a P7 defect",
+             "ask": "Work out why over-limit quotes pass the risk-limit check in P7 middleware, and plan the fix.",
+             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 p7-sdlc-planner"},
+        ],
+    },
+    {
+        "key": "specify", "label": "Write a spec",
+        "lead": "Produce a governance-grade specification document \u2014 DFS (functional), DTS (technical) or SRQ (requirements/security) \u2014 with a full metadata header, from an approved plan.",
+        "handled": ["t7-sdlc-spec-author", "p7-sdlc-spec-author"],
+        "examples": [
+            {"cat": "Write a requirements document",
+             "ask": "Author the DFS for the SpA Cash-Market Risk requirements (T7-571121 / DFS150510).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
+            {"cat": "Produce a technical spec (DTS)",
+             "ask": "Turn the approved VWAP-waterfall plan into a DTS with the full metadata header.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
+            {"cat": "Draft a security requirements spec (SRQ)",
+             "ask": "Author the SRQ for the QUALIFIED_BACKOFFICE_USER authorisation rule (DFS150506).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
+        ],
+    },
+    {
+        "key": "implement", "label": "Implement a change",
+        "lead": "The full pipeline: plan \u2192 architecture gate \u2192 failing tests (RED) \u2192 implement (GREEN) \u2192 review \u2192 build \u2192 PR. A confirmation gate stops it before any code is written.",
+        "handled": ["t7-orchestrator", "p7-orchestrator"],
+        "examples": [
+            {"cat": "Fix a bug end-to-end",
+             "ask": "Reject a TradingActionRequest from a SpAProvider user without the QUALIFIED_BACKOFFICE_USER role (T7-574620).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 planner \u2192 architect \u2192 tester \u2192 developer \u2192 reviewer \u2192 builder \u2192 pr-author"},
+            {"cat": "Build a feature end-to-end",
+             "ask": "Exclude volume-only trades from the VWAP settlement-price waterfall (T7-574466).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC loop"},
+            {"cat": "Add a validation rule (P7)",
+             "ask": "Reject negative bid-ask spreads in the P7 pricing-engine request handler.",
+             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 full SDLC pipeline"},
+        ],
+    },
+    {
+        "key": "review", "label": "Review code",
+        "lead": "Judge a change for correctness, security (OWASP), patterns and requirement-conformance \u2014 as a standalone review, no pipeline required.",
+        "handled": ["p7-sdlc-reviewer"],
+        "examples": [
+            {"cat": "Review a diff or PR",
+             "ask": "Review PR #128 on gts.p7.pricingengine for correctness, security and spec-conformance.",
+             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 p7-sdlc-reviewer"},
+            {"cat": "Audit a snippet before you push",
+             "ask": "Review this request-handler change for OWASP issues before I open a PR.",
+             "route": "/p7-sdlc-reviewer  (also directly callable)"},
+        ],
+    },
+    {
+        "key": "ship", "label": "Build & ship",
+        "lead": "Compile the affected components in dependency order, then package the change into a clean, ticket-linked pull request.",
+        "handled": ["t7-sdlc-builder", "t7-sdlc-pr-author"],
+        "examples": [
+            {"cat": "Verify the build",
+             "ask": "Build the components affected by the VWAP-waterfall change in dependency order.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-builder"},
+            {"cat": "Open the pull request",
+             "ask": "Write the PR for the SpA rejection fix (T7-574620) and link the ticket.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
+        ],
+    },
+]
+
 
 def unquote(v):
     v = v.strip()
@@ -342,6 +438,27 @@ TEMPLATE = r"""<!doctype html>
   .obj{font-size:13.5px;color:var(--body);margin-top:12px}
   .obj b{color:var(--ink)}
   .dsuffix{margin-left:7px;font-weight:600;font-size:14px;color:var(--muted)}
+  .howto{margin-top:2px}
+  .hintro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  .hintro b{color:var(--ink)}
+  .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
+  .subtabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
+  .subtab{border:1px solid var(--line);background:#fff;color:var(--body);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;transition:.12s}
+  .subtab:hover{border-color:#c7cfd8;color:var(--ink)}
+  .subtab.on{background:linear-gradient(135deg,#5E54C8,#3F6FB5);color:#fff;border-color:transparent}
+  .hlead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:2px 2px 15px}
+  .hleadtxt{font-size:14px;color:var(--body);flex:1 1 340px;line-height:1.55}
+  .hhandled{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .hbylab{font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:10px;color:var(--faint);margin-right:2px}
+  .hby{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;background:#fff;border:1px solid #D9DEE5;color:#46505E;border-radius:999px;padding:4px 10px;cursor:pointer;transition:.12s}
+  .hby:hover{border-color:#3F6FB5;color:#3F6FB5}
+  .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:14px}
+  .exbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:0 1px 3px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:9px}
+  .exhead{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-.1px}
+  .excmd{background:#1F2733;color:#E9EEF5;border-radius:9px;padding:10px 12px;font-size:12.5px;line-height:1.55}
+  .excmd .you{color:#7DE3D0;font-weight:700;margin-right:5px}
+  .exroute{font-size:11.5px;color:var(--muted);font-family:'SF Mono',ui-monospace,Menlo,monospace;line-height:1.5;word-break:break-word}
+  .exroute .rlab{font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.4px;font-size:10px;color:var(--faint);margin-right:6px}
   footer{margin-top:26px;color:var(--muted);font-size:12px;text-align:center}
   @media(max-width:820px){.layout{grid-template-columns:1fr}.list{max-height:none}.detail{position:static}}
 </style>
@@ -350,7 +467,7 @@ TEMPLATE = r"""<!doctype html>
 <header class="hero"><div class="hero-in">
   <div class="eyebrow">GTS AI SDLC</div>
   <h1>Agent Playground</h1>
-  <p class="sub">Pick an agent to see what it does, what it can touch, the status it returns, and how to invoke it — the whole team, P7 and T7 side by side.</p>
+  <p class="sub">Explore the whole team — pick an agent to see what it does and how to invoke it, or open <b>How to use it</b> for the main things you can ask for and how each request is dispatched.</p>
 </div></header>
 <main class="wrap">
   <div class="tabs" id="tabs"></div>
@@ -365,6 +482,7 @@ TEMPLATE = r"""<!doctype html>
     <aside class="list card" id="list"></aside>
     <section class="detail card" id="detail"></section>
   </div>
+  <div class="howto" id="howto" style="display:none"></div>
   <footer id="foot"></footer>
 </main>
 <script>
@@ -372,13 +490,15 @@ const AGENTS = /*__AGENTS__*/;
 const GROUPS = /*__GROUPS__*/;
 const SYS = /*__SYS__*/;
 const PIPE = /*__PIPE__*/;
+const HOWTO = /*__HOWTO__*/;
 let sel = "/*__DEFAULT__*/";
 let fTab = "t7", fSkill = null, q = "";
+let hStep = HOWTO[0].key;
 
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byName = n => AGENTS.find(a => a.name === n);
-function syncTab(){ const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
+function syncTab(){ if(fTab==="howto") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
 function go(n){ if(byName(n)){ sel=n; syncTab(); try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
 
 function legend(){
@@ -509,27 +629,53 @@ function renderDetail(){
   $("#detail").querySelectorAll("[data-go]").forEach(el =>
     el.onclick = () => { fSkill=null; go(el.dataset.go); });
 }
+function renderHowto(){
+  const intro = `<div class="hintro"><b>One entry point, the whole team behind it.</b> Describe what you want in plain language to <code>/gts-orchestrator</code> — it clarifies your request, routes it to <b>P7</b> or <b>T7</b>, and delegates each step to the right specialist. You never pick an internal agent yourself. Pick a stage below to see what you can ask for and exactly how each request is dispatched.</div>`;
+  const subtabs = `<div class="subtabs">` + HOWTO.map(s=>
+    `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}">${esc(s.label)}</button>`).join("") + `</div>`;
+  const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
+  const handled = step.handled.map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
+  const lead = `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
+    `<div class="hhandled"><span class="hbylab">Handled by</span>${handled}</div></div>`;
+  const boxes = `<div class="exgrid">` + step.examples.map(e=>
+    `<div class="exbox"><div class="exhead">${esc(e.cat)}</div>`+
+    `<div class="excmd"><span class="you">You:</span>${esc(e.ask)}</div>`+
+    `<div class="exroute"><span class="rlab">Routes</span>${esc(e.route)}</div></div>`).join("") + `</div>`;
+  $("#howto").innerHTML = intro + subtabs + lead + boxes;
+  $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; renderHowto(); });
+  $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=t.system; go(el.dataset.go); });
+}
 function render(){
-  renderList(); renderDetail();
+  const howto = fTab==="howto";
+  document.querySelector(".controls").style.display = howto ? "none" : "";
+  document.querySelector(".layout").style.display = howto ? "none" : "";
+  $("#howto").style.display = howto ? "" : "none";
+  if(howto) renderHowto();
+  else { renderList(); renderDetail(); }
   document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.v===fTab));
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
+  $("#tabs").innerHTML = [{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"},{v:"howto",t:"How to use it"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;
-    const cur=byName(sel);
-    if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
+    if(fTab!=="howto"){
+      const cur=byName(sel);
+      if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
+    }
+    try{history.replaceState(null,"",fTab==="howto"?"#howto":"#"+sel)}catch(e){}
     render();
   });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
-  if(fromHash && byName(fromHash)) sel = fromHash;
+  if(fromHash==="howto") fTab="howto";
+  else if(fromHash && byName(fromHash)) sel = fromHash;
   syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if(byName(n)){ sel = n; syncTab(); render(); }
+    if(n==="howto"){ fTab="howto"; render(); }
+    else if(byName(n)){ sel = n; syncTab(); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
     `regenerate with <code>python3 docs/explorer/generate.py</code>`;
@@ -546,6 +692,7 @@ html = (TEMPLATE
         .replace("/*__GROUPS__*/", json.dumps(group_order, ensure_ascii=False))
         .replace("/*__SYS__*/", json.dumps(SYSTEMS, ensure_ascii=False))
         .replace("/*__PIPE__*/", json.dumps(PIPELINE, ensure_ascii=False))
+        .replace("/*__HOWTO__*/", json.dumps(HOWTO, ensure_ascii=False))
         .replace("/*__DEFAULT__*/", DEFAULT))
 
 out = os.path.join(HERE, "index.html")
