@@ -650,7 +650,7 @@ TEMPLATE = r"""<!doctype html>
 <header class="hero"><div class="hero-in">
   <div class="eyebrow">GTS AI SDLC</div>
   <h1>SDLC Agent Exploration</h1>
-  <p class="sub">Explore the whole team — pick an agent to see what it does and how to invoke it, or open <b>How to use GTS AI SDLC Agents</b> for the main things you can ask for and how each request is dispatched.</p>
+  <p class="sub">A full team of AI agents that runs the software lifecycle for the <b>P7</b> and <b>T7</b> platforms — answering questions, analysing issues, writing specs, implementing, testing, reviewing, building and shipping. Start on <b>How to use GTS AI SDLC Agents</b> to see what you can ask for, then open the <b>T7</b> or <b>P7</b> tabs to meet every agent.</p>
 </div></header>
 <main class="wrap">
   <div class="tabs" id="tabs"></div>
@@ -676,7 +676,7 @@ const PIPE = /*__PIPE__*/;
 const HOWTO = /*__HOWTO__*/;
 const PCOL = {"Developer":"#2E8E84","Tester":"#3E9460","Reviewer":"#C2862B","Architect":"#6E5BB8","Release manager":"#3F6FB5","Business analyst":"#C2557A","Product owner":"#B0518F","Ops engineer":"#5B6472","Security engineer":"#C0553B","Build engineer":"#6B7A45","Newcomer":"#8A92A0","Anyone":"#8A92A0"};
 let sel = "/*__DEFAULT__*/";
-let fTab = "t7", fSkill = null, q = "";
+let fTab = "howto", fSkill = null, q = "";
 let hStep = HOWTO[0].key;
 
 const $ = s => document.querySelector(s);
@@ -814,7 +814,7 @@ function renderDetail(){
     el.onclick = () => { fSkill=null; go(el.dataset.go); });
 }
 function renderHowto(){
-  const intro = `<div class="hintro"><b>One entry point, the whole team behind it.</b> In VS Code, open Copilot Chat, pick <code>gts-orchestrator</code> from the agent selector (or type <code>/gts-orchestrator</code>) and describe what you want — paste a Jira SIR, a GitHub issue, a stack trace, a requirement note or a code snippet, and ask for one thing or ten. It clarifies your request, routes it to <b>P7</b> or <b>T7</b>, and delegates each step to the right specialist; you never pick an internal agent yourself. Below, by SDLC stage, are real ways different people invoke it.</div>`;
+  const intro = `<div class="hintro"><b>A whole SDLC team — one simple way in.</b> These agents cover the entire software lifecycle for <b>P7</b> and <b>T7</b>: answering questions, analysing issues, writing specifications, implementing, testing, reviewing, building and shipping. The easiest way to use them — in VS Code Copilot Chat, describe what you want to <code>/gts-orchestrator</code> and let it do the rest: paste a Jira SIR, a GitHub issue, a stack trace, a requirement note or a code snippet, and ask for one thing or ten. It clarifies your request, routes it to the right platform, and drives the right specialists end to end. Prefer to steer yourself? You can also call a system orchestrator (<code>/t7-orchestrator</code>, <code>/p7-orchestrator</code>) or an invocable specialist directly. The stages below are real ways people put the team to work — examples, not limits.</div>`;
   const subtabs = `<div class="subtabs">` + HOWTO.map((s,i)=>
     `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}"><span class="stpn">${i+1}</span>${esc(s.label)}</button>`).join("") + `</div>`;
   const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
@@ -849,7 +849,7 @@ function render(){
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"},{v:"howto",t:"How to use GTS AI SDLC Agents"}]
+  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;
