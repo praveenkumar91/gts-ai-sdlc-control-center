@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 460" width="1560" height="460" role="img" aria-label="Where and when you use GTS AI SDLC. It lives in VS Code Copilot Agent mode, which auto-discovers every agent the moment the repo is open. Four ways in, the same team every time. 1 Describe the work: call gts-orchestrator and routing figures out the system — you get the right orchestrator with no guesswork. 2 Target a system: call p7-orchestrator or t7-orchestrator when you already know P7 or T7 — you get straight into that system's pipeline. 3 One phase on demand: call a single agent such as p7-sdlc-reviewer or t7-sdlc-tester to plan, review, test or author a spec — you get one phase without the full run. 4 Ask, don't build: call t7-sdlc-knowledge for where, who-owns and what-changed questions — you get a read-only answer with no build cycle.">
+  <title>GTS AI SDLC — where and when you use it</title>
+
+  <rect x="0" y="0" width="1560" height="460" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- header -->
+    <text x="44" y="50" font-size="15" font-weight="700" fill="#8A92A0" letter-spacing="2">WHERE &amp; WHEN YOU USE IT</text>
+    <text x="44" y="84" font-size="27" font-weight="700" fill="#1A1A2E" letter-spacing="-0.4">Same team, wherever you start</text>
+    <text x="560" y="84" font-size="15" font-weight="500" fill="#9AA1AB">in VS Code Copilot (Agent mode) — the whole lifecycle, or a single phase</text>
+
+    <!-- ============ 1 · Describe the work (lavender) ============ -->
+    <g transform="translate(40,142)">
+      <rect x="0" y="0" width="340" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="340" height="4" rx="2" fill="#A99BE0"/>
+      <circle cx="48" cy="56" r="24" fill="#ECE7FA"/>
+      <g transform="translate(48,56)" fill="none" stroke="#6E5BB8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="0" r="12"/>
+        <path d="M0 -12 L0 -8 M0 8 L0 12 M-12 0 L-8 0 M8 0 L12 0"/>
+        <path d="M4.5 -4.5 L-1 1 L-4.5 4.5 L1 -1 Z" fill="#6E5BB8" stroke="none"/>
+      </g>
+      <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Describe</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">the work</text>
+      <rect x="24" y="98" width="292" height="30" rx="8" fill="#F0EBFB" stroke="#E0D6F4"/>
+      <text x="40" y="118" font-size="12.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#5B49A6">/gts-orchestrator</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">routing figures out the system for you</text>
+      <line x1="24" y1="168" x2="316" y2="168" stroke="#EEF0F2"/>
+      <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="214" font-size="13" fill="#46505E">The right orchestrator —</text>
+      <text x="24" y="234" font-size="13" fill="#46505E">no guesswork about ownership.</text>
+    </g>
+
+    <!-- ============ 2 · Target a system (blue) ============ -->
+    <g transform="translate(420,142)">
+      <rect x="0" y="0" width="340" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="340" height="4" rx="2" fill="#8FB0E4"/>
+      <circle cx="48" cy="56" r="24" fill="#E3ECFB"/>
+      <g transform="translate(48,56)" fill="none" stroke="#3F6FB5" stroke-width="2.2" stroke-linecap="round">
+        <circle cx="0" cy="0" r="12"/>
+        <circle cx="0" cy="0" r="5.5"/>
+        <path d="M0 -16 L0 -12 M0 12 L0 16 M-16 0 L-12 0 M12 0 L16 0"/>
+      </g>
+      <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Target a</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">system</text>
+      <rect x="24" y="98" width="292" height="30" rx="8" fill="#EAF1FB" stroke="#D2E0F2"/>
+      <text x="40" y="118" font-size="12" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#2E5C9E">/p7-orchestrator · /t7-…</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">when you already know P7 or T7</text>
+      <line x1="24" y1="168" x2="316" y2="168" stroke="#EEF0F2"/>
+      <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="214" font-size="13" fill="#46505E">Straight into that system's</text>
+      <text x="24" y="234" font-size="13" fill="#46505E">pipeline, clarifier first.</text>
+    </g>
+
+    <!-- ============ 3 · One phase on demand (teal) ============ -->
+    <g transform="translate(800,142)">
+      <rect x="0" y="0" width="340" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="340" height="4" rx="2" fill="#57B5AD"/>
+      <circle cx="48" cy="56" r="24" fill="#DBF0EE"/>
+      <g transform="translate(48,56)" fill="none" stroke="#2E8E84" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-13 -11 L-13 11 M13 -11 L13 11"/>
+        <path d="M-4 -7 L8 0 L-4 7 Z" fill="#2E8E84" stroke="none"/>
+      </g>
+      <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">One phase</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">on demand</text>
+      <rect x="24" y="98" width="292" height="30" rx="8" fill="#E3F1EF" stroke="#CBE7E2"/>
+      <text x="40" y="118" font-size="11.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#256F67">/p7-sdlc-reviewer · tester</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">plan · review · test · author a spec</text>
+      <line x1="24" y1="168" x2="316" y2="168" stroke="#EEF0F2"/>
+      <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="214" font-size="13" fill="#46505E">A single phase run —</text>
+      <text x="24" y="234" font-size="13" fill="#46505E">without the full pipeline.</text>
+    </g>
+
+    <!-- ============ 4 · Ask, don't build (amber) ============ -->
+    <g transform="translate(1180,142)">
+      <rect x="0" y="0" width="340" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="340" height="4" rx="2" fill="#E7BD6E"/>
+      <circle cx="48" cy="56" r="24" fill="#FBF1DC"/>
+      <g transform="translate(48,56)" fill="none" stroke="#C2862B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-12 -9 h24 a2 2 0 0 1 2 2 v12 a2 2 0 0 1 -2 2 h-15 l-7 6 v-6 a2 2 0 0 1 -2 -2 v-12 a2 2 0 0 1 2 -2 z"/>
+        <path d="M-4 -2 a4 4 0 1 1 5 4 c-1 0.8 -1 1.6 -1 2.6" stroke-width="2"/>
+        <circle cx="0" cy="6.5" r="1.3" fill="#C2862B" stroke="none"/>
+      </g>
+      <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Ask,</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">don't build</text>
+      <rect x="24" y="98" width="292" height="30" rx="8" fill="#FAF1DE" stroke="#EFE0C2"/>
+      <text x="40" y="118" font-size="12" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9A6A1E">/t7-sdlc-knowledge</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">where · who owns · what changed</text>
+      <line x1="24" y1="168" x2="316" y2="168" stroke="#EEF0F2"/>
+      <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="214" font-size="13" fill="#46505E">A read-only answer —</text>
+      <text x="24" y="234" font-size="13" fill="#46505E">no plan, gate or build cycle.</text>
+    </g>
+
+    <!-- footnote -->
+    <text x="780" y="428" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Auto-discovered in VS Code Copilot the moment the repo is open — no build step, no install. One human gate confirms the plan before any code is written.</text>
+
+  </g>
+</svg>

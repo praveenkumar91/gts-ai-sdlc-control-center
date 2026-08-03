@@ -1,268 +1,147 @@
-# gts.ai.sdlc
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="GTS AI SDLC — one AI software-development lifecycle, composed for every GTS system. A 3-tier composition: gts-orchestrator routes each request to the right system; the p7 and t7 orchestrators run the pipeline; eight single-purpose pipeline roles do the work; all draw on 15 common plus system skills. The pipeline runs Plan, Architect, human Gate, RED tests, Develop, Review, Build and PR." width="100%">
+</p>
 
-Developer reference for the GTS AI SDLC framework — agent and skill definitions for automating software development workflows across GTS systems.
+<p align="center">
+  <img src="https://img.shields.io/badge/license-Internal%20DBAG-blue.svg" alt="License: Internal DBAG">
+  <img src="https://img.shields.io/badge/composition-3--tier-7c5cff.svg" alt="3-tier composition">
+  <img src="https://img.shields.io/badge/agents-21-ff7a59.svg" alt="21 agents">
+  <img src="https://img.shields.io/badge/systems-P7%20%C2%B7%20T7-1f9e89.svg" alt="Systems: P7 and T7">
+  <img src="https://img.shields.io/badge/skills-25-7c5cff.svg" alt="25 skills">
+  <img src="https://img.shields.io/badge/surface-VS%20Code%20Copilot-1f9e89.svg" alt="VS Code Copilot Agent mode">
+</p>
 
----
+<h3 align="center">
+  <a href="#where--when-you-use-it">Where &amp; When</a> &nbsp;·&nbsp;
+  <a href="#architecture-at-a-glance">Architecture</a> &nbsp;·&nbsp;
+  <a href="#the-sdlc-pipeline">The Pipeline</a> &nbsp;·&nbsp;
+  <a href="#supported-systems">Systems</a> &nbsp;·&nbsp;
+  <a href="#skills">Skills</a> &nbsp;·&nbsp;
+  <a href="#design-principles">Design</a> &nbsp;·&nbsp;
+  <a href="#get-started">Get Started</a>
+</h3>
 
-## Overview
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
-This repository defines a **3-tier composition model** for AI-assisted software development:
+## Where & when you use it
 
-```
-Tier 1: Generic Orchestrator  (.github/agents/gts-orchestrator.agent.md)
-         ↓ routes by system
-Tier 2: System Orchestrator   (.github/agents/{system}-orchestrator.agent.md)
-         ↓ coordinates pipeline
-Tier 3: Pipeline Agents       (.github/agents/{system}-sdlc-{role}.agent.md)
-         ↓ use skills
-        Common Skills          (.agents/skills/common/)
-        System Skills          (.agents/skills/systems/{system}/)
-```
+<p align="center">
+  <img src="docs/assets/where-when.svg" alt="Where and when you use GTS AI SDLC — four ways in from VS Code Copilot (Agent mode): describe the work and let gts-orchestrator route it; target a system with /p7-orchestrator or /t7-orchestrator; run one phase on demand such as a planner, reviewer, tester or spec-author; or ask a read-only knowledge query with /t7-sdlc-knowledge. Auto-discovered the moment the repo is open." width="100%">
+</p>
 
-- **Tier 1 (Generic Orchestrator)** — Knows all registered systems. Routes the user's request to the correct system orchestrator. Never implements anything itself.
-- **Tier 2 (System Orchestrator)** — Knows the SDLC pipeline for one system (Plan → Gate → Develop → Review → PR). Coordinates Tier 3 agents. Never implements anything itself.
-- **Tier 3 (Pipeline Agents)** — Specialised workers: planner, developer, reviewer, tester, builder, pr-author. Each does exactly one job and reports a status code back to the orchestrator.
+Open the repo in VS Code and the whole team is already there — Copilot auto-discovers every
+`.github/agents/*.agent.md`, so you run the **whole lifecycle** or call a **single phase** with zero setup.
+The four ways in are shown above; you never need to know which orchestrator owns your change.
 
-Skills are reusable knowledge modules loaded by agents — not agents themselves.
+> **One writer, always gated.** Only the **developer** edits code — every other agent coordinates or reads.
+> Nothing reaches a PR until the tester, reviewer and builder gates pass, and a single human gate confirms
+> the plan before any code is written.
 
----
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
-## Repository Structure
+## Architecture at a glance
 
-```
-gts.ai.sdlc/
-├── README.md                                        # Repo overview, tier model, onboarding guide
-├── CODEOWNERS                                        # PR Review by @gts-ai-developer
-│
-├── .github/
-│   └── agents/                                      # VS Code Copilot auto-discovers *.agent.md here
-│       │
-│       │  # ── Tier 1: Generic Orchestrator ──
-│       ├── gts-orchestrator.agent.md                # Routes user requests → correct system orchestrator
-│       │
-│       │  # ── Tier 2: System Orchestrators ──
-│       ├── p7-orchestrator.agent.md                 # P7 system orchestrator
-│       ├── t7-orchestrator.agent.md                 # T7 system orchestrator
-│       │
-│       │  # ── Tier 3: P7 Pipeline Agents ──
-│       ├── p7-sdlc-planner.agent.md
-│       ├── p7-sdlc-architect.agent.md
-│       ├── p7-sdlc-developer.agent.md
-│       ├── p7-sdlc-tester.agent.md
-│       ├── p7-sdlc-reviewer.agent.md
-│       ├── p7-sdlc-builder.agent.md
-│       ├── p7-sdlc-pr-author.agent.md
-│       ├── p7-sdlc-spec-author.agent.md             # On-demand DFS/DTS/SRQ authoring (post-planning)
-│       │
-│       │  # ── Tier 3: T7 Pipeline Agents ──
-│       ├── t7-sdlc-planner.agent.md
-│       ├── t7-sdlc-architect.agent.md
-│       ├── t7-sdlc-developer.agent.md
-│       ├── t7-sdlc-tester.agent.md
-│       ├── t7-sdlc-reviewer.agent.md
-│       ├── t7-sdlc-builder.agent.md
-│       ├── t7-sdlc-pr-author.agent.md
-│       ├── t7-sdlc-knowledge.agent.md
-│       └── t7-sdlc-spec-author.agent.md             # On-demand DFS/DTS/SRQ authoring (post-planning)
-│
-├── .agents/
-│   └── skills/                                      # Vendor-neutral skills (VS Code + Codex + CLI)
-│       │
-│       ├── _template/
-│       │   └── SKILL.md                             # Template: copy to create any new skill
-│       │
-│       ├── common/                                  # Skills reusable across ALL systems
-│       │   ├── github/
-│       │   │   └── SKILL.md
-│       │   ├── github-pr-miner/
-│       │   │   └── SKILL.md
-│       │   ├── jira/
-│       │   │   └── SKILL.md
-│       │   ├── confluence/
-│       │   │   └── SKILL.md
-│       │   ├── teams/
-│       │   │   └── SKILL.md
-│       │   ├── sdlc-brainstorming/
-│       │   │   └── SKILL.md
-│       │   ├── sdlc-debugging/
-│       │   │   └── SKILL.md
-│       │   ├── sdlc-verification/
-│       │   │   └── SKILL.md
-│       │   ├── ralph-loop/                         # Canonical autonomous build-loop protocol (artifacts, modes, backpressure)
-│       │   │   └── SKILL.md
-│       │   │
-│       │   ├── spec-authoring/                     # Authors DFS/DTS/SRQ (DOCX-ready) after planning
-│       │   │   ├── SKILL.md
-│       │   │   └── references/
-│       │   │       ├── DFS.md                       # Detailed Functional Specification model
-│       │   │       ├── DTS.md                       # Detailed Technical Specification model
-│       │   │       └── SRQ.md                       # System Requirement Specification model
-│       │   │
-│       │   └── coding-guidelines/
-│       │       ├── SKILL.md
-│       │       └── references/
-│       │           ├── C++_Coding_Guidelines_v1.4.md
-│       │           ├── Java_Coding_Guidelines_v1.4.md
-│       │           └── Python_Coding_Guidelines_v1.4.md
-│       │
-│       └── systems/
-│           │
-│           ├── p7/                                  # P7 system skills
-│           │   ├── p7-code/
-│           │   │   └── SKILL.md
-│           │   ├── p7-code-review/
-│           │   │   └── SKILL.md
-│           │   ├── p7-debugging/
-│           │   │   └── SKILL.md
-│           │   ├── p7-brainstorming/
-│           │   │   └── SKILL.md
-│           │   ├── p7-verification/
-│           │   │   └── SKILL.md
-│           │   └── p7-github/
-│           │       └── SKILL.md
-│           │
-│           └── t7/                                  # T7 system skills
-│               ├── t7-code/
-│               │   └── SKILL.md
-│               ├── t7-spec/
-│               │   └── SKILL.md
-│               └── t7-knowledge-base/
-│                   ├── SKILL.md
-│                   ├── assets/
-│                   │   ├── output-template.md
-│                   │   └── output-template copy.md
-│                   └── references/
-│                       ├── t7-applications.md       # T7 application inventory
-│                       ├── t7-abbreviations.md      # T7 domain glossary & search-term guidance
-│                       ├── t7-component-map.md      # T7 component dependency map
-│                       ├── t7-component-owners.md   # T7 component ownership directory
-│                       ├── t7-interfaces.md         # T7 interface definitions
-│                       ├── t7-modules.md            # T7 module catalog
-│                       └── t7-regulatory-glossary.md  # Regulatory abbreviations (DBG context)
-│
-└── _template/                                       # Bootstrapping templates (NOT auto-discovered)
-    ├── SYSTEM-orchestrator.agent.md                 # Template: system orchestrator (Tier 2)
-    ├── SYSTEM-sdlc-developer.agent.md               # Template: developer pipeline agent (Tier 3)
-    └── SYSTEM-sdlc-spec-author.agent.md             # Template: on-demand DFS/DTS/SRQ spec-author (Tier 3)
-```
+The framework is a **3-tier composition model**: a generic router on top, one orchestrator per system in
+the middle, and single-purpose pipeline agents at the bottom — all drawing on shared **skills**.
+
+<p align="center">
+  <img src="docs/assets/architecture.svg" alt="GTS AI SDLC architecture — a 3-tier composition. A developer request passes through gts-prompt-clarifier, then Tier 1 (gts-orchestrator) routes it to the right system; Tier 2 is the p7-orchestrator (linear TDD pipeline) and t7-orchestrator (autonomous Ralph loop); Tier 3 is eight-to-nine single-purpose agents — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author and T7 knowledge — each returning a status code, only the developer writing code; all draw on shared common and system skills." width="100%">
+</p>
+
+Read it top-down: the clarifier normalises the request, **Tier 1** routes to a system, **Tier 2** runs that
+system's pipeline, and **Tier 3** does the work — one job per agent, each ending on a routable **status
+code**. No agent touches a tool directly; it goes **through a skill** (which wraps a differently-named MCP
+server — the bottom lane), and every path, command and spec value is **retrieved live** so the work tracks
+the current baseline, not a memorised guess.
+
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
+
+## The SDLC pipeline
+
+Each system binds the same lifecycle to its own agents. Every Tier 3 worker ends its turn with a
+**status code**, and the orchestrator routes on it — that status contract is what makes the pipeline
+autonomous yet gated.
+
+<p align="center">
+  <img src="docs/assets/pipeline.svg" alt="The GTS AI SDLC pipeline, eight phases, each one agent that returns a status code: Plan (planner), Architect (architect: APPROVE, REVISE or BLOCK), Human gate (yes, no or revise), RED tests (tester: RED_READY or NOT_APPLICABLE), Develop (developer: DONE — the only code writer), Review (reviewer: APPROVED or CHANGES_REQUIRED via the code-review-lens brain plus requirement conformance), Build (builder: BUILD_PASS or BUILD_FAIL) and PR (pr-author). P7 runs it as a linear TDD pipeline; T7 as an autonomous Ralph loop." width="100%">
+</p>
+
+**Two shapes, one contract.** P7 runs this straight through as a **linear TDD pipeline**; T7 runs it as an
+**autonomous Ralph loop** — specs are the source of truth, the plan is disposable, and each iteration
+converges one task under tester + builder backpressure.
+
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
+
+## Supported systems
+
+<p align="center">
+  <img src="docs/assets/systems-and-skills.svg" alt="GTS AI SDLC systems and skills — P7 (p7-orchestrator, linear TDD pipeline) with roles planner, architect, developer, tester, reviewer, builder, pr-author and spec-author, and system skills p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification and p7-github; T7 (t7-orchestrator, autonomous Ralph loop) with the same roles plus a read-only knowledge agent, and system skills t7-code, t7-code-review, t7-spec and t7-knowledge-base; a shared skill library grouped into review-and-specs, integrations and SDLC discipline. Totals: 21 agents, 25 skills, 2 systems, 8 pipeline phases." width="100%">
+</p>
+
+> **T7 adds a knowledge agent.** `t7-sdlc-knowledge` answers read-only "where / who owns / what changed"
+> questions directly — no plan, gate or build cycle.
+>
+> **Specs are on-demand.** `{system}-sdlc-spec-author` runs *after* planning to produce formal
+> **DFS / DTS / SRQ** under `specs/{system}/` — separate from the lightweight plan the planner writes, and
+> reusing the shared `spec-authoring` skill so every system follows the same corporate standard.
+
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
+
+## Skills
+
+A **skill** is a reusable knowledge module — *not* an agent. **Common** skills apply to every system
+(`systems: [all]`); **system** skills are scoped (`systems: [t7]`) and may `extend` a common one to add
+rules on top. The full inventory — 15 common skills (review & specs, integrations, SDLC discipline) plus
+each system's skills — is enumerated in the diagram above.
+
+> **Skill vs. MCP server — two different names.** A skill is the *wrapper*; the engine it delegates to is a
+> separate **MCP server** with its own name. `code-review-lens` wraps the **`codereviewer-lens`** MCP;
+> `t7-code` wraps **`t7codebase`**; `t7-spec` wraps **`t7spec`**; `github` wraps the **`github`** MCP; `jira`
+> wraps **`devops_jira`**. Agents reach a server **only through its skill**, never by calling the MCP tool
+> directly (the *skill-first tool access* principle) — so a raw namespace like `codereviewer-lens/review_pr`
+> only ever appears inside the skill's `tools:`, not in an agent body.
+
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
+
+## Design principles
+
+<p align="center">
+  <img src="docs/assets/design-principles.svg" alt="Eight GTS AI SDLC design principles, each enforced in the agent definitions: 1 one job per agent (single responsibility); 2 one writer, many gates (only the developer writes code, gated by tester, reviewer and builder after a human gate); 3 retrieve, don't inline (paths and specs fetched live through skills); 4 evidence-grounded work (evidence localisation, discriminating RED tests, cited reviews); 5 classify first, verify fit (NOT_APPLICABLE for non-behavioural changes); 6 skill-first tool access (skills are transport); 7 vendor-neutral, composable skills (compose, don't duplicate); 8 untrusted content is data (OWASP LLM01)." width="100%">
+</p>
+
+Not marketing lines — each of these is enforced in the agent and skill definitions themselves, not left to
+the model's discretion.
 
 ---
 
-## Supported Systems
+## Get started
 
-| System | Orchestrator | Pipeline Agents | System Skills |
-|--------|-------------|-----------------|---------------|
-| P7 — Pricing & Risk Management | `p7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, spec-author | p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github |
-| T7 — Trading System | `t7-orchestrator` | planner, architect, developer, tester, reviewer, builder, pr-author, knowledge, spec-author | t7-code, t7-spec, t7-knowledge-base |
+The framework needs no build step — it *is* the agent and skill definitions. To use it:
 
-> The **spec-author** agent (`{system}-sdlc-spec-author`) runs **on-demand after planning** to produce formal DFS/DTS/SRQ documents under `specs/{system}/`, using the common `spec-authoring` skill. It is separate from the planner: the planner produces a lightweight plan, the spec-author produces DOCX-ready specification files. DFS/DTS/SRQ are a shared corporate standard, so every system reuses the same common skill.
+1. **Open this repo in VS Code** with GitHub Copilot (Agent mode). Every `.github/agents/*.agent.md` is
+   auto-discovered as a callable subagent.
+2. **Describe your task in Copilot Chat.** Start broad and let routing take over, or target a system:
 
----
+   ```
+   /gts-orchestrator   Fix the SMP Type-B reason code on cancel in T7
+   /p7-orchestrator    Add a validation rule to the pricing-engine request handler
+   /t7-sdlc-knowledge  Who owns the Matcher, and where does the order lifecycle live?
+   /p7-sdlc-reviewer   Review the diff on this branch
+   ```
 
-## How to Add a New System
-
-**Step 1 — Create the system orchestrator**
-
-Copy `_template/SYSTEM-orchestrator.agent.md` to `.github/agents/{system}-orchestrator.agent.md`.
-Replace every `{SYSTEM}` / `{system}` placeholder.
-
-**Step 2 — Create pipeline agents**
-
-Copy `_template/SYSTEM-sdlc-developer.agent.md` to `.github/agents/{system}-sdlc-developer.agent.md`.
-Fill in layer paths, build commands, coding standards.
-Add additional agents (`.github/agents/{system}-sdlc-planner.agent.md`, `.github/agents/{system}-sdlc-reviewer.agent.md`, etc.) as the system matures.
-
-**Step 3 — Create system skills**
-```
-mkdir .agents/skills/systems/{system}/{system}-code
-cp .agents/skills/_template/SKILL.md .agents/skills/systems/{system}/{system}-code/SKILL.md
-```
-Fill in layer table, naming conventions, build commands, testing patterns.
-
-**Step 4 — (Optional) Add the spec-author agent**
-
-If the system produces formal DFS/DTS/SRQ documents, copy `_template/SYSTEM-sdlc-spec-author.agent.md` to `.github/agents/{system}-sdlc-spec-author.agent.md`.
-Replace the `{SYSTEM}` / `{system}` placeholders, wire `skills:` to the system's content-grounding skill(s), and set the output folder to `specs/{system}/`.
-Register it in the system orchestrator's `agents:` list and add an on-demand **Spec Authoring** phase + partial-run entry (mirror the T7/P7 orchestrators).
-The DFS/DTS/SRQ structure, metadata contract, and filename rules are reused from the common `spec-authoring` skill — no per-system spec skill is required.
-
-**Step 5 — Add to the generic orchestrator**
-
-In `.github/agents/gts-orchestrator.agent.md`, add `{system}-orchestrator` to the `agents:` frontmatter list and add a routing rule in the **Routing Rules** section.
+3. **Confirm the plan at the human gate**, then let the pipeline run its RED → GREEN → review → build →
+   PR loop to a reviewed, evidence-linked change.
 
 ---
 
-## Naming Conventions
+## Extending & further reading
 
-| Item | Convention | Example |
-|------|-----------|---------|
-| System folder names | lowercase, no separators | `p7`, `t7`, `cue` |
-| Subagent `name` field | `{system}-orchestrator` | `t7-orchestrator` |
-| Pipeline agent file names | `{system}-sdlc-{role}.agent.md` | `t7-sdlc-developer.agent.md` |
-| Pipeline agent `name` field | `{system}-sdlc-{role}` | `t7-sdlc-developer` |
-| Skill folder names | `{system}-{topic}` (system) or plain noun (common) | `t7-code`, `github` |
-| Skill `name` field | matches folder name | `t7-code`, `github` |
-| Common skill `systems` field | `[all]` | `systems: [all]` |
-| System skill `systems` field | `[{system}]` | `systems: [t7]` |
-| System override skill `extends` | `common/{skill-name}` | `extends: common/github` |
+- **[Adding a new system →](docs/adding-a-new-system.md)** — copy-and-fill steps to onboard a new
+  system's orchestrator, pipeline agents and skills, plus **naming conventions** and the design-decision
+  FAQ (`extends` vs. duplication, when to add a role, linear pipeline vs. Ralph loop).
+- Templates to start from: [`_template/`](_template/) (agents) and
+  [`.agents/skills/_template/SKILL.md`](.agents/skills/_template/SKILL.md) (skills).
 
----
+## License
 
-## Composition Model
-
-```
-User request
-    │
-    ▼
-┌─────────────────────────────────┐
-│  gts-orchestrator  (Tier 1)     │  .github/agents/gts-orchestrator.agent.md
-│  "Which system?"                │
-│  Routes to system orchestrator  │
-└───────────┬─────────────────────┘
-            │  delegates to
-            ▼
-┌─────────────────────────────────┐
-│  {system}-orchestrator (Tier 2) │  .github/agents/{system}-orchestrator.agent.md
-│  Plan → Gate → Develop →        │
-│  Review → PR                    │
-└──┬──────────┬────────────┬──────┘
-   │          │            │
-   ▼          ▼            ▼
-planner   developer    reviewer      (Tier 3 pipeline agents)
-   │          │            │
-   └──────────┴────────────┘
-              │ load
-    ┌─────────┴──────────┐
-    │   Common Skills    │  .agents/skills/common/  (github, jira, confluence, …)
-    │   System Skills    │  .agents/skills/systems/{system}/  ({system}-code, …)
-    └────────────────────┘
-```
-
-Every Tier 2 and Tier 3 agent is a **coordinator or worker only** — no agent reads files or writes code outside its designated role. The developer agent is the only agent that writes code.
-
----
-
-## Common Skills
-
-| Skill | Path | Use When |
-|-------|------|----------|
-| `github` | `.agents/skills/common/github/` | Creating PRs, writing commit messages, branch management, review checklists |
-| `github-pr-miner` | `.agents/skills/common/github-pr-miner/` | Mining PR history, analysing prior changes, extracting patterns from past PRs |
-| `jira` | `.agents/skills/common/jira/` | Linking Jira tickets, updating status, referencing tickets in commits/PRs |
-| `confluence` | `.agents/skills/common/confluence/` | Writing ADRs, API docs, meeting notes, onboarding guides |
-| `teams` | `.agents/skills/common/teams/` | Sending Teams notifications, formatting pipeline status messages |
-| `sdlc-brainstorming` | `.agents/skills/common/sdlc-brainstorming/` | Exploring requirements, clarifying scope before planning begins |
-| `sdlc-debugging` | `.agents/skills/common/sdlc-debugging/` | Systematic diagnosis of bugs before any fix is attempted |
-| `sdlc-verification` | `.agents/skills/common/sdlc-verification/` | Pre-completion checklist before declaring DONE |
-| `coding-guidelines` | `.agents/skills/common/coding-guidelines/` | Writing or reviewing C++, Java, or Python code — applies language-level coding standards across all systems |
-
----
-
-## Open Questions / Future Work
-
-| Question | Recommended Answer |
-|----------|--------------------|
-| **Should system skills be able to override common skills?** | Yes — use the `extends` frontmatter field. The system skill adds rules on top; the common skill is the base. Already in use with `p7-github` overriding `common/github`. |
-| **How should the orchestrator handle a system it doesn't recognise?** | Ask the user which system they are working on, then prompt them to follow the "How to Add a New System" steps above. The generic orchestrator only routes to systems listed in its `agents:` frontmatter — do not guess or hallucinate a system orchestrator. |
-| **When should a new pipeline agent role be added vs reusing developer?** | Add a dedicated agent when the role has distinct constraints (e.g. tester must not edit production code, builder must only run build commands). Roles that only differ by scope can share the developer agent with task-specific instructions in the plan. |
-| **How are skills versioned when a common skill changes?** | System skills that `extend` a common skill inherit changes automatically. System skills that duplicate common content must be updated manually. Avoid duplication — prefer `extends` and additive overrides. |
+Internal to Deutsche Börse AG — see [`LICENSE.md`](LICENSE.md).

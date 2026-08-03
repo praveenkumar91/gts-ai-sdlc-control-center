@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 560" width="1560" height="560" role="img" aria-label="The GTS AI SDLC pipeline, left to right, eight phases each bound to one agent that returns a status code. 1 Plan (-sdlc-planner): break the request into tasks with acceptance criteria and evidence-located paths. 2 Architect (-sdlc-architect): validate the plan against architecture, boundaries, ownership and build order; returns APPROVE, REVISE or BLOCK. 3 Human gate: confirm the plan before any code is written; yes, no or revise. 4 RED tests (-sdlc-tester): classify the change first, then write a discriminating failing test — right reason, right value; returns RED_READY or NOT_APPLICABLE. 5 Develop (-sdlc-developer): the minimal code to turn the RED suite green, the only agent that writes code; returns DONE or NEEDS_CONTEXT. 6 Review (-sdlc-reviewer): the code-review-lens brain plus requirement conformance against the Jira ticket; APPROVED or CHANGES_REQUIRED. 7 Build (-sdlc-builder): compile affected components in dependency order; BUILD_PASS or BUILD_FAIL. 8 PR (-sdlc-pr-author): PR title, description, changelog and ticket links. Two shapes, one contract: P7 runs a linear TDD pipeline; T7 runs an autonomous Ralph loop, one task per iteration.">
+  <title>GTS AI SDLC — the pipeline, phase by phase</title>
+
+  <rect x="0" y="0" width="1560" height="560" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- header -->
+    <text x="44" y="50" font-size="15" font-weight="700" fill="#8A92A0" letter-spacing="2">THE SDLC PIPELINE</text>
+    <text x="44" y="84" font-size="27" font-weight="700" fill="#1A1A2E" letter-spacing="-0.4">Plan it, prove it, ship it</text>
+    <text x="470" y="84" font-size="15" font-weight="500" fill="#9AA1AB">every phase is one agent that hands back a status the orchestrator routes on</text>
+
+    <!-- rail -->
+    <line x1="125" y1="196" x2="1435" y2="196" stroke="#E6E9ED" stroke-width="2"/>
+    <g stroke="#C9CED5" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M215 189 l7 7 l-7 7"/>
+      <path d="M402 189 l7 7 l-7 7"/>
+      <path d="M589 189 l7 7 l-7 7"/>
+      <path d="M776 189 l7 7 l-7 7"/>
+      <path d="M963 189 l7 7 l-7 7"/>
+      <path d="M1150 189 l7 7 l-7 7"/>
+      <path d="M1337 189 l7 7 l-7 7"/>
+    </g>
+
+    <!-- ===================== station circles ===================== -->
+    <!-- centres at 125 + i*187 -->
+    <g text-anchor="middle" font-weight="800" font-size="17">
+      <circle cx="125"  cy="196" r="22" fill="#E3ECFB" stroke="#3F6FB5" stroke-width="2"/><text x="125"  y="203" fill="#3F6FB5">1</text>
+      <circle cx="312"  cy="196" r="22" fill="#ECE7FA" stroke="#6E5BB8" stroke-width="2"/><text x="312"  y="203" fill="#6E5BB8">2</text>
+      <circle cx="499"  cy="196" r="22" fill="#EEF1F4" stroke="#8A93A0" stroke-width="2"/><text x="499"  y="203" fill="#5B6472">3</text>
+      <circle cx="686"  cy="196" r="22" fill="#FBE3DE" stroke="#C65B45" stroke-width="2"/><text x="686"  y="203" fill="#C65B45">4</text>
+      <circle cx="873"  cy="196" r="22" fill="#E3F3E8" stroke="#3E9460" stroke-width="2"/><text x="873"  y="203" fill="#3E9460">5</text>
+      <circle cx="1060" cy="196" r="22" fill="#DBF0EE" stroke="#2E8E84" stroke-width="2"/><text x="1060" y="203" fill="#2E8E84">6</text>
+      <circle cx="1247" cy="196" r="22" fill="#FBF1DC" stroke="#C2862B" stroke-width="2"/><text x="1247" y="203" fill="#C2862B">7</text>
+      <circle cx="1434" cy="196" r="22" fill="#E7E9F9" stroke="#4A54B8" stroke-width="2"/><text x="1434" y="203" fill="#4A54B8">8</text>
+    </g>
+
+    <!-- ===================== phase cards ===================== -->
+    <!-- card x = 40 + i*187, width 170 -->
+
+    <!-- 1 PLAN -->
+    <g transform="translate(40,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#5B8BD0"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">PLAN</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-planner</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Break work into tasks</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">with acceptance criteria</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">+ evidence-located paths.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#E3ECFB"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3F6FB5">tasks + criteria</text>
+    </g>
+
+    <!-- 2 ARCHITECT -->
+    <g transform="translate(227,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#8E7BD0"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">ARCHITECT</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-architect</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Validate the plan vs</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">architecture, boundaries,</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">ownership &amp; build order.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#ECE7FA"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9" font-weight="700" fill="#6E5BB8">APPROVE·REVISE·BLOCK</text>
+    </g>
+
+    <!-- 3 GATE -->
+    <g transform="translate(414,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#AEB6C0"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">HUMAN GATE</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">you confirm</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">The single gate: confirm</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">the plan before any</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">code is written.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#EEF1F4"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9.5" font-weight="700" fill="#5B6472">yes · no · revise</text>
+    </g>
+
+    <!-- 4 RED -->
+    <g transform="translate(601,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#D9694F"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">RED TESTS</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-tester</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Classify first, then a</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">discriminating failing</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">test — right reason.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#FBE3DE"/>
+      <text x="85" y="202" text-anchor="middle" font-size="8.5" font-weight="700" fill="#C65B45">RED_READY · N/A</text>
+    </g>
+
+    <!-- 5 DEVELOP -->
+    <g transform="translate(788,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#57B07E"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">DEVELOP</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-developer</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Minimal code to turn</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">the RED suite green.</text>
+      <text x="16" y="124" font-size="11" font-weight="700" fill="#2F7A4F">The only code writer.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#E3F3E8"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9" font-weight="700" fill="#3E9460">DONE · NEEDS_CONTEXT</text>
+    </g>
+
+    <!-- 6 REVIEW -->
+    <g transform="translate(975,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#3FAEA4"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">REVIEW</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-reviewer</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Lens brain (Sonar ·</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">Fortify · scan · RAG) +</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">requirement conformance.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#DBF0EE"/>
+      <text x="85" y="202" text-anchor="middle" font-size="8.5" font-weight="700" fill="#2E8E84">APPROVED · CHANGES</text>
+    </g>
+
+    <!-- 7 BUILD -->
+    <g transform="translate(1162,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#E3A93C"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">BUILD</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-builder</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Compile the affected</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">components in strict</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">dependency order.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#FBF1DC"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9" font-weight="700" fill="#C2862B">BUILD_PASS · FAIL</text>
+    </g>
+
+    <!-- 8 PR -->
+    <g transform="translate(1349,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#6C74C9"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">PR</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">-sdlc-pr-author</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEF0F2"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">PR title, description,</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">changelog and Jira</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">ticket links.</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">RETURNS</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#E7E9F9"/>
+      <text x="85" y="202" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4A54B8">evidence-linked PR</text>
+    </g>
+
+    <!-- ===================== two shapes band ===================== -->
+    <text x="44" y="506" font-size="12.5" font-weight="700" fill="#7E8694" letter-spacing="0.6">TWO SHAPES, ONE CONTRACT</text>
+    <g>
+      <rect x="300" y="490" width="40" height="26" rx="8" fill="#EDF2FB"/>
+      <text x="320" y="508" text-anchor="middle" font-size="12" font-weight="800" fill="#3F6FB5">P7</text>
+      <text x="352" y="508" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">linear TDD pipeline</tspan> — plan once, run straight through</text>
+    </g>
+    <g>
+      <rect x="900" y="490" width="40" height="26" rx="8" fill="#EDF2FB"/>
+      <text x="920" y="508" text-anchor="middle" font-size="12" font-weight="800" fill="#3F6FB5">T7</text>
+      <text x="952" y="508" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">autonomous Ralph loop</tspan> — converge specs, one task per iteration</text>
+    </g>
+
+    <text x="780" y="540" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Non-behavioural change? The tester abstains with NOT_APPLICABLE and names the fit verification — no fabricated test.</text>
+
+  </g>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 330" width="1500" height="330" role="img" aria-label="GTS AI SDLC — one AI software-development lifecycle, composed for every GTS system. A 3-tier composition: Tier 1 gts-orchestrator routes each request to the right system; Tier 2 the p7 and t7 orchestrators run the pipeline; Tier 3 eight single-purpose pipeline roles do the work, each returning a status code; all drawing on 15 common plus system skills. The pipeline runs Plan, Architect, human Gate, RED tests, GREEN develop, Review, Build and PR.">
+  <title>GTS AI SDLC — a tiered team of specialist agents, one lifecycle</title>
+
+  <defs>
+    <linearGradient id="gBadge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7E6BD6"/>
+      <stop offset="0.55" stop-color="#5B78CC"/>
+      <stop offset="1" stop-color="#3FAEA4"/>
+    </linearGradient>
+    <linearGradient id="gWash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8E7BD0"/>
+      <stop offset="1" stop-color="#3FAEA4"/>
+    </linearGradient>
+    <marker id="chev" viewBox="0 0 10 10" refX="4" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 1 L8 5 L0 9" fill="none" stroke="#C9CED5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="330" fill="#FFFFFF"/>
+  <!-- subtle brand wash, top-right -->
+  <circle cx="1430" cy="20" r="300" fill="url(#gWash)" opacity="0.06"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- ============ icon badge ============ -->
+    <rect x="66" y="72" width="90" height="90" rx="24" fill="url(#gBadge)"/>
+    <g transform="translate(111,117)" stroke="#FFFFFF" fill="#FFFFFF">
+      <!-- router node -->
+      <circle cx="0" cy="-19" r="5.2" stroke="none"/>
+      <!-- three branches to three worker nodes -->
+      <g fill="none" stroke-width="3.4" stroke-linecap="round">
+        <path d="M0 -14 C0 -2 -24 -2 -24 8"/>
+        <path d="M0 -14 L0 8"/>
+        <path d="M0 -14 C0 -2 24 -2 24 8"/>
+      </g>
+      <circle cx="-24" cy="13" r="4.6" stroke="none"/>
+      <circle cx="0"   cy="13" r="4.6" stroke="none"/>
+      <circle cx="24"  cy="13" r="4.6" stroke="none"/>
+    </g>
+
+    <!-- ============ wordmark ============ -->
+    <text x="186" y="98" font-size="14" font-weight="700" fill="#8A92A0" letter-spacing="2.4">GTS · AI SOFTWARE-DEVELOPMENT LIFECYCLE</text>
+    <text x="184" y="152" font-size="55" font-weight="800" fill="#1A1A2E" letter-spacing="-1">GTS AI SDLC</text>
+    <text x="186" y="189" font-size="17.5" font-weight="500" fill="#5B6472">One AI lifecycle, composed for every GTS system — <tspan font-weight="700" fill="#3A4150">routed, planned, tested, reviewed, shipped.</tspan></text>
+
+    <!-- ============ composition legend card ============ -->
+    <g transform="translate(1046,60)">
+      <rect x="0" y="0" width="408" height="180" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="180" rx="3" fill="url(#gBadge)"/>
+      <text x="30" y="34" font-size="11" font-weight="700" fill="#8A92A0" letter-spacing="1.6">COMPOSITION MODEL</text>
+      <g>
+        <circle cx="34" cy="64" r="6" fill="#A99BE0"/>
+        <text x="52" y="69" font-size="13.5" font-weight="700" fill="#2B3242">Tier 1 <tspan font-weight="400" fill="#5B6472">· gts-orchestrator routes</tspan></text>
+      </g>
+      <g>
+        <circle cx="34" cy="93" r="6" fill="#8FB0E4"/>
+        <text x="52" y="98" font-size="13.5" font-weight="700" fill="#2B3242">Tier 2 <tspan font-weight="400" fill="#5B6472">· p7 · t7 orchestrators</tspan></text>
+      </g>
+      <g>
+        <circle cx="34" cy="122" r="6" fill="#57B5AD"/>
+        <text x="52" y="127" font-size="13.5" font-weight="700" fill="#2B3242">Tier 3 <tspan font-weight="400" fill="#5B6472">· 8 pipeline roles, one job each</tspan></text>
+      </g>
+      <g>
+        <circle cx="34" cy="151" r="6" fill="#E7BD6E"/>
+        <text x="52" y="156" font-size="13.5" font-weight="700" fill="#2B3242">Skills <tspan font-weight="400" fill="#5B6472">· 15 common + system, reusable</tspan></text>
+      </g>
+    </g>
+
+    <!-- ============ pipeline pill strip ============ -->
+    <text x="66" y="258" font-size="11" font-weight="700" fill="#B6BCC4" letter-spacing="1.6">THE PIPELINE</text>
+    <line x1="188" y1="253" x2="1434" y2="253" stroke="#EEF0F2" stroke-width="1"/>
+
+    <!-- chevrons between pills -->
+    <g>
+      <line x1="222" y1="288" x2="238" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="394" y1="288" x2="410" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="566" y1="288" x2="582" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="738" y1="288" x2="754" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="910" y1="288" x2="926" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="1082" y1="288" x2="1098" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+      <line x1="1254" y1="288" x2="1270" y2="288" stroke="#C9CED5" marker-end="url(#chev)"/>
+    </g>
+
+    <!-- pills: x = 66 + i*172, width 148, centre = 140 + i*172 -->
+    <g font-size="11.5" font-weight="700" letter-spacing="0.4" text-anchor="middle">
+      <g><rect x="66"   y="272" width="148" height="32" rx="16" fill="#E3ECFB"/><text x="140"  y="292" fill="#3F6FB5">PLAN</text></g>
+      <g><rect x="238"  y="272" width="148" height="32" rx="16" fill="#ECE7FA"/><text x="312"  y="292" fill="#6E5BB8">ARCHITECT</text></g>
+      <g><rect x="410"  y="272" width="148" height="32" rx="16" fill="#EEF1F4"/><text x="484"  y="292" fill="#5B6472">HUMAN GATE</text></g>
+      <g><rect x="582"  y="272" width="148" height="32" rx="16" fill="#FBE3DE"/><text x="656"  y="292" fill="#C65B45">RED TESTS</text></g>
+      <g><rect x="754"  y="272" width="148" height="32" rx="16" fill="#E3F3E8"/><text x="828"  y="292" fill="#3E9460">DEVELOP</text></g>
+      <g><rect x="926"  y="272" width="148" height="32" rx="16" fill="#DBF0EE"/><text x="1000" y="292" fill="#2E8E84">REVIEW</text></g>
+      <g><rect x="1098" y="272" width="148" height="32" rx="16" fill="#FBF1DC"/><text x="1172" y="292" fill="#C2862B">BUILD</text></g>
+      <g><rect x="1270" y="272" width="148" height="32" rx="16" fill="#E7E9F9"/><text x="1344" y="292" fill="#4A54B8">PR</text></g>
+    </g>
+
+  </g>
+</svg>

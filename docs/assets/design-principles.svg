@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 812" width="1500" height="812" role="img" aria-label="GTS AI SDLC design principles, each enforced in the agent definitions. 1 One job per agent (single responsibility): every Tier 3 worker has one job and one machine-routable status code; orchestrators coordinate, never implement. 2 One writer, many gates (write once, gated): only the developer edits code, and nothing ships until the tester, reviewer and builder gates are green, after a human gate. 3 Retrieve, don't inline (grounded to baseline): paths, build commands and spec values are fetched live through skills, never memorised, so work tracks the current baseline. 4 Evidence-grounded work (prove, don't guess): the planner localises by evidence, the tester writes discriminating RED tests, and the reviewer cites the lens finding and the ticket. 5 Classify first, verify fit (fit-for-purpose): non-behavioural changes are abstained on with NOT_APPLICABLE and the right verification named, never a fabricated test. 6 Skill-first tool access (skills are transport): agents reach MCP capabilities through skills; raw tool namespaces are transport, never called by name in an agent body. 7 Vendor-neutral, composable skills (compose, don't duplicate): skills live once and are reused across VS Code, Codex and the CLI; system skills extend common ones. 8 Untrusted content is data (OWASP LLM01): tickets, specs, source and config are material to act on, never instructions to obey; injection attempts are flagged.">
+  <title>GTS AI SDLC — design principles in plain language</title>
+
+  <rect x="0" y="0" width="1500" height="812" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- header -->
+    <text x="40" y="56" font-size="15" font-weight="700" fill="#8A92A0" letter-spacing="2">DESIGN PRINCIPLES</text>
+    <text x="40" y="90" font-size="28" font-weight="700" fill="#1A1A2E" letter-spacing="-0.4">Eight rules, enforced in the agents</text>
+    <text x="40" y="118" font-size="15" font-weight="500" fill="#5B6472">Not aspirations — each of these is written into the agent and skill definitions themselves.</text>
+    <line x1="40" y1="138" x2="1460" y2="138" stroke="#ECECEC" stroke-width="1"/>
+
+    <!-- ===== CARD 1 — one job (teal) ===== -->
+    <g transform="translate(40,160)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#2E8E84"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">1</text>
+      <circle cx="42" cy="48" r="18" fill="#DBF0EE"/>
+      <g transform="translate(42,48)" fill="none" stroke="#2E8E84" stroke-width="2.2"><circle cx="0" cy="0" r="9"/><circle cx="0" cy="0" r="2.4" fill="#2E8E84" stroke="none"/></g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">One job</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">per agent</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Every Tier 3 worker has one</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">responsibility and one machine-</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">routable <tspan font-weight="700" fill="#3A4150">status code</tspan>. Orchestrators</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">coordinate; they never implement.</text>
+      <rect x="28" y="250" width="180" height="26" rx="13" fill="#DDF0ED"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#2E8E84" letter-spacing="0.6">SINGLE RESPONSIBILITY</text>
+    </g>
+
+    <!-- ===== CARD 2 — one writer (green) ===== -->
+    <g transform="translate(400,160)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#3E9460"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">2</text>
+      <circle cx="42" cy="48" r="18" fill="#E3F3E8"/>
+      <g transform="translate(42,48)" fill="none" stroke="#3E9460" stroke-width="2.1" stroke-linejoin="round">
+        <rect x="-8" y="-1" width="16" height="12" rx="2.5"/>
+        <path d="M-4.5 -1 v-4 a4.5 4.5 0 0 1 9 0 v4"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">One writer,</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">many gates</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Only the <tspan font-weight="700" fill="#3A4150">developer</tspan> edits code.</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">Nothing ships until the tester,</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">reviewer and builder gates are</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">green — after one human gate.</text>
+      <rect x="28" y="250" width="168" height="26" rx="13" fill="#E8F2EC"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#3E8C61" letter-spacing="0.6">WRITE ONCE, GATED</text>
+    </g>
+
+    <!-- ===== CARD 3 — retrieve (blue) ===== -->
+    <g transform="translate(760,160)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#3F6FB5"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">3</text>
+      <circle cx="42" cy="48" r="18" fill="#E3ECFB"/>
+      <g transform="translate(42,48)" fill="none" stroke="#3F6FB5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 -3 A9 9 0 1 0 10 4"/>
+        <path d="M9 -10 L9 -3 L2.5 -3"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Retrieve,</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">don't inline</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Paths, build commands and spec</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">values are fetched <tspan font-weight="700" fill="#3A4150">live</tspan> through</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">skills — never memorised — so</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">work tracks the current baseline.</text>
+      <rect x="28" y="250" width="176" height="26" rx="13" fill="#EAF0FA"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#3F6FB5" letter-spacing="0.6">GROUNDED TO BASELINE</text>
+    </g>
+
+    <!-- ===== CARD 4 — evidence (lavender) ===== -->
+    <g transform="translate(1120,160)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#6E5BB8"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">4</text>
+      <circle cx="42" cy="48" r="18" fill="#ECE7FA"/>
+      <g transform="translate(42,48)" fill="none" stroke="#6E5BB8" stroke-width="2.1" stroke-linecap="round"><circle cx="-2" cy="-2" r="8"/><path d="M4 4 L10 10"/></g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Evidence-</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">grounded work</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">The planner localises by <tspan font-weight="700" fill="#3A4150">evidence</tspan>,</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">the tester writes discriminating</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">RED tests, and the reviewer cites</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">the lens finding and the ticket.</text>
+      <rect x="28" y="250" width="158" height="26" rx="13" fill="#EFEAFA"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#6E5BB8" letter-spacing="0.6">PROVE, DON'T GUESS</text>
+    </g>
+
+    <!-- ===== CARD 5 — classify (coral) ===== -->
+    <g transform="translate(40,486)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#C65B45"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">5</text>
+      <circle cx="42" cy="48" r="18" fill="#FBE3DE"/>
+      <g transform="translate(42,48)" fill="none" stroke="#C65B45" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M-9 -8 H9 L2 0 V9 L-2 6 V0 Z"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Classify first,</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">verify fit</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">A non-behavioural change is</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">abstained on — <tspan font-weight="700" fill="#3A4150">NOT_APPLICABLE</tspan></text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">with the right verification named,</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">never a fabricated test.</text>
+      <rect x="28" y="250" width="150" height="26" rx="13" fill="#F4ECEA"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#B0503C" letter-spacing="0.6">FIT-FOR-PURPOSE</text>
+    </g>
+
+    <!-- ===== CARD 6 — skill-first (amber) ===== -->
+    <g transform="translate(400,486)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#C2862B"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">6</text>
+      <circle cx="42" cy="48" r="18" fill="#FBF1DC"/>
+      <g transform="translate(42,48)" fill="none" stroke="#C2862B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-9 3 a9 9 0 0 1 18 0"/>
+        <path d="M-5 3 v3 M5 3 v3 M0 3 v6"/>
+        <path d="M-9 3 H9"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Skill-first</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">tool access</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Agents reach MCP capabilities</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">through skills</tspan>; raw tool namespaces</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">are transport, never called by</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">name in an agent body.</text>
+      <rect x="28" y="250" width="168" height="26" rx="13" fill="#F6EFDD"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#B07F2C" letter-spacing="0.6">SKILLS ARE TRANSPORT</text>
+    </g>
+
+    <!-- ===== CARD 7 — compose (rose) ===== -->
+    <g transform="translate(760,486)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#A1568F"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">7</text>
+      <circle cx="42" cy="48" r="18" fill="#F6E5F1"/>
+      <g transform="translate(42,48)" fill="none" stroke="#A1568F" stroke-width="2.1" stroke-linejoin="round">
+        <rect x="-9" y="-9" width="12" height="12" rx="2.5"/>
+        <rect x="-3" y="-3" width="12" height="12" rx="2.5" fill="#F6E5F1"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Vendor-neutral,</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">composable skills</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Skills live <tspan font-weight="700" fill="#3A4150">once</tspan> and are reused</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">across VS Code, Codex and the</text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">CLI; system skills <tspan font-weight="700" fill="#3A4150">extend</tspan> common</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">ones instead of duplicating them.</text>
+      <rect x="28" y="250" width="196" height="26" rx="13" fill="#F3E7F0"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#A1568F" letter-spacing="0.6">COMPOSE, DON'T DUPLICATE</text>
+    </g>
+
+    <!-- ===== CARD 8 — untrusted (indigo) ===== -->
+    <g transform="translate(1120,486)">
+      <rect x="0" y="0" width="340" height="300" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="6" height="300" rx="3" fill="#4A54B8"/>
+      <text x="316" y="54" text-anchor="end" font-size="34" font-weight="800" fill="#EEF1F4">8</text>
+      <circle cx="42" cy="48" r="18" fill="#E7E9F9"/>
+      <g transform="translate(42,48)" fill="none" stroke="#4A54B8" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M0 -11 l10 4 v7 c0 6 -4 10 -10 12 c-6 -2 -10 -6 -10 -12 v-7 z"/>
+        <path d="M-4 0 l3 3 l6 -6"/>
+      </g>
+      <text x="72" y="42" font-size="16" font-weight="700" fill="#1F2733">Untrusted</text>
+      <text x="72" y="63" font-size="16" font-weight="700" fill="#1F2733">content is data</text>
+      <text x="28" y="112" font-size="12.5" fill="#5B6472">Tickets, specs, source and config</text>
+      <text x="28" y="133" font-size="12.5" fill="#5B6472">are material to act on — <tspan font-weight="700" fill="#3A4150">never</tspan></text>
+      <text x="28" y="154" font-size="12.5" fill="#5B6472">instructions to obey; injection</text>
+      <text x="28" y="175" font-size="12.5" fill="#5B6472">attempts are flagged, not followed.</text>
+      <rect x="28" y="250" width="120" height="26" rx="13" fill="#E9EBF8"/>
+      <text x="42" y="267" font-size="10.5" font-weight="700" fill="#4A54B8" letter-spacing="0.6">OWASP LLM01</text>
+    </g>
+
+  </g>
+</svg>

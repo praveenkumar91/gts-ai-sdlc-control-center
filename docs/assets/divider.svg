@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 6" width="1400" height="6" role="img" aria-label="Section divider in the eight SDLC-phase colours">
+  <title>GTS AI SDLC section divider</title>
+  <defs>
+    <!-- one repeat = the eight pipeline-phase colours, diagonally striped -->
+    <pattern id="phaseStripes" width="416" height="6" patternUnits="userSpaceOnUse" patternTransform="skewX(-20)">
+      <rect x="0"   width="52" height="6" fill="#5B8BD0"/><!-- blue    · Plan     -->
+      <rect x="52"  width="52" height="6" fill="#8E7BD0"/><!-- lavender · Architect -->
+      <rect x="104" width="52" height="6" fill="#C879B0"/><!-- rose    · Spec     -->
+      <rect x="156" width="52" height="6" fill="#D9694F"/><!-- coral   · RED test -->
+      <rect x="208" width="52" height="6" fill="#57B07E"/><!-- green   · Develop  -->
+      <rect x="260" width="52" height="6" fill="#3FAEA4"/><!-- teal    · Review   -->
+      <rect x="312" width="52" height="6" fill="#E3A93C"/><!-- amber   · Build    -->
+      <rect x="364" width="52" height="6" fill="#6C74C9"/><!-- indigo  · PR       -->
+    </pattern>
+    <clipPath id="roundedBar">
+      <rect x="0" y="0" width="1400" height="6" rx="2.5" ry="2.5"/>
+    </clipPath>
+  </defs>
+  <rect x="-40" y="0" width="1480" height="6" fill="url(#phaseStripes)" clip-path="url(#roundedBar)"/>
+</svg>
