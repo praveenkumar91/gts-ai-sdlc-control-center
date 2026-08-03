@@ -94,9 +94,15 @@ SonarQube is used for automated code quality checks.
 
 ```cpp
 a = (b + c) * d; // Good
-while (true) { /* ... */ }
+while (true)
+{
+    /* ... */
+}
 doSomething(a, b, c, d);
-for (i = 0; i < 10; i++) { /* ... */ }
+for (i = 0; i < 10; i++)
+{
+    /* ... */
+}
 ```
 
 ### 3.2 Formatting and Indentation
