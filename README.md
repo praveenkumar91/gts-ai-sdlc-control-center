@@ -11,6 +11,10 @@
   <img src="https://img.shields.io/badge/surface-VS%20Code%20Copilot-1f9e89.svg" alt="VS Code Copilot Agent mode">
 </p>
 
+<p align="center">
+  <b>A VS Code-based agentic SDLC</b> — specialist AI agents that run the full development lifecycle across <b>P7</b> and <b>T7</b>.
+</p>
+
 <h3 align="center">
   <a href="#where--when-you-use-it">Where &amp; When</a> &nbsp;·&nbsp;
   <a href="#architecture-at-a-glance">Architecture</a> &nbsp;·&nbsp;
