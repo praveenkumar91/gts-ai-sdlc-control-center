@@ -69,54 +69,83 @@ SCEN = {
 }
 
 # 'How to use it' guide: the SDLC journey as stages (sub-tabs), each with boxed,
-# categorised example asks. Every example shows how /gts-orchestrator delegates.
-# Grounded in real T7 SIRs (T7-574620, T7-574466, T7-502218, T7-571121/DFS150510).
+# categorised example asks tagged by user persona. Every example is an actual
+# prompt a user would type, and shows how /gts-orchestrator delegates. Grounded
+# in real SIRs from the T7 study corpus (crashes, defects, protocol/field fixes,
+# performance, security, spec work and ops incidents).
 HOWTO = [
     {
         "key": "ask", "label": "Ask & understand",
         "lead": "Read-only questions about either codebase, its specs, ownership or terminology. No pipeline, no code changes \u2014 you just get an answer.",
         "handled": ["t7-sdlc-knowledge"],
         "examples": [
-            {"cat": "Ask a question about the code",
-             "ask": "Where is the TradingActionRequest role check enforced, and who owns that module?",
+            {"pers": "Newcomer", "cat": "Find where something lives",
+             "ask": "Where is the TradingActionRequest role check enforced, which component owns it, and what's the class hierarchy around it?",
              "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
-            {"cat": "Look up a specification",
-             "ask": "Which T7 spec (DFS/SRQ) covers the VWAP settlement-price waterfall?",
+            {"pers": "Developer", "cat": "Understand how it works",
+             "ask": "How does the VWAP settlement-price waterfall work today, and which modules feed into it?",
              "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
-            {"cat": "Query Jira or GitHub (any project)",
-             "ask": "List my assigned tickets across T7 and P7, and show the open PRs on gts.t7.core.",
+            {"pers": "Business analyst", "cat": "Find the governing spec",
+             "ask": "Which spec defines the QUALIFIED_BACKOFFICE_USER authorisation rules? Summarise the relevant section for me.",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+            {"pers": "Release manager", "cat": "Query Jira & GitHub together",
+             "ask": "List every open SIR tagged DFS150510, and show the merged PRs that reference T7-571121.",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+            {"pers": "Developer", "cat": "Look up a protocol field",
+             "ask": "Which ETI/FIX field carries BusinessRejectReason, and what valid value signals a pre-trade risk-limit breach?",
+             "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+            {"pers": "Ops engineer", "cat": "Onboard to a component",
+             "ask": "Who owns the FAGSE Fix Gateway, where does its viewdb config live, and how is it built?",
              "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
         ],
     },
     {
         "key": "analyse", "label": "Analyse an issue",
-        "lead": "Turn a raw bug, SIR or feature request into a grounded plan \u2014 tasks, affected files, acceptance criteria and risks. Stops at the plan for your review.",
-        "handled": ["t7-sdlc-planner", "p7-sdlc-planner"],
+        "lead": "Turn a raw bug, SIR, log or feature request into a grounded plan \u2014 tasks, affected files, acceptance criteria and risks. Stops at the plan for your review. Paste anything: a ticket ID, an issue, a stack trace, or a snippet.",
+        "handled": ["t7-sdlc-planner", "p7-sdlc-planner", "t7-sdlc-architect"],
         "examples": [
-            {"cat": "Perform a Jira SIR issue analysis",
-             "ask": "Analyse SIR T7-502218 \u2014 triage the Pope deadlock crash and produce a fix plan.",
+            {"pers": "Developer", "cat": "Paste a Jira SIR \u2014 analyse a crash",
+             "ask": "Here's SIR T7-502218 \u2014 'Pope crashed due to a deadlock.' Analyse the root cause and give me a fix plan with affected files and risks.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
-            {"cat": "Scope a feature",
-             "ask": "Plan the change to exclude volume-only trades from the VWAP settlement-price waterfall (T7-574466).",
+            {"pers": "Anyone", "cat": "Paste a GitHub issue \u2014 ask ten things at once",
+             "ask": "I'm pasting GitHub issue #482 below. In one go: (1) explain the likely root cause, (2) list the components involved, (3) draft a task-by-task fix plan, (4) call out regression risks, (5) suggest tests to add.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
+            {"pers": "Developer", "cat": "Paste a stack trace / crash log",
+             "ask": "Crash log pasted below \u2014 GatewayODC-EUREX GW.EMERG. Work out what's crashing and where, then plan the smallest safe fix (T7-574470).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
+            {"pers": "Tester", "cat": "Reproduce-first triage",
+             "ask": "SIR T7-573162 \u2014 'Negate/Not not working in the Market Maker Protection screen.' Tell me how to reproduce it and what the fix scope is.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
+            {"pers": "Business analyst", "cat": "Scope a feature into acceptance criteria",
+             "ask": "Scope T7-574466 \u2014 exclude volume-only trades from the VWAP waterfall. What changes, where, and what are the acceptance criteria?",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner \u2192 t7-sdlc-architect"},
-            {"cat": "Triage a P7 defect",
-             "ask": "Work out why over-limit quotes pass the risk-limit check in P7 middleware, and plan the fix.",
-             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 p7-sdlc-planner"},
+            {"pers": "Ops engineer", "cat": "Triage a production incident",
+             "ask": "Rollover keeps failing on 'broker_maintenance execute_TIG_broker_maintenance_prepare' (T7-574274). Triage it and recommend the minimal fix.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
+            {"pers": "Developer", "cat": "Confirm a suspected memory leak",
+             "ask": "T7-573762 \u2014 RetransmitPlugin::OnMessage moves raw pointer ownership into unique_ptr fields. Confirm the leak path and plan the fix.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-planner"},
         ],
     },
     {
         "key": "specify", "label": "Write a spec",
-        "lead": "Produce a governance-grade specification document \u2014 DFS (functional), DTS (technical) or SRQ (requirements/security) \u2014 with a full metadata header, from an approved plan.",
+        "lead": "Produce a governance-grade specification document \u2014 DFS (functional), DTS (technical) or SRQ (requirements/security) \u2014 with a full metadata header, from an approved plan or a rough note.",
         "handled": ["t7-sdlc-spec-author", "p7-sdlc-spec-author"],
         "examples": [
-            {"cat": "Write a requirements document",
-             "ask": "Author the DFS for the SpA Cash-Market Risk requirements (T7-571121 / DFS150510).",
+            {"pers": "Business analyst", "cat": "Write a requirements document (DFS)",
+             "ask": "Author the DFS for the SpA Cash-Market Risk requirements (T7-571121 / DFS150510) from the approved plan.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
-            {"cat": "Produce a technical spec (DTS)",
-             "ask": "Turn the approved VWAP-waterfall plan into a DTS with the full metadata header.",
+            {"pers": "Developer", "cat": "Produce a technical spec (DTS)",
+             "ask": "Turn the approved VWAP-waterfall plan into a DTS with the full metadata header and interface changes.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
-            {"cat": "Draft a security requirements spec (SRQ)",
-             "ask": "Author the SRQ for the QUALIFIED_BACKOFFICE_USER authorisation rule (DFS150506).",
+            {"pers": "Security engineer", "cat": "Draft a security requirements spec (SRQ)",
+             "ask": "Draft the SRQ for the QUALIFIED_BACKOFFICE_USER authorisation rule (DFS150506), including the rejection behaviour.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
+            {"pers": "Business analyst", "cat": "Formalise a rough requirement note",
+             "ask": "Here's our rough requirement note (pasted below). Turn it into a governance-grade DFS with proper sections and a metadata header.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
+            {"pers": "Product owner", "cat": "Spec an infrastructure change",
+             "ask": "Write the SRQ151007 Infrastructure Enhancements spec from the plan and the linked tickets.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-spec-author"},
         ],
     },
@@ -125,40 +154,76 @@ HOWTO = [
         "lead": "The full pipeline: plan \u2192 architecture gate \u2192 failing tests (RED) \u2192 implement (GREEN) \u2192 review \u2192 build \u2192 PR. A confirmation gate stops it before any code is written.",
         "handled": ["t7-orchestrator", "p7-orchestrator"],
         "examples": [
-            {"cat": "Fix a bug end-to-end",
-             "ask": "Reject a TradingActionRequest from a SpAProvider user without the QUALIFIED_BACKOFFICE_USER role (T7-574620).",
+            {"pers": "Developer", "cat": "Fix a defect end-to-end",
+             "ask": "Reject a TradingActionRequest from a SpAProvider user without the QUALIFIED_BACKOFFICE_USER role (T7-574620). Take it all the way to a PR.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 planner \u2192 architect \u2192 tester \u2192 developer \u2192 reviewer \u2192 builder \u2192 pr-author"},
-            {"cat": "Build a feature end-to-end",
+            {"pers": "Anyone", "cat": "Paste a GitHub issue \u2014 'just do it'",
+             "ask": "Here's GitHub issue #517 (pasted). Implement it end-to-end \u2014 plan, tests, code, review, build, PR \u2014 and stop at the plan gate for my sign-off.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC pipeline"},
+            {"pers": "Developer", "cat": "Build a feature",
              "ask": "Exclude volume-only trades from the VWAP settlement-price waterfall (T7-574466).",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC loop"},
-            {"cat": "Add a validation rule (P7)",
+            {"pers": "Developer", "cat": "Fix a crash with a repro test first",
+             "ask": "Fix the TFH-XETR 'double free' crash (T7-500068) \u2014 write a failing test that reproduces it before the fix.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 tester (RED) \u2192 developer (GREEN) \u2192 \u2026"},
+            {"pers": "Developer", "cat": "Add a mandatory protocol field",
+             "ask": "Add the mandatory PartyExecutingTrader field to the ETI ExtendedDeletionReport (T7-573246).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC pipeline"},
+            {"pers": "Developer", "cat": "Add a valid value across ETI + FIX",
+             "ask": "Add valid value Pretrade_Risk_Limit_Exceeded=10016 to BusinessRejectReason in FIX LF and ETI (T7-571030).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC pipeline"},
+            {"pers": "Developer", "cat": "Move a validation (CoMa defect)",
+             "ask": "CoMa fails with 'contract month/year is not set' (T7-572008). Move the validation from the proto contract into Contract::UpdateWithoutProto and ship it.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 full SDLC pipeline"},
+            {"pers": "Developer", "cat": "Add a validation rule (P7)",
              "ask": "Reject negative bid-ask spreads in the P7 pricing-engine request handler.",
              "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 full SDLC pipeline"},
         ],
     },
     {
         "key": "review", "label": "Review code",
-        "lead": "Judge a change for correctness, security (OWASP), patterns and requirement-conformance \u2014 as a standalone review, no pipeline required.",
-        "handled": ["p7-sdlc-reviewer"],
+        "lead": "Judge a change for correctness, security (OWASP), patterns and requirement-conformance \u2014 as a standalone review. Paste a PR link, a diff, or a snippet.",
+        "handled": ["p7-sdlc-reviewer", "t7-sdlc-reviewer", "t7-sdlc-architect"],
         "examples": [
-            {"cat": "Review a diff or PR",
-             "ask": "Review PR #128 on gts.p7.pricingengine for correctness, security and spec-conformance.",
-             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 p7-sdlc-reviewer"},
-            {"cat": "Audit a snippet before you push",
-             "ask": "Review this request-handler change for OWASP issues before I open a PR.",
-             "route": "/p7-sdlc-reviewer  (also directly callable)"},
+            {"pers": "Reviewer", "cat": "Review a pull request",
+             "ask": "Review PR #128 on gts.p7.pricingengine for correctness, security (OWASP) and spec-conformance.",
+             "route": "gts-orchestrator \u2192 p7-orchestrator \u2192 p7-sdlc-reviewer  (or /p7-sdlc-reviewer direct)"},
+            {"pers": "Developer", "cat": "Review my own diff before pushing",
+             "ask": "Here's my diff for the SpA rejection fix (pasted). Review it for edge cases and missing validation before I push.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-reviewer"},
+            {"pers": "Security engineer", "cat": "Audit a snippet for OWASP",
+             "ask": "Request-handler snippet below \u2014 audit it for OWASP issues: injection, broken authorisation, error-message leakage.",
+             "route": "/p7-sdlc-reviewer  (directly callable)"},
+            {"pers": "Reviewer", "cat": "Check spec-conformance",
+             "ask": "Does this change actually implement DFS150506 correctly? Review it against the spec's rejection rules.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-reviewer"},
+            {"pers": "Architect", "cat": "Sanity-check the approach first",
+             "ask": "Before I build: is moving pointer ownership to unique_ptr the right fix for the Retransmitter leak, or will it break the plugin contract?",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-architect"},
+            {"pers": "Reviewer", "cat": "Triage a SonarQube backlog",
+             "ask": "Review the critical/blocker SonarQube findings on this module and tell me which are real and worth fixing (T7-568112).",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-reviewer"},
         ],
     },
     {
         "key": "ship", "label": "Build & ship",
-        "lead": "Compile the affected components in dependency order, then package the change into a clean, ticket-linked pull request.",
+        "lead": "Compile the affected components in dependency order, then package the change into a clean, ticket-linked pull request with release notes.",
         "handled": ["t7-sdlc-builder", "t7-sdlc-pr-author"],
         "examples": [
-            {"cat": "Verify the build",
-             "ask": "Build the components affected by the VWAP-waterfall change in dependency order.",
+            {"pers": "Developer", "cat": "Verify the build in dependency order",
+             "ask": "Build the components affected by the VWAP-waterfall change in dependency order and report pass/fail.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-builder"},
-            {"cat": "Open the pull request",
-             "ask": "Write the PR for the SpA rejection fix (T7-574620) and link the ticket.",
+            {"pers": "Developer", "cat": "Quick compile check after an edit",
+             "ask": "I changed the ODC server \u2014 just compile the affected components and tell me if anything breaks.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-builder"},
+            {"pers": "Release manager", "cat": "Open the pull request",
+             "ask": "Write the PR for the SpA rejection fix (T7-574620), link the ticket, and use conventional-commit style.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
+            {"pers": "Release manager", "cat": "Generate release notes",
+             "ask": "Generate the release notes for everything merged under DFS150510 this iteration.",
+             "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
+            {"pers": "Developer", "cat": "Turn my branch into a clean PR",
+             "ask": "Turn my current branch into a clean PR \u2014 conventional-commit title, summary and test notes.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
         ],
     },
@@ -455,6 +520,7 @@ TEMPLATE = r"""<!doctype html>
   .exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(318px,1fr));gap:14px}
   .exbox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;box-shadow:0 1px 3px rgba(15,23,42,.05);display:flex;flex-direction:column;gap:9px}
   .exhead{font-size:14px;font-weight:800;color:var(--ink);letter-spacing:-.1px}
+  .expers{align-self:flex-start;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;border:1px solid;border-radius:999px;padding:2px 9px;background:#fff}
   .excmd{background:#1F2733;color:#E9EEF5;border-radius:9px;padding:10px 12px;font-size:12.5px;line-height:1.55}
   .excmd .you{color:#7DE3D0;font-weight:700;margin-right:5px}
   .exroute{font-size:11.5px;color:var(--muted);font-family:'SF Mono',ui-monospace,Menlo,monospace;line-height:1.5;word-break:break-word}
@@ -491,6 +557,7 @@ const GROUPS = /*__GROUPS__*/;
 const SYS = /*__SYS__*/;
 const PIPE = /*__PIPE__*/;
 const HOWTO = /*__HOWTO__*/;
+const PCOL = {"Developer":"#2E8E84","Tester":"#3E9460","Reviewer":"#C2862B","Architect":"#6E5BB8","Release manager":"#3F6FB5","Business analyst":"#C2557A","Product owner":"#B0518F","Ops engineer":"#5B6472","Security engineer":"#C0553B","Newcomer":"#8A92A0","Anyone":"#8A92A0"};
 let sel = "/*__DEFAULT__*/";
 let fTab = "t7", fSkill = null, q = "";
 let hStep = HOWTO[0].key;
@@ -630,17 +697,20 @@ function renderDetail(){
     el.onclick = () => { fSkill=null; go(el.dataset.go); });
 }
 function renderHowto(){
-  const intro = `<div class="hintro"><b>One entry point, the whole team behind it.</b> Describe what you want in plain language to <code>/gts-orchestrator</code> — it clarifies your request, routes it to <b>P7</b> or <b>T7</b>, and delegates each step to the right specialist. You never pick an internal agent yourself. Pick a stage below to see what you can ask for and exactly how each request is dispatched.</div>`;
+  const intro = `<div class="hintro"><b>One entry point, the whole team behind it.</b> In VS Code, open Copilot Chat, pick <code>gts-orchestrator</code> from the agent selector (or type <code>/gts-orchestrator</code>) and describe what you want — paste a Jira SIR, a GitHub issue, a stack trace, a requirement note or a code snippet, and ask for one thing or ten. It clarifies your request, routes it to <b>P7</b> or <b>T7</b>, and delegates each step to the right specialist; you never pick an internal agent yourself. Below, by SDLC stage, are real ways different people invoke it.</div>`;
   const subtabs = `<div class="subtabs">` + HOWTO.map(s=>
     `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}">${esc(s.label)}</button>`).join("") + `</div>`;
   const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
   const handled = step.handled.map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
   const lead = `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
     `<div class="hhandled"><span class="hbylab">Handled by</span>${handled}</div></div>`;
-  const boxes = `<div class="exgrid">` + step.examples.map(e=>
-    `<div class="exbox"><div class="exhead">${esc(e.cat)}</div>`+
-    `<div class="excmd"><span class="you">You:</span>${esc(e.ask)}</div>`+
-    `<div class="exroute"><span class="rlab">Routes</span>${esc(e.route)}</div></div>`).join("") + `</div>`;
+  const boxes = `<div class="exgrid">` + step.examples.map(e=>{
+    const pc = PCOL[e.pers] || "#8A92A0";
+    return `<div class="exbox"><div class="expers" style="color:${pc};border-color:${pc}55">${esc(e.pers)}</div>`+
+      `<div class="exhead">${esc(e.cat)}</div>`+
+      `<div class="excmd"><span class="you">You:</span>${esc(e.ask)}</div>`+
+      `<div class="exroute"><span class="rlab">Routes</span>${esc(e.route)}</div></div>`;
+  }).join("") + `</div>`;
   $("#howto").innerHTML = intro + subtabs + lead + boxes;
   $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; renderHowto(); });
   $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=t.system; go(el.dataset.go); });
