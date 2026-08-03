@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 460" width="1560" height="460" role="img" aria-label="Where and when you use GTS AI SDLC. It lives in VS Code Copilot Agent mode, which auto-discovers every agent the moment the repo is open. Four ways in, the same team every time. 1 Describe the work: call gts-orchestrator and routing figures out the system — you get the right orchestrator with no guesswork. 2 Target a system: call p7-orchestrator or t7-orchestrator when you already know P7 or T7 — you get straight into that system's pipeline. 3 One phase on demand: call a single agent such as p7-sdlc-reviewer or t7-sdlc-tester to plan, review, test or author a spec — you get one phase without the full run. 4 Ask, don't build: call t7-sdlc-knowledge for where, who-owns and what-changed questions — you get a read-only answer with no build cycle.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 460" width="1560" height="460" role="img" aria-label="Where and when you use GTS AI SDLC. It lives in VS Code Copilot Agent mode, which auto-discovers every agent the moment the repo is open. Five ways in, the same team every time. 1 Describe the work: call gts-orchestrator and routing figures out the system — you get the right orchestrator with no guesswork. 2 Target a system: call p7-orchestrator or t7-orchestrator when you already know P7 or T7 — you get straight into that system's pipeline. 3 One phase on demand: call a single agent such as p7-sdlc-reviewer or t7-sdlc-tester to plan, review, test or author a spec — you get one phase without the full run. 4 Ask, don't build: call t7-sdlc-knowledge for where, who-owns and what-changed questions — you get a read-only answer with no build cycle. 5 Diagnose a signal: hand gts-issue-analyst a red Jenkins build, a SonarQube finding, a security alert, a GitHub issue or a Jira SIR — you get a read-only, evidence-grounded root-cause verdict and a recommended next step, no build cycle.">
   <title>GTS AI SDLC — where and when you use it</title>
 
   <rect x="0" y="0" width="1560" height="460" fill="#FFFFFF"/>
@@ -93,8 +93,12 @@
       <text x="24" y="234" font-size="13" fill="#46505E">no plan, gate or build cycle.</text>
     </g>
 
+    <!-- 5th way: diagnose a signal -->
+    <rect x="44" y="398" width="1472" height="30" rx="8" fill="#F0EBFB" stroke="#DCD1F0"/>
+    <text x="60" y="417" font-size="12.5" fill="#5B49A6"><tspan font-weight="700">5 · Diagnose a signal</tspan> — hand <tspan font-family="'SF Mono', ui-monospace, Menlo, monospace" font-size="11.5">/gts-issue-analyst</tspan> a red Jenkins build, a SonarQube finding, a security alert, a GitHub issue or a Jira SIR, and get a read-only root-cause verdict &amp; recommended next step — no build cycle.</text>
+
     <!-- footnote -->
-    <text x="780" y="428" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Auto-discovered in VS Code Copilot the moment the repo is open — no build step, no install. One human gate confirms the plan before any code is written.</text>
+    <text x="780" y="448" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Auto-discovered in VS Code Copilot the moment the repo is open — no build step, no install. One human gate confirms the plan before any code is written.</text>
 
   </g>
 </svg>

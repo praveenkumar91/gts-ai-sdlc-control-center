@@ -31,7 +31,7 @@ SYSTEMS = {
     "t7": {"label": "T7", "name": "Trading System", "fill": "#DBF0EE", "ink": "#2E8E84"},
     "generic": {"label": "Generic", "name": "All systems", "fill": "#ECE7FA", "ink": "#6E5BB8"},
 }
-GROUP_LABEL = {"generic": "Generic · router & clarifier",
+GROUP_LABEL = {"generic": "Generic · routing & signal analysis",
                "p7": "P7 · Pricing & Risk Management", "t7": "T7 · Trading System"}
 GROUP_ORDER = {"generic": 0, "p7": 1, "t7": 2}
 
@@ -48,6 +48,7 @@ OBJECTIVE = {
     "builder": "Compile the affected components in dependency order and report pass or fail.",
     "pr-author": "Package the change into a clean, ticket-linked pull request.",
     "knowledge": "Answer read-only questions about the codebase, specs, ownership and terminology.",
+    "analyst": "Diagnose an engineering signal — a red build, a Sonar finding, a security alert, an issue or a SIR — to a grounded root-cause verdict; recommend the next step, never implement.",
 }
 
 # Real, grounded scenarios threaded through the invocation examples.
@@ -116,6 +117,32 @@ HOWTO = [
             {"pers": "Ops engineer", "cat": "Onboard to a component",
              "ask": "Who owns the FAGSE Fix Gateway, where does its viewdb config live, and how is it built?",
              "route": "gts-orchestrator \u2192 t7-sdlc-knowledge"},
+        ],
+    },
+    {
+        "key": "diagnose", "label": "Diagnose a signal",
+        "lead": "NEW — hand over an engineering signal and get a read-only, evidence-grounded root-cause verdict. The gts-issue-analyst picks the authoritative engine (jenkins-lens for builds, sonarqube-lens for Sonar findings, GitHub for security alerts), grounds it in the real code and specs, and recommends the next step. It diagnoses, never implements — a real fix is handed back to the pipeline. You can also call /gts-issue-analyst directly.",
+        "handled": ["gts-issue-analyst"],
+        "defRoute": "gts-orchestrator → gts-issue-analyst",
+        "examples": [
+            {"pers": "Build engineer", "cat": "Is this red build real or a false positive?",
+             "prompts": ["Is this red EUREX build a real failure or a false positive? https://gtsci.xeop.de/job/EUREX-INT/1234/", "The nightly build went UNSTABLE — root-cause it and tell me whether it's a flake."]},
+            {"pers": "Developer", "cat": "Root-cause a build from a pasted log",
+             "prompts": ["Console log pasted below — the EUREX release build failed in CPack packaging. Find the root cause and the smallest fix."]},
+            {"pers": "Reviewer", "cat": "Adjudicate a SonarQube finding",
+             "prompts": ["Adjudicate SonarQube issue AY9k2 on gts.eurex.gateway.outboundfi — true or false positive, with the source→sink data-flow."]},
+            {"pers": "Ops engineer", "cat": "Triage a Sonar backlog",
+             "prompts": ["Triage the critical & blocker SonarQube findings on this project and tell me which are real and worth fixing."]},
+            {"pers": "Security engineer", "cat": "Is a Dependabot CVE reachable?",
+             "prompts": ["Dependabot CVE-2026-34500 on gts.t7.core — is the vulnerable API actually reachable here, and what's the fix version?"]},
+            {"pers": "Security engineer", "cat": "Assess a CodeQL / secret alert",
+             "prompts": ["CodeQL alert #42 flags a tainted flow to a sink — is it exploitable in this codebase?", "Secret-scanning alert on this repo — is it a live credential, and how urgent is rotation?"]},
+            {"pers": "Anyone", "cat": "Analyse a GitHub issue (unwrap it)",
+             "prompts": ["Analyse GitHub issue #482 — unwrap any embedded build / Sonar / CVE / stack-trace signal and give me a grounded root-cause verdict."]},
+            {"pers": "Release manager", "cat": "Root-cause a Jira SIR",
+             "prompts": ["SIR INT-EUREX-150.005.020 wraps a failed Jenkins build — unwrap it, find the cause, and recommend whether to fix or dismiss."]},
+            {"pers": "Ops engineer", "cat": "Classify a production incident",
+             "prompts": ["Here's a production incident with a stack trace — classify the signal, ground it in the code, and tell me the authoritative next step."]},
         ],
     },
     {
@@ -391,6 +418,9 @@ def role_info(name):
     if name.endswith("-orchestrator"):
         return ("orchestrator", "System orchestrator",
                 "Coordinates its system's whole SDLC pipeline — delegates every step, writes no code.")
+    if name == "gts-issue-analyst":
+        return ("analyst", "Issue Analyst",
+                "A read-only, cross-system analysis peer of the knowledge agent — diagnoses an engineering signal (a red build, a Sonar finding, a security alert, an issue or a SIR) and hands any fix back to the pipeline. Never writes.")
     m = re.match(r"^(?:p7|t7)-sdlc-(.+)$", name)
     role = m.group(1) if m else name
     labels = {"pr-author": "PR Author", "spec-author": "Spec Author", "knowledge": "Knowledge"}
@@ -412,6 +442,10 @@ def role_examples(system, role):
     if role == "knowledge":
         return ["Where is the TradingActionRequest role check, and who owns it?",
                 "Which spec covers the VWAP settlement-price waterfall?"]
+    if role == "analyst":
+        return ["Is this red EUREX build a real failure or a false positive? <paste the Jenkins build URL>",
+                "Adjudicate SonarQube issue <key> on gts.eurex.gateway.outboundfi — true or false positive, with the data-flow.",
+                "This Jira SIR wraps a failed build — unwrap it, find the root cause, and recommend the fix."]
     if role == "spec-author":
         return ["Author the DFS for the SpA Cash Market Risk requirements (T7-571121 / DFS150510).",
                 "Turn the approved plan into a DTS with the full metadata header."]
@@ -846,7 +880,7 @@ function renderHowto(){
   }).join("") + `</div>`;
   $("#howto").innerHTML = intro + subtabs + lead + boxes;
   $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; renderHowto(); });
-  $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=t.system; go(el.dataset.go); });
+  $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=(t.system==="generic"?"t7":t.system); go(el.dataset.go); });
 }
 function renderSetup(){
   $("#setup").innerHTML = `
@@ -887,12 +921,12 @@ function init(){
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
   if(fromHash==="howto"||fromHash==="setup") fTab=fromHash;
-  else if(fromHash && byName(fromHash)) sel = fromHash;
+  else if(fromHash && byName(fromHash)){ sel = fromHash; const a=byName(sel); fTab=(a.system==="generic"?"t7":a.system); }
   syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
     if(n==="howto"||n==="setup"){ fTab=n; render(); }
-    else if(byName(n)){ sel = n; syncTab(); render(); }
+    else if(byName(n)){ sel = n; const a=byName(n); fTab=(a.system==="generic"?"t7":a.system); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
     `regenerate with <code>python3 docs/explorer/generate.py</code>`;

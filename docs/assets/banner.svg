@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 330" width="1500" height="330" role="img" aria-label="GTS AI SDLC — one AI software-development lifecycle, composed for every GTS system. A 3-tier composition: Tier 1 gts-orchestrator routes each request to the right system; Tier 2 the p7 and t7 orchestrators run the pipeline; Tier 3 eight single-purpose pipeline roles do the work, each returning a status code; all drawing on 15 common plus system skills. The pipeline runs Plan, Architect, human Gate, RED tests, GREEN develop, Review, Build and PR.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 330" width="1500" height="330" role="img" aria-label="GTS AI SDLC — one AI software-development lifecycle, composed for every GTS system. A 3-tier composition: Tier 1 gts-orchestrator routes each request to the right system; Tier 2 the p7 and t7 orchestrators run the pipeline; Tier 3 eight single-purpose pipeline roles do the work, each returning a status code; all drawing on 19 common plus system skills, with a read-only gts-issue-analyst peer that diagnoses build, Sonar, security, issue and SIR signals. The pipeline runs Plan, Architect, human Gate, RED tests, GREEN develop, Review, Build and PR.">
   <title>GTS AI SDLC — a tiered team of specialist agents, one lifecycle</title>
 
   <defs>
@@ -62,7 +62,7 @@
       </g>
       <g>
         <circle cx="34" cy="151" r="6" fill="#E7BD6E"/>
-        <text x="52" y="156" font-size="13.5" font-weight="700" fill="#2B3242">Skills <tspan font-weight="400" fill="#5B6472">· 15 common + system, reusable</tspan></text>
+        <text x="52" y="156" font-size="13.5" font-weight="700" fill="#2B3242">Skills <tspan font-weight="400" fill="#5B6472">· 19 common + system, reusable</tspan></text>
       </g>
     </g>
 

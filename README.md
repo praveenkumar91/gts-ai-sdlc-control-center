@@ -5,9 +5,9 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-Internal%20DBAG-blue.svg" alt="License: Internal DBAG">
   <img src="https://img.shields.io/badge/composition-3--tier-7c5cff.svg" alt="3-tier composition">
-  <img src="https://img.shields.io/badge/agents-21-ff7a59.svg" alt="21 agents">
+  <img src="https://img.shields.io/badge/agents-22-ff7a59.svg" alt="22 agents">
   <img src="https://img.shields.io/badge/systems-P7%20%C2%B7%20T7-1f9e89.svg" alt="Systems: P7 and T7">
-  <img src="https://img.shields.io/badge/skills-25-7c5cff.svg" alt="25 skills">
+  <img src="https://img.shields.io/badge/skills-29-7c5cff.svg" alt="29 skills">
   <img src="https://img.shields.io/badge/surface-VS%20Code%20Copilot-1f9e89.svg" alt="VS Code Copilot Agent mode">
 </p>
 
@@ -55,7 +55,8 @@ The four ways in are shown above; you never need to know which orchestrator owns
 ## Architecture at a glance
 
 The framework is a **3-tier composition model**: a generic router on top, one orchestrator per system in
-the middle, and single-purpose pipeline agents at the bottom — all drawing on shared **skills**.
+the middle, and single-purpose pipeline agents at the bottom — all drawing on shared **skills**. Alongside
+them sits a read-only analysis peer, **`gts-issue-analyst`**, that diagnoses engineering signals and feeds the pipeline.
 
 <p align="center">
   <img src="docs/assets/architecture.svg" alt="GTS AI SDLC architecture — a 3-tier composition. A developer request passes through gts-prompt-clarifier, then Tier 1 (gts-orchestrator) routes it to the right system; Tier 2 is the p7-orchestrator (linear TDD pipeline) and t7-orchestrator (autonomous Ralph loop); Tier 3 is eight-to-nine single-purpose agents — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author and T7 knowledge — each returning a status code, only the developer writing code; all draw on shared common and system skills." width="100%">
@@ -82,11 +83,16 @@ converges one task under tester + builder backpressure.
 ## Supported systems
 
 <p align="center">
-  <img src="docs/assets/systems-and-skills.svg" alt="GTS AI SDLC systems and skills — P7 (p7-orchestrator, linear TDD pipeline) with roles planner, architect, developer, tester, reviewer, builder, pr-author and spec-author, and system skills p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification and p7-github; T7 (t7-orchestrator, autonomous Ralph loop) with the same roles plus a read-only knowledge agent, and system skills t7-code, t7-code-review, t7-spec and t7-knowledge-base; a shared skill library grouped into review-and-specs, integrations and SDLC discipline. Totals: 21 agents, 25 skills, 2 systems, 8 pipeline phases." width="100%">
+  <img src="docs/assets/systems-and-skills.svg" alt="GTS AI SDLC systems and skills — P7 (p7-orchestrator, linear TDD pipeline) with roles planner, architect, developer, tester, reviewer, builder, pr-author and spec-author, and system skills p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification and p7-github; T7 (t7-orchestrator, autonomous Ralph loop) with the same roles plus a read-only knowledge agent, and system skills t7-code, t7-code-review, t7-spec and t7-knowledge-base; a shared skill library grouped into review-and-specs, integrations and SDLC discipline, plus signal-analysis skills for the read-only issue-analyst. Totals: 22 agents, 29 skills, 2 systems, 8 pipeline phases." width="100%">
 </p>
 
 > **T7 adds a knowledge agent.** `t7-sdlc-knowledge` answers read-only "where / who owns / what changed"
 > questions directly — no plan, gate or build cycle.
+>
+> **Signals get a read-only analyst.** `gts-issue-analyst` — a cross-system peer of the knowledge agent —
+> diagnoses a red Jenkins build, a SonarQube finding, a Dependabot/CodeQL/secret alert, a GitHub issue or a
+> Jira SIR (selecting jenkins-lens / sonarqube-lens / GitHub), grounds it in the code, and hands any fix
+> back to the pipeline. It **diagnoses, never implements**.
 >
 > **Specs are on-demand.** `{system}-sdlc-spec-author` runs *after* planning to produce formal
 > **DFS / DTS / SRQ** under `specs/{system}/` — separate from the lightweight plan the planner writes, and
