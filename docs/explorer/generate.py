@@ -605,10 +605,10 @@ TEMPLATE = r"""<!doctype html>
     font-size:12.5px;color:var(--body);margin-bottom:14px;display:flex;gap:10px;align-items:center}
   .xnote b{color:var(--ink)}
   .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
-  .tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin:2px 0 16px}
-  .tab{padding:9px 16px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;border:0;background:transparent;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.12s}
-  .tab:hover{color:var(--ink)}
-  .tab.on{color:var(--ink);border-bottom-color:#3F6FB5}
+  .tabs{display:flex;gap:6px;border-bottom:2px solid var(--line);margin:10px 0 22px}
+  .tab{padding:12px 24px;font-size:15.5px;font-weight:700;color:var(--muted);cursor:pointer;border:2px solid transparent;background:transparent;border-radius:12px 12px 0 0;margin-bottom:-2px;transition:.14s}
+  .tab:hover{color:var(--ink);background:#EFF3F9}
+  .tab.on{color:var(--ink);background:#fff;border-color:var(--line);border-bottom-color:#fff;box-shadow:inset 0 3px 0 #3F6FB5,0 -2px 6px rgba(15,23,42,.04)}
   .uw{font-size:11.5px;font-weight:700;color:var(--body);margin:0 0 3px}
   ol.uwl{margin:2px 0 0;padding-left:20px}
   ol.uwl li{font-size:13px;color:var(--body);line-height:1.5;margin:3px 0}
@@ -619,10 +619,12 @@ TEMPLATE = r"""<!doctype html>
   .hintro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
   .hintro b{color:var(--ink)}
   .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
-  .subtabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}
-  .subtab{border:1px solid var(--line);background:#fff;color:var(--body);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;transition:.12s}
-  .subtab:hover{border-color:#c7cfd8;color:var(--ink)}
-  .subtab.on{background:linear-gradient(135deg,#5E54C8,#3F6FB5);color:#fff;border-color:transparent}
+  .subtabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding-bottom:16px;border-bottom:2px solid var(--line)}
+  .subtab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;color:var(--body);border-radius:10px;padding:9px 15px 9px 9px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.14s}
+  .subtab:hover{border-color:#B9C2CE;color:var(--ink);background:#F7F9FC}
+  .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#EEF1F5;color:var(--muted);font-size:12px;font-weight:800}
+  .subtab.on{background:linear-gradient(135deg,#5E54C8,#3F6FB5);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(63,111,181,.28)}
+  .subtab.on .stpn{background:rgba(255,255,255,.24);color:#fff}
   .hlead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:2px 2px 15px}
   .hleadtxt{font-size:14px;color:var(--body);flex:1 1 340px;line-height:1.55}
   .hhandled{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -813,8 +815,8 @@ function renderDetail(){
 }
 function renderHowto(){
   const intro = `<div class="hintro"><b>One entry point, the whole team behind it.</b> In VS Code, open Copilot Chat, pick <code>gts-orchestrator</code> from the agent selector (or type <code>/gts-orchestrator</code>) and describe what you want — paste a Jira SIR, a GitHub issue, a stack trace, a requirement note or a code snippet, and ask for one thing or ten. It clarifies your request, routes it to <b>P7</b> or <b>T7</b>, and delegates each step to the right specialist; you never pick an internal agent yourself. Below, by SDLC stage, are real ways different people invoke it.</div>`;
-  const subtabs = `<div class="subtabs">` + HOWTO.map(s=>
-    `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}">${esc(s.label)}</button>`).join("") + `</div>`;
+  const subtabs = `<div class="subtabs">` + HOWTO.map((s,i)=>
+    `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}"><span class="stpn">${i+1}</span>${esc(s.label)}</button>`).join("") + `</div>`;
   const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
   const handled = step.handled.map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
   const lead = `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
