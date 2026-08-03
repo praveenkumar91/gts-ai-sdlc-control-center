@@ -120,29 +120,23 @@ HOWTO = [
         ],
     },
     {
-        "key": "diagnose", "label": "Diagnose a signal",
-        "lead": "NEW — hand over an engineering signal and get a read-only, evidence-grounded root-cause verdict. The gts-issue-analyst picks the authoritative engine (jenkins-lens for builds, sonarqube-lens for Sonar findings, GitHub for security alerts), grounds it in the real code and specs, and recommends the next step. It diagnoses, never implements — a real fix is handed back to the pipeline. You can also call /gts-issue-analyst directly.",
+        "key": "diagnose", "label": "Root Cause Analysis",
+        "lead": "NEW — hand over an engineering signal and get a read-only, evidence-grounded root-cause verdict. The gts-issue-analyst picks the authoritative engine (jenkins-lens for red builds, sonarqube-lens for Sonar findings, GitHub for security alerts), grounds it in the real code and specs, and recommends the next step. It diagnoses, never implements — a real fix is handed back to the pipeline. It also unwraps GitHub issues and Jira SIRs. You can call /gts-issue-analyst directly.",
         "handled": ["gts-issue-analyst"],
         "defRoute": "gts-orchestrator → gts-issue-analyst",
         "examples": [
-            {"pers": "Build engineer", "cat": "Is this red build real or a false positive?",
-             "prompts": ["Is this red EUREX build a real failure or a false positive? https://gtsci.xeop.de/job/EUREX-INT/1234/", "The nightly build went UNSTABLE — root-cause it and tell me whether it's a flake."]},
-            {"pers": "Developer", "cat": "Root-cause a build from a pasted log",
-             "prompts": ["Console log pasted below — the EUREX release build failed in CPack packaging. Find the root cause and the smallest fix."]},
-            {"pers": "Reviewer", "cat": "Adjudicate a SonarQube finding",
-             "prompts": ["Adjudicate SonarQube issue AY9k2 on gts.eurex.gateway.outboundfi — true or false positive, with the source→sink data-flow."]},
-            {"pers": "Ops engineer", "cat": "Triage a Sonar backlog",
-             "prompts": ["Triage the critical & blocker SonarQube findings on this project and tell me which are real and worth fixing."]},
-            {"pers": "Security engineer", "cat": "Is a Dependabot CVE reachable?",
-             "prompts": ["Dependabot CVE-2026-34500 on gts.t7.core — is the vulnerable API actually reachable here, and what's the fix version?"]},
-            {"pers": "Security engineer", "cat": "Assess a CodeQL / secret alert",
-             "prompts": ["CodeQL alert #42 flags a tainted flow to a sink — is it exploitable in this codebase?", "Secret-scanning alert on this repo — is it a live credential, and how urgent is rotation?"]},
-            {"pers": "Anyone", "cat": "Analyse a GitHub issue (unwrap it)",
-             "prompts": ["Analyse GitHub issue #482 — unwrap any embedded build / Sonar / CVE / stack-trace signal and give me a grounded root-cause verdict."]},
-            {"pers": "Release manager", "cat": "Root-cause a Jira SIR",
-             "prompts": ["SIR INT-EUREX-150.005.020 wraps a failed Jenkins build — unwrap it, find the cause, and recommend whether to fix or dismiss."]},
-            {"pers": "Ops engineer", "cat": "Classify a production incident",
-             "prompts": ["Here's a production incident with a stack trace — classify the signal, ground it in the code, and tell me the authoritative next step."]},
+            {"pers": "Build engineer", "cat": "Jenkins — red build: real or false positive?",
+             "prompts": ["Is this red EUREX-INT build a real failure or a false positive? https://gtsci.xeop.de/job/EUREX-INT/1234/", "The nightly EUREX build went UNSTABLE — root-cause it and tell me whether it's a flake or a real regression."]},
+            {"pers": "Developer", "cat": "Jenkins — root-cause a build from its log",
+             "prompts": ["The EUREX release build failed in CPack packaging with 'Error 1101: Cannot extract dependency information' — find the root cause and the smallest fix to hand back.", "Console log pasted below — which component broke the build, and why?"]},
+            {"pers": "Ops engineer", "cat": "T7 incident — root-cause a production crash",
+             "prompts": ["Production incident: Pope crashed with a deadlock (SIR T7-502218) — classify the signal, ground it in the code, and tell me the authoritative next step.", "TFH-XETR went down with a 'double free' (T7-500068) — where's the double-ownership?"]},
+            {"pers": "Ops engineer", "cat": "T7 incident — diagnose a performance regression",
+             "prompts": ["dbsync suddenly takes ~17 minutes when stream base directories are missing (T7-570749) — root-cause the regression.", "PerfMon flags a latency spike on the Matcher hot path (T7-573438) — is it real, and where does it originate?"]},
+            {"pers": "Reviewer", "cat": "Sonar issue — adjudicate a finding",
+             "prompts": ["Adjudicate SonarQube cpp:S6147 on gts.eurex.gateway.outboundfi — true or false positive, with the source→sink data-flow.", "Is cpp:S1032 on this file a real bug or noise? Show me the evidence before I touch it."]},
+            {"pers": "Ops engineer", "cat": "Sonar issue — triage a backlog",
+             "prompts": ["Triage the critical & blocker SonarQube findings on this project and tell me which are real and worth fixing versus safe to mark won't-fix."]},
         ],
     },
     {
@@ -662,10 +656,10 @@ TEMPLATE = r"""<!doctype html>
   .setsrv{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
   .setnote{margin-top:14px;background:#EEF3FA;border:1px solid #DCE6F3;padding:11px 14px;font-size:12.5px;color:var(--body);line-height:1.55}
   .setnote b{color:var(--ink)}
-  .subtabs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 20px;border-bottom:2px solid var(--line)}
-  .subtab{display:inline-flex;align-items:center;gap:8px;border:2px solid #C4D8F0;background:#DCE8F8;color:#3F6FB5;border-radius:11px 11px 0 0;padding:9px 15px 9px 10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.14s;position:relative;top:3px;margin-bottom:-2px}
+  .subtabs{display:flex;flex-wrap:nowrap;gap:5px;margin:2px 0 20px;border-bottom:2px solid var(--line);overflow-x:auto}
+  .subtab{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex:0 0 auto;border:2px solid #C4D8F0;background:#DCE8F8;color:#3F6FB5;border-radius:11px 11px 0 0;padding:8px 12px 8px 8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.14s;position:relative;top:3px;margin-bottom:-2px}
   .subtab:hover:not(.on){background:#CFE0F5;top:1px}
-  .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#fff;color:#3F6FB5;font-size:12px;font-weight:800}
+  .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:7px;background:#fff;color:#3F6FB5;font-size:11px;font-weight:800}
   .subtab.on{background:#fff;color:var(--ink);top:0;border-bottom-color:#fff;box-shadow:inset 0 3px 0 #3F6FB5,0 -3px 8px rgba(15,23,42,.05)}
   .subtab.on .stpn{background:#E7F0FB;color:#3F6FB5}
   .hlead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:2px 2px 15px}
@@ -907,7 +901,7 @@ function render(){
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"Set it up"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
+  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"VS Code SetUp Steps"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;

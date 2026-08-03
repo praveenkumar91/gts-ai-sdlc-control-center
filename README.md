@@ -113,6 +113,23 @@ the model's discretion.
 
 ## Get started
 
+<table align="center">
+  <tr>
+    <td align="center" width="360">
+      <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/">
+        <img src="https://img.shields.io/badge/Open%20the%20interactive%20explorer-1f9e89?style=for-the-badge&logo=readthedocs&logoColor=white" alt="Open the interactive explorer">
+      </a>
+      <br><sub>Browse every agent, skill &amp; guided example in your browser.</sub>
+    </td>
+    <td align="center" width="360">
+      <a href="https://pages.github.deutsche-boerse.de/dev/gts.ai.sdlc/explorer/#setup">
+        <img src="https://img.shields.io/badge/Get%20Started%20with%20VS%20Code%20Set%20Up-2b5cb8?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Get Started with VS Code Set Up">
+      </a>
+      <br><sub>Jump straight to the VS Code setup steps.</sub>
+    </td>
+  </tr>
+</table>
+
 The framework needs no build step — it *is* the agent and skill definitions. To use it:
 
 1. **Open this repo in VS Code** with GitHub Copilot (Agent mode). Every `.github/agents/*.agent.md` is
