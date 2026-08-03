@@ -16,24 +16,54 @@ STATUS_STOP = {"DO", "NOT", "MUST", "ALWAYS", "NEVER", "AND", "OR", "THE", "DFS"
                "SRQ", "SIR", "TDD", "MCP", "PR", "RED", "GREEN", "OWASP", "JQL", "JSON",
                "WIP", "URL", "API", "P7", "T7", "GTS", "VET", "QA", "CM", "HTTP", "YAML"}
 
-ROLE_ORDER = {"planner": 0, "architect": 1, "spec-author": 2, "tester": 3, "developer": 4,
-              "reviewer": 5, "builder": 6, "pr-author": 7, "knowledge": 8}
+ROLE_ORDER = {"orchestrator": 0, "planner": 1, "architect": 2, "spec-author": 3, "tester": 4,
+              "developer": 5, "reviewer": 6, "builder": 7, "pr-author": 8, "knowledge": 9}
 PIPELINE = ["Plan", "Architect", "Spec", "Test", "Develop", "Review", "Build", "PR"]
 ROLE_PHASE = {"planner": 0, "architect": 1, "spec-author": 2, "tester": 3,
               "developer": 4, "reviewer": 5, "builder": 6, "pr-author": 7}
+PHASE_LABEL = {"planner": "planning", "architect": "the architecture-review gate",
+               "spec-author": "spec authoring (on demand)", "tester": "the RED/GREEN test phase",
+               "developer": "the develop phase", "reviewer": "review", "builder": "the build gate",
+               "pr-author": "PR authoring", "knowledge": "knowledge queries"}
 
 SYSTEMS = {
     "p7": {"label": "P7", "name": "Pricing & Risk", "fill": "#E3ECFB", "ink": "#3F6FB5"},
     "t7": {"label": "T7", "name": "Trading System", "fill": "#DBF0EE", "ink": "#2E8E84"},
     "generic": {"label": "Generic", "name": "All systems", "fill": "#ECE7FA", "ink": "#6E5BB8"},
 }
+GROUP_LABEL = {"generic": "Generic · router & clarifier",
+               "p7": "P7 · Pricing & Risk Management", "t7": "T7 · Trading System"}
+GROUP_ORDER = {"generic": 0, "p7": 1, "t7": 2}
+
+# curated, grounded invocation examples for the user-invocable agents
+INVOKE_EXAMPLES = {
+    "gts-orchestrator": ["/gts-orchestrator Fix the SMP Type-B reason code on cancel in T7",
+                          "/gts-orchestrator Add a validation rule to the P7 pricing engine"],
+    "gts-prompt-clarifier": ["/gts-prompt-clarifier rebase my branch and rerun the failing tests"],
+    "p7-orchestrator": ["/p7-orchestrator Add a validation rule to the pricing-engine request handler"],
+    "t7-orchestrator": ["/t7-orchestrator Reject expired orders in the Matcher on new-order entry"],
+    "p7-sdlc-reviewer": ["/p7-sdlc-reviewer Review the diff on this branch"],
+}
+# how an orchestrator typically dispatches each internal role (representative instruction)
+DISPATCH = {
+    "planner": "Analyze this request and produce a plan with tasks, affected files and acceptance criteria.",
+    "architect": "Review this plan against architecture, boundaries and build order — approve, revise or block.",
+    "tester": "Write failing tests for each acceptance criterion; confirm they fail (RED).",
+    "developer": "Implement the minimal code to make the failing tests pass (GREEN).",
+    "reviewer": "Review these changed files for correctness, security, performance and patterns.",
+    "builder": "Build the affected components in dependency order.",
+    "pr-author": "Write the PR title, description and changelog; link the Jira ticket.",
+    "spec-author": "Author the DFS/DTS/SRQ from the approved plan.",
+    "knowledge": "Where is the Matcher and who owns it?",
+}
 
 
 def unquote(v):
     v = v.strip()
     if len(v) >= 2 and v[0] in "\"'" and v[-1] == v[0]:
-        return v[1:-1]
-    return v
+        v = v[1:-1]
+    # some agent frontmatter stores escaped unicode (e.g. \u2192) as literal text
+    return re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), v)
 
 
 def parse_list(v):
@@ -66,25 +96,32 @@ def extract_statuses(body):
     return out[:10]
 
 
-def derive(name):
-    """Return (group, group_order, tier_label, role, role_label, type_note)."""
+def role_info(name):
+    """Return (role, role_label, type_note)."""
     if name == "gts-orchestrator":
-        return ("Tier 1 · Generic router", 0, "Tier 1", "router", "Generic router",
+        return ("orchestrator", "Generic router",
                 "Routes each request to the right system orchestrator — implements nothing itself.")
     if name == "gts-prompt-clarifier":
-        return ("Front door · Clarifier", 1, "Front door", "clarifier", "Prompt clarifier",
+        return ("clarifier", "Prompt clarifier",
                 "Runs before the pipeline: resolves ambiguity and enriches the request, then hands to the router.")
     if name.endswith("-orchestrator"):
-        return ("Tier 2 · System orchestrators", 2, "Tier 2", "orchestrator", "System orchestrator",
+        return ("orchestrator", "System orchestrator",
                 "Coordinates its system's whole SDLC pipeline — delegates every step, writes no code.")
-    m = re.match(r"^(p7|t7)-sdlc-(.+)$", name)
-    role = m.group(2) if m else name
-    sysu = m.group(1).upper() if m else ""
-    grp = f"Tier 3 · {sysu} pipeline"
-    gorder = 3 if sysu == "P7" else 4
+    m = re.match(r"^(?:p7|t7)-sdlc-(.+)$", name)
+    role = m.group(1) if m else name
     labels = {"pr-author": "PR Author", "spec-author": "Spec Author", "knowledge": "Knowledge"}
-    rl = labels.get(role, role.replace("-", " ").title())
-    return (grp, gorder, "Tier 3", role, rl, "")
+    return (role, labels.get(role, role.replace("-", " ").title()), "")
+
+
+def invoke_of(name, system, role, invocable):
+    if invocable:
+        return {"mode": "command", "examples": INVOKE_EXAMPLES.get(name) or [f"/{name}"],
+                "note": "", "dispatch": ""}
+    orch = "p7-orchestrator" if system == "p7" else "t7-orchestrator" if system == "t7" else ""
+    phase = PHASE_LABEL.get(role, "its phase")
+    note = (f"Internal — you don't call it directly. The {orch} dispatches it during {phase}."
+            if orch else f"Internal — dispatched during {phase}.")
+    return {"mode": "internal", "examples": [], "note": note, "dispatch": DISPATCH.get(role, "")}
 
 
 def model_kind(model):
@@ -116,22 +153,28 @@ for path in sorted(glob.glob(os.path.join(AGENT_DIR, "*.agent.md"))):
     delegates = parse_list(fm.get("agents", "[]"))
     system = fm.get("system", "").strip() or ("p7" if name.startswith("p7") else
                                               "t7" if name.startswith("t7") else "generic")
-    group, gorder, tier_label, role, role_label, type_note = derive(name)
+    role, role_label, type_note = role_info(name)
+    invocable = unquote(fm.get("user-invocable", "false")).lower() == "true"
     mk_label, mk_ink = model_kind(fm.get("model", ""))
+    if role in ("orchestrator", "router"):
+        in_group = 0
+    elif role == "clarifier":
+        in_group = 1
+    else:
+        in_group = ROLE_ORDER.get(role, 99) + 1
     agents.append({
         "name": name,
         "system": system,
-        "group": group,
-        "groupOrder": gorder,
-        "roleOrder": ROLE_ORDER.get(role, 99),
-        "tier": tier_label,
+        "group": GROUP_LABEL[system],
+        "groupOrder": GROUP_ORDER[system],
+        "inGroup": in_group,
         "role": role,
         "roleLabel": role_label,
         "typeNote": type_note,
         "phase": ROLE_PHASE.get(role, -1),
         "description": unquote(fm.get("description", "")),
         "argHint": unquote(fm.get("argument-hint", "")),
-        "userInvocable": unquote(fm.get("user-invocable", "false")).lower() == "true",
+        "userInvocable": invocable,
         "model": unquote(fm.get("model", "")),
         "modelLabel": mk_label,
         "modelInk": mk_ink,
@@ -140,9 +183,10 @@ for path in sorted(glob.glob(os.path.join(AGENT_DIR, "*.agent.md"))):
         "servers": servers,
         "delegates": delegates,
         "statuses": extract_statuses(body),
+        "invoke": invoke_of(name, system, role, invocable),
     })
 
-agents.sort(key=lambda a: (a["groupOrder"], a["roleOrder"], a["name"]))
+agents.sort(key=lambda a: (a["groupOrder"], a["inGroup"], a["name"]))
 group_order = []
 for a in agents:
     if a["group"] not in group_order:
@@ -158,120 +202,116 @@ TEMPLATE = r"""<!doctype html>
 <title>GTS AI SDLC · Agent Explorer</title>
 <style>
   :root{
-    --ink:#1F2733; --body:#5B6472; --muted:#8A92A0; --faint:#B6BCC4;
-    --line:#E8EAED; --card:#FCFCFD; --bg:#FFFFFF; --hair:#EEF0F2;
+    --ink:#1F2733; --body:#5B6472; --muted:#8A92A0; --faint:#AEB6C0;
+    --line:#E4E9EF; --bg:#F4F7FB; --card:#FFFFFF; --hair:#EEF1F5;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
     font-family:Inter,'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   a{color:#3F6FB5;text-decoration:none} a:hover{text-decoration:underline}
-  .wrap{max-width:1240px;margin:0 auto;padding:28px 24px 60px}
-  header .eyebrow{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--muted)}
-  header h1{margin:6px 0 4px;font-size:30px;font-weight:800;letter-spacing:-.4px}
-  header p.sub{margin:0;color:var(--body);font-size:15px}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--body)}
-  .legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
-  hr.rule{border:0;border-top:1px solid var(--line);margin:20px 0}
-  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+  .hero{background:linear-gradient(135deg,#5E54C8 0%,#3F6FB5 52%,#2E8E84 100%);color:#fff;padding:34px 24px 30px}
+  .hero-in{max-width:1180px;margin:0 auto}
+  .hero .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:2.5px;opacity:.85}
+  .hero h1{margin:8px 0 6px;font-size:30px;font-weight:800;letter-spacing:-.4px}
+  .hero .sub{margin:0;font-size:15px;opacity:.94;max-width:860px}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 24px 56px}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:2px 0 18px}
   .search{flex:1 1 240px;min-width:200px;display:flex;align-items:center;gap:8px;
-    border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff}
+    border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff}
   .search input{border:0;outline:0;font-size:14px;width:100%;color:var(--ink);background:transparent}
   .chips{display:flex;flex-wrap:wrap;gap:6px}
   .chip{border:1px solid var(--line);background:#fff;color:var(--body);border-radius:999px;
-    padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.12s}
-  .chip:hover{border-color:#cfd4da}
+    padding:6px 13px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.12s}
+  .chip:hover{border-color:#c7cfd8}
   .chip.on{background:#1F2733;color:#fff;border-color:#1F2733}
-  .layout{display:grid;grid-template-columns:352px 1fr;gap:22px;align-items:start}
-  .list{max-height:78vh;overflow:auto;padding-right:4px}
-  .group{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--faint);
-    text-transform:uppercase;margin:14px 4px 8px}
-  .group:first-child{margin-top:0}
-  .agent{width:100%;text-align:left;border:1px solid var(--line);background:var(--card);
-    border-radius:12px;padding:11px 13px 11px 15px;margin-bottom:8px;cursor:pointer;
-    position:relative;transition:.12s;overflow:hidden}
-  .agent:hover{border-color:#d3d8de;transform:translateY(-1px);box-shadow:0 2px 10px rgba(20,25,40,.05)}
-  .agent .bar{position:absolute;left:0;top:0;bottom:0;width:5px}
-  .agent .an{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .legend{display:flex;flex-wrap:wrap;gap:13px;font-size:11.5px;color:var(--muted);margin-left:auto}
+  .legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:1px}
+  .layout{display:grid;grid-template-columns:344px 1fr;gap:20px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  .list{padding:12px;max-height:80vh;overflow:auto}
+  .group{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin:14px 8px 8px}
+  .group:first-child{margin-top:4px}
+  .agent{display:block;width:100%;text-align:left;border:0;background:transparent;border-radius:10px;
+    padding:9px 12px 9px 16px;cursor:pointer;position:relative;transition:.1s}
+  .agent:hover{background:#F1F5FA}
+  .agent.sel{background:#EAF1FA}
+  .agent .bar{position:absolute;left:4px;top:10px;bottom:10px;width:4px;border-radius:2px}
+  .agent .an{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:600}
   .agent .ar{font-size:11.5px;color:var(--muted);margin-top:2px}
-  .agent .sb{position:absolute;right:12px;top:12px;font-size:10px;font-weight:800;
-    padding:2px 8px;border-radius:999px}
-  .agent.sel{border-color:#c7ccd3;box-shadow:0 3px 14px rgba(20,25,40,.09)}
-  .agent.dim{opacity:.4}
-  .detail{border:1px solid var(--line);border-radius:16px;background:#fff;padding:24px 26px;
-    position:sticky;top:16px}
+  .agent .sb{position:absolute;right:10px;top:11px;font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
+  .detail{padding:22px 24px;position:sticky;top:16px}
   .dhead{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
-  .dname{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:22px;font-weight:700}
+  .dname{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:21px;font-weight:700}
   .badges{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
   .b{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
-  .b.tier{background:#F1F3F6;color:#5B6472}
   .b.inv{background:#E8F2EC;color:#3E8C61}
   .b.noinv{background:#F1F3F6;color:#8A92A0}
-  .drole{font-size:15px;font-weight:700;color:var(--ink);margin:14px 0 2px}
-  .dtype{color:var(--body);font-size:13.5px;margin:0 0 2px}
-  .ddesc{color:var(--body);font-size:13.5px;line-height:1.55;margin:10px 0 0}
-  .sect{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--faint);
-    text-transform:uppercase;margin:22px 0 9px}
+  .reach{margin-top:7px;font-size:12.5px;color:var(--muted)}
+  .drole{font-size:15px;font-weight:700;margin:14px 0 2px}
+  .dtype{color:var(--body);font-size:13.5px;margin:2px 0}
+  .ddesc{color:var(--body);font-size:13.5px;line-height:1.55;margin:8px 0 0}
+  .sect{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--faint);text-transform:uppercase;margin:20px 0 9px}
   .pchips,.tchips{display:flex;flex-wrap:wrap;gap:7px}
   .pill{font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;border:1px solid;cursor:default}
   .pill.sk{background:#F0EBFB;border-color:#E0D6F4;color:#5B49A6;cursor:pointer}
   .pill.sk.sys{background:#EAF5F3;border-color:#CFE9E5;color:#2E7D74}
   .pill.sk:hover{filter:brightness(.97);text-decoration:none}
-  .pill.srv{background:#fff;border-color:#D9DEE5;color:#46505E;
-    font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px}
-  .pill.st{background:#FBF1DC;border-color:#EFE0C2;color:#9A6A1E;
-    font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11px}
+  .pill.srv{background:#fff;border-color:#D9DEE5;color:#46505E;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px}
+  .pill.st{background:#FBF1DC;border-color:#EFE0C2;color:#9A6A1E;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11px}
+  .pill.go{cursor:pointer}
   .none{color:var(--muted);font-size:13px;font-style:italic}
-  .meta{display:flex;flex-wrap:wrap;gap:22px;margin-top:6px}
+  .cmd{background:#1F2733;color:#E9EEF5;border-radius:8px;padding:9px 12px;margin:7px 0;
+    font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;overflow-x:auto;white-space:nowrap}
+  .cmd .sl{color:#7DE3D0;font-weight:700}
+  .inote{color:var(--body);font-size:13px;margin:2px 0 6px}
+  .disp{color:var(--muted);font-size:12.5px;font-style:italic}
+  .meta{display:flex;flex-wrap:wrap;gap:22px;margin-top:8px}
   .meta .k{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--faint);text-transform:uppercase}
-  .meta .v{font-size:13.5px;font-weight:600;color:var(--ink);margin-top:3px;display:flex;align-items:center;gap:7px}
+  .meta .v{font-size:13.5px;font-weight:600;margin-top:3px;display:flex;align-items:center;gap:7px}
   .mdot{width:9px;height:9px;border-radius:50%}
-  .reach{margin-top:8px;font-size:12.5px;color:var(--muted)}
-  .pipe{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:4px}
+  .pipe{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px}
   .pstep{display:flex;align-items:center;gap:5px}
-  .pnode{width:10px;height:10px;border-radius:50%;background:#E1E5EA}
+  .pnode{width:9px;height:9px;border-radius:50%;background:#DCE1E8}
   .pstep.on .pnode{background:#2E8E84;box-shadow:0 0 0 4px rgba(46,142,132,.15)}
   .pstep .pl{font-size:11px;color:var(--muted)}
   .pstep.on .pl{color:#2E7D74;font-weight:700}
-  .parrow{color:#D0D5DB;font-size:11px}
-  .xnote{background:#F6F8FA;border:1px solid var(--hair);border-radius:10px;padding:9px 12px;
+  .parrow{color:#CBD2DA;font-size:11px}
+  .xnote{background:#EEF3FA;border:1px solid #DCE6F3;border-radius:10px;padding:9px 12px;
     font-size:12.5px;color:var(--body);margin-bottom:14px;display:flex;gap:10px;align-items:center}
   .xnote b{color:var(--ink)}
-  .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;
-    padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
-  footer{margin-top:34px;color:var(--muted);font-size:12px;text-align:center}
+  .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
+  footer{margin-top:26px;color:var(--muted);font-size:12px;text-align:center}
   @media(max-width:820px){.layout{grid-template-columns:1fr}.list{max-height:none}.detail{position:static}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">GTS AI SDLC</div>
-    <h1>Agent Explorer</h1>
-    <p class="sub">Click any agent to see its role, skills, tool servers, model and status codes — the whole team, at a glance.</p>
-    <div class="legend" id="legend"></div>
-  </header>
-  <hr class="rule">
+<header class="hero"><div class="hero-in">
+  <div class="eyebrow">GTS AI SDLC</div>
+  <h1>Agent Playground</h1>
+  <p class="sub">Pick an agent to see what it does, what it can touch, the status it returns, and how to invoke it — the whole team, P7 and T7 side by side.</p>
+</div></header>
+<main class="wrap">
   <div class="controls">
     <label class="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9AA1AB" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
       <input id="q" type="search" placeholder="Search agents, roles, skills…" autocomplete="off">
     </label>
     <div class="chips" id="sysChips"></div>
-    <div class="chips" id="tierChips"></div>
+    <div class="legend" id="legend"></div>
   </div>
   <div class="layout">
-    <aside class="list" id="list"></aside>
-    <section class="detail" id="detail"></section>
+    <aside class="list card" id="list"></aside>
+    <section class="detail card" id="detail"></section>
   </div>
   <footer id="foot"></footer>
-</div>
+</main>
 <script>
 const AGENTS = /*__AGENTS__*/;
 const GROUPS = /*__GROUPS__*/;
 const SYS = /*__SYS__*/;
 const PIPE = /*__PIPE__*/;
 let sel = "/*__DEFAULT__*/";
-let fSys = "all", fTier = "all", fSkill = null, q = "";
+let fSys = "all", fSkill = null, q = "";
 
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -280,7 +320,7 @@ function go(n){ if(byName(n)){ sel=n; try{history.replaceState(null,"","#"+n)}ca
 
 function legend(){
   const s = Object.entries(SYS).map(([k,v]) =>
-    `<span><span class="dot" style="background:${v.ink}"></span>${v.label} — ${v.name}</span>`).join("");
+    `<span><span class="dot" style="background:${v.ink}"></span>${v.label}</span>`).join("");
   $("#legend").innerHTML = s +
     `<span><span class="dot" style="background:#C2862B"></span>Opus</span>` +
     `<span><span class="dot" style="background:#3F6FB5"></span>Sonnet</span>` +
@@ -293,7 +333,6 @@ function chipBar(el, opts, cur, on){
 }
 function match(a){
   if(fSys!=="all" && a.system!==fSys) return false;
-  if(fTier!=="all" && a.tier!==fTier) return false;
   if(fSkill && !(a.skills.includes(fSkill) || a.skillsCommon.includes(fSkill))) return false;
   if(q){
     const hay = (a.name+" "+a.roleLabel+" "+a.description+" "+a.skills.join(" ")+" "+
@@ -323,12 +362,6 @@ function renderList(){
   const el = $("#list"); el.innerHTML = html;
   el.querySelectorAll(".agent").forEach(b => b.onclick = () => go(b.dataset.n));
 }
-function pipe(a){
-  if(a.role==="orchestrator")
-    return `<div class="dtype">Coordinates every phase below — never runs one itself.</div>` + pipeStrip(-1);
-  if(a.phase<0) return "";
-  return pipeStrip(a.phase);
-}
 function pipeStrip(active){
   let h = `<div class="pipe">`;
   PIPE.forEach((p,i) => {
@@ -337,16 +370,27 @@ function pipeStrip(active){
   });
   return h + `</div>`;
 }
-function chipList(arr, cls, click){
-  if(!arr.length) return `<span class="none">none</span>`;
-  return `<div class="pchips">` + arr.map(x =>
-    `<span class="pill ${cls}" ${click?`data-sk="${esc(x)}"`:""}>${esc(x)}</span>`).join("") + `</div>`;
+function pipe(a){
+  if(a.role==="orchestrator")
+    return `<div class="dtype">Coordinates every phase below — never runs one itself.</div>` + pipeStrip(-1);
+  if(a.phase<0) return "";
+  return pipeStrip(a.phase);
+}
+function invokeBlock(iv){
+  if(iv.mode==="command"){
+    return iv.examples.map(e=>{
+      const sp=e.indexOf(" "), cmd=sp>0?e.slice(0,sp):e, rest=sp>0?e.slice(sp):"";
+      return `<div class="cmd"><span class="sl">${esc(cmd)}</span>${esc(rest)}</div>`;
+    }).join("");
+  }
+  return `<div class="inote">${esc(iv.note)}</div>` +
+    (iv.dispatch?`<div class="disp">e.g. “${esc(iv.dispatch)}”</div>`:"");
 }
 function renderDetail(){
   const a = byName(sel) || AGENTS[0];
   const sv = SYS[a.system];
-  const invoke = a.userInvocable
-    ? `<span class="b inv">user-invocable</span>` : `<span class="b noinv">internal</span>`;
+  const invBadge = a.userInvocable
+    ? `<span class="b inv">call it directly</span>` : `<span class="b noinv">internal</span>`;
   let x = "";
   if(fSkill){
     const users = AGENTS.filter(z => z.skills.includes(fSkill)||z.skillsCommon.includes(fSkill)).length;
@@ -366,7 +410,7 @@ function renderDetail(){
     ? `<div class="tchips">`+a.statuses.map(s=>`<span class="pill st">${esc(s)}</span>`).join("")+`</div>`
     : `<span class="none">—</span>`;
   const delegates = a.delegates.length
-    ? `<div class="tchips">`+a.delegates.map(s=>`<span class="pill srv" data-go="${esc(s)}" style="cursor:pointer">${esc(s)}</span>`).join("")+`</div>`
+    ? `<div class="tchips">`+a.delegates.map(s=>`<span class="pill srv go" data-go="${esc(s)}">${esc(s)}</span>`).join("")+`</div>`
     : "";
   const reach = `Reach: <b>${a.skills.length+a.skillsCommon.length}</b> skills · <b>${a.servers.length}</b> tool servers`;
   $("#detail").innerHTML = x + `
@@ -377,20 +421,21 @@ function renderDetail(){
       </div>
       <div class="badges">
         <span class="b" style="background:${sv.fill};color:${sv.ink}">${sv.label} · ${sv.name}</span>
-        <span class="b tier">${esc(a.tier)}</span>
-        ${invoke}
+        ${invBadge}
       </div>
     </div>
     <div class="drole">${esc(a.roleLabel)}</div>
     ${a.typeNote?`<div class="dtype">${esc(a.typeNote)}</div>`:""}
     ${pipe(a)}
+    <div class="sect">What it does</div>
     <div class="ddesc">${esc(a.description)}</div>
-    ${a.argHint?`<div class="ddesc" style="color:#8A92A0;font-style:italic">Ask it: “${esc(a.argHint)}”</div>`:""}
+    <div class="sect">Invoke it</div>
+    ${invokeBlock(a.invoke)}
     <div class="sect">System skills</div>${sysSkills}
     <div class="sect">Common skills</div>${comSkills}
     <div class="sect">Tool / MCP servers</div>${servers}
-    ${delegates?`<div class="sect">Delegates to</div>${delegates}`:""}
     <div class="sect">Status codes it returns</div>${statuses}
+    ${delegates?`<div class="sect">Delegates to</div>${delegates}`:""}
     <div class="meta">
       <div><div class="k">Model</div><div class="v"><span class="mdot" style="background:${a.modelInk}"></span>${esc(a.model)}</div></div>
     </div>`;
@@ -400,16 +445,15 @@ function renderDetail(){
   $("#detail").querySelectorAll("[data-go]").forEach(el =>
     el.onclick = () => { fSkill=null; go(el.dataset.go); });
 }
-function render(){ renderList(); renderDetail(); }
+function render(){
+  renderList(); renderDetail();
+  document.querySelectorAll("#sysChips .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===fSys));
+}
 function init(){
   legend();
   chipBar($("#sysChips"),
-    [{v:"all",t:"All systems"},{v:"generic",t:"Generic"},{v:"p7",t:"P7"},{v:"t7",t:"T7"}],
+    [{v:"all",t:"All"},{v:"generic",t:"Generic"},{v:"p7",t:"P7"},{v:"t7",t:"T7"}],
     fSys, v => { fSys=v; render(); });
-  chipBar($("#tierChips"),
-    [{v:"all",t:"All tiers"},{v:"Tier 1",t:"Tier 1"},{v:"Front door",t:"Clarifier"},
-     {v:"Tier 2",t:"Tier 2"},{v:"Tier 3",t:"Tier 3"}],
-    fTier, v => { fTier=v; render(); });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
   if(fromHash && byName(fromHash)) sel = fromHash;
@@ -419,12 +463,6 @@ function init(){
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
     `regenerate with <code>python3 docs/explorer/generate.py</code>`;
-  // re-sync active state on chip bars whenever filters change
-  const syncChips = () => {
-    document.querySelectorAll("#sysChips .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===fSys));
-    document.querySelectorAll("#tierChips .chip").forEach(b=>b.classList.toggle("on",b.dataset.v===fTier));
-  };
-  const _r = render; render = () => { _r(); syncChips(); };
   render();
 }
 init();
