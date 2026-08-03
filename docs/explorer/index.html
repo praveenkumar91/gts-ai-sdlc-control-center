@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GTS AI SDLC · Agent Playground</title>
+<title>GTS AI SDLC · SDLC Agent Exploration</title>
 <style>
   :root{
     --ink:#1F2733; --body:#5B6472; --muted:#8A92A0; --faint:#AEB6C0;
@@ -98,12 +98,12 @@
   .hintro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
   .hintro b{color:var(--ink)}
   .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
-  .subtabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px;padding-bottom:16px;border-bottom:2px solid var(--line)}
-  .subtab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;color:var(--body);border-radius:10px;padding:9px 15px 9px 9px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.14s}
-  .subtab:hover{border-color:#B9C2CE;color:var(--ink);background:#F7F9FC}
-  .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#EEF1F5;color:var(--muted);font-size:12px;font-weight:800}
-  .subtab.on{background:linear-gradient(135deg,#5E54C8,#3F6FB5);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(63,111,181,.28)}
-  .subtab.on .stpn{background:rgba(255,255,255,.24);color:#fff}
+  .subtabs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 20px;border-bottom:2px solid var(--line)}
+  .subtab{display:inline-flex;align-items:center;gap:8px;border:2px solid var(--line);background:#EAEFF6;color:var(--muted);border-radius:11px 11px 0 0;padding:9px 15px 9px 10px;font-size:13.5px;font-weight:700;cursor:pointer;transition:.14s;position:relative;top:3px;margin-bottom:-2px}
+  .subtab:hover{color:var(--ink);background:#F2F6FB;top:1px}
+  .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:7px;background:#DDE3EC;color:var(--muted);font-size:12px;font-weight:800}
+  .subtab.on{background:#fff;color:var(--ink);top:0;border-bottom-color:#fff;box-shadow:inset 0 3px 0 #5E54C8,0 -3px 8px rgba(15,23,42,.05)}
+  .subtab.on .stpn{background:#ECE9FB;color:#5E54C8}
   .hlead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:2px 2px 15px}
   .hleadtxt{font-size:14px;color:var(--body);flex:1 1 340px;line-height:1.55}
   .hhandled{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -128,7 +128,7 @@
 <body>
 <header class="hero"><div class="hero-in">
   <div class="eyebrow">GTS AI SDLC</div>
-  <h1>Agent Playground</h1>
+  <h1>SDLC Agent Exploration</h1>
   <p class="sub">Explore the whole team — pick an agent to see what it does and how to invoke it, or open <b>How to use GTS AI SDLC Agents</b> for the main things you can ask for and how each request is dispatched.</p>
 </div></header>
 <main class="wrap">
