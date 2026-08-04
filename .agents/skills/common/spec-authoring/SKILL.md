@@ -1,13 +1,13 @@
 ---
 name: spec-authoring
-description: "Specification document authoring skill. Use when: authoring or generating a formal specification Markdown document (DFS, DTS, SRQ) AFTER the planning phase; structuring DOCX-ready content with a complete metadata header; mapping gathered content into the canonical section model for a given document type; preparing Markdown for conversion via docx_template_tool.py. NOT for planning — the planner produces a lightweight plan artifact, not these documents."
+description: "Specification document authoring skill. Use when: authoring or generating a formal specification Markdown document (DFS, DTS, SRQ) AFTER the planning phase; structuring DOCX-ready content with a complete metadata header; mapping gathered content into the canonical section model for a given document type; preparing Markdown that the `document-rendering` skill renders to Word (.docx) when a document deliverable is required. NOT for planning — the planner produces a lightweight plan artifact, not these documents."
 systems: [all]
 tools: [read, edit, search]
 ---
 
 # Spec Authoring — Formal Specification Documents (DFS / DTS / SRQ)
 
-Reusable knowledge for authoring **formal specification documents** that are immediately ready for DOCX conversion. **DFS / DTS / SRQ are a shared corporate document standard** used across GTS systems (T7, P7, and future systems); this skill owns the **document metadata contract**, the **filename convention**, the **revision-history model**, the **common section scaffold**, and the **diagram rules**. The per-type section structure lives in the reference files under [`references/`](references/).
+Reusable knowledge for authoring **formal specification documents** that are saved as Markdown and, when a Word deliverable is required, rendered to a co-located `.docx` by the common `document-rendering` skill. **DFS / DTS / SRQ are a shared corporate document standard** used across GTS systems (T7, P7, and future systems); this skill owns the **document metadata contract**, the **filename convention**, the **revision-history model**, the **common section scaffold**, and the **diagram rules**. The per-type section structure lives in the reference files under [`references/`](references/).
 
 > **System-agnostic** — the cover line and component/chapter examples are illustrative (T7 names are shown as examples). Each system's spec-author agent supplies its own release marker, affected components, and domain content via its system skills.
 
@@ -34,8 +34,9 @@ Reusable knowledge for authoring **formal specification documents** that are imm
 3. **Collect and validate the metadata header** (see below). If any required key is missing or blank, stop and ask the user — do not author the body with missing required metadata. Use `TODO – input required` only where the reference's *Default if Missing* column allows it.
 4. **Gather content** from real sources (user input, Jira, Confluence, Teams, SharePoint, the system codebase/specs). Never invent content — insert `TODO – input required` and flag the gap where information cannot be found.
 5. **Author the body** using the Common Section Scaffold below for the shared chapters and the reference file for the type-specific middle chapters.
-6. **Save the file** using the `FILE_NAME` value as the exact filename, in the location the invoking agent specifies.
-7. **Report a completeness summary** — filled vs. `TODO` metadata keys, fully authored vs. gapped sections, approximate word count, and the saved path.
+6. **Save the Markdown file** using the `FILE_NAME` value as the exact filename, in the location the invoking agent specifies.
+7. **Render a Word document when requested or required** — if the request needs a `.docx` deliverable, use the common **`document-rendering`** skill to render a co-located `.docx` from the saved Markdown (requires the agent's `execute` tool). This is additive: never delete, replace, or overwrite the Markdown source. Skip this step when only Markdown was requested.
+8. **Report a completeness summary** — filled vs. `TODO` metadata keys, fully authored vs. gapped sections, approximate word count, the saved Markdown path, and the DOCX path or the reason it was not rendered.
 
 ---
 
@@ -140,6 +141,25 @@ This table is the single source for revision information in both the Markdown an
 
 ---
 
+## DOCX Rendering
+
+Markdown is the canonical source; a Word document is a rendered **companion** produced on demand. When the request requires a `.docx` deliverable, the spec-author renders it via the common **`document-rendering`** skill — the Markdown is never replaced.
+
+- **When**: the user asks for a Word document / `.docx` / document deliverable, or the delivery workflow requires a Word artifact. If only Markdown is requested, do not render.
+- **How**: run the bundled renderer from the `document-rendering` skill against the saved Markdown:
+
+  ```bash
+  python3 .agents/skills/common/document-rendering/tools/docx_template_tool.py \
+    --input specs/<system>/<FILE_NAME>.md \
+    --output specs/<system>/<FILE_NAME_STEM>.docx
+  ```
+
+  It reads the `<!-- DOCX-METADATA -->` header for the Word document properties and renders headings, tables, bullet/numbered lists, paragraphs, and fenced code/diagram blocks. Running it requires the agent's `execute` tool.
+- **Output**: the `.docx` is written **next to** the Markdown with the same filename stem (e.g. `DTS141XXX-RDA24-5.md` → `DTS141XXX-RDA24-5.docx`). Both files are kept.
+- **On failure**: keep the Markdown, report the exact error, and mark the DOCX as not produced — never claim a Word document exists when it does not.
+
+---
+
 ## Common Section Scaffold (All Document Types)
 
 Every DFS, DTS, and SRQ shares the same outer skeleton. The reference file defines only what goes **between** the Introduction and the closing Introduction Strategy.
@@ -208,6 +228,7 @@ Every document ends with an **Introduction Strategy** block. The wrapper heading
 - **Do NOT change terminology** — preserve all system-specific names exactly as they appear.
 - **Do NOT use custom Mermaid colors** and **do NOT redesign an existing diagram**.
 - One Markdown file per invocation.
+- **DOCX rendering is additive** — never remove or replace the Markdown output; render a `.docx` only when a Word deliverable is requested or required (see the `document-rendering` skill).
 
 ---
 
@@ -219,3 +240,5 @@ The output file contains, in order:
 3. `## Revision History` table
 4. Document body following the canonical section structure
 5. All content sourced from real inputs (no hallucinations)
+
+When a Word document is requested or required, a co-located `.docx` is also rendered from the Markdown via the `document-rendering` skill.
