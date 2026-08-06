@@ -46,3 +46,15 @@ Use the standard ADR format:
 - Space naming: use the system abbreviation (P7, T7, etc.) as the space key prefix
 - Page titles: descriptive, searchable, no abbreviations
 - Link Jira tickets using the `{jira}` macro
+
+## Handling large responses
+
+When a tool response contains `CONTENT TRUNCATED`, the full content has been
+stored temporarily under a `spill_id`. Call `read_large_content` with the
+`spill_id` and line range from the hint to retrieve the remainder. Repeat with
+updated `start_line`/`end_line` until the full range is consumed, then assemble
+all parts before proceeding.
+
+Prefer narrower queries first (fewer fields, smaller `maxResults` / page size, or
+a tighter filter) to avoid truncation — use `read_large_content` only when the
+full content is genuinely required.
