@@ -6,7 +6,7 @@ tools: [read, edit, search, t7spec/*, t7codebase/*, devops_jira/get_issue, devop
 user-invocable: false
 system: t7
 skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-spec, skills/systems/t7/t7-code]
-skills_common: [ralph-loop, sdlc-brainstorming, jira, github]
+skills_common: [ralph-loop, sdlc-brainstorming, jira, github, gts-build-graph]
 ---
 
 # SDLC Planner — T7 Trading System

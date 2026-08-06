@@ -5,7 +5,7 @@ model: "Claude Opus 4.6 (copilot)"
 tools: [read, search, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: p7
-skills_common: [github, jira, sdlc-debugging, sdlc-verification]
+skills_common: [github, jira, sdlc-debugging, sdlc-verification, gts-build-graph]
 ---
 
 # SDLC Architect
