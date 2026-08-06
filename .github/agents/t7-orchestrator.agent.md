@@ -3,7 +3,7 @@ name: t7-orchestrator
 description: "Orchestrate software development lifecycle for the T7 Trading System as an autonomous Ralph-style build loop. Use when: implementing a T7 feature end-to-end, running the T7 development loop (specs \u2192 plan \u2192 build), coordinating planning-development-review phases for T7, managing multi-step T7 development workflows, any work touching gts.t7.core, gts.t7.gateway, gts.t7.admin, or T7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-architect, t7-sdlc-tester, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-builder, t7-sdlc-pr-author, t7-sdlc-knowledge, t7-sdlc-spec-author, gts-issue-analyst]
+agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-architect, t7-sdlc-tester, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-builder, t7-sdlc-pr-author, gts-delivery, t7-sdlc-knowledge, t7-sdlc-spec-author, gts-issue-analyst]
 argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDLC loop"
 user-invocable: true
 ---
@@ -164,6 +164,12 @@ When the plan is exhausted, delegate to `/t7-sdlc-pr-author`:
 
 Present the PR description to the user for final approval, then suggest creating the PR via `skills/common/github`.
 
+### Delivery (terminal step — human-gated, never autonomous)
+Delivering a merged, reviewed change into the T7 integration baseline (`gts-deliver --project eurex`) is **not** part of the autonomous loop — it **mutates shared state** and is always **explicitly human-gated**. When the user asks to deliver (or a change is merged and they want to submit it to integration), route to the cross-system **`/gts-delivery`** agent:
+> "Propose the gts-deliver command for T7 (project `eurex`): {component + tag or 'suggest a tag' + SIR(s) + target release}."
+
+`/gts-delivery` runs the **read-only** readiness gates and **PROPOSES** the exact `gts-deliver` command — it **never executes** delivery, never creates/pushes tags, never mutates a baseline. The **engineer runs** the command. Afterwards `/gts-delivery` can monitor the resulting `INT-EUREX-<release>` Integration build (its Mode B), escalating deep root-cause to `/gts-issue-analyst`.
+
 
 
 ## Spec Authoring (On-Demand — Specification Phase)
@@ -217,6 +223,7 @@ Users can request individual modes or phases:
 - "Write tests for my changes" → Tester RED + GREEN verify only
 - "Build the project" → Builder only
 - "Generate a PR" → PR Preparation only
+- "Deliver this change" / "Submit to integration" / "Propose the gts-deliver command" → `/gts-delivery` (cross-system, propose-only; never executes; optional post-delivery build monitoring)
 - "Generate the DFS/DTS/SRQ" / "Author the specification" → Spec Authoring phase (`/t7-sdlc-spec-author`)
 - "Debug this issue" → `skills/common/sdlc-debugging`, then delegate the fix to `/t7-sdlc-developer`
 

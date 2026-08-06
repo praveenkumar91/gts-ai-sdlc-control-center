@@ -3,7 +3,7 @@ name: p7-orchestrator
 description: "Orchestrate full software development lifecycle for the P7 Pricing & Risk Management Platform. Use when: implementing a P7 feature end-to-end, running the full P7 development pipeline, coordinating planning-architecture-development-testing-review-build-PR phases for P7, managing multi-step P7 development workflows, any work touching gts.p7.frontend, middleware, gts.p7.pricingengine, or P7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author, p7-sdlc-spec-author, gts-issue-analyst]
+agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author, gts-delivery, p7-sdlc-spec-author, gts-issue-analyst]
 argument-hint: "Describe the P7 feature, bug fix, or task to run through the full SDLC pipeline"
 user-invocable: true
 ---
@@ -145,6 +145,12 @@ Delegate to `/p7-sdlc-pr-author`:
 
 Present the PR description to the user for final approval.
 
+### Delivery (terminal step — human-gated, never autonomous)
+Delivering a merged, reviewed change into the P7 integration baseline (`gts-deliver --project p7`) is **not** an autonomous step — it **mutates shared state** and is always **explicitly human-gated**. When the user asks to deliver (or the PR is merged and they want to submit it to integration), route to the cross-system **`/gts-delivery`** agent:
+> "Propose the gts-deliver command for P7 (project `p7`): {component + tag or 'suggest a tag' + SIR(s) + target release}."
+
+`/gts-delivery` runs the **read-only** readiness gates and **PROPOSES** the exact `gts-deliver` command — it **never executes** delivery, never creates/pushes tags, never mutates a baseline. The **engineer runs** the command. Afterwards `/gts-delivery` can monitor the resulting `INT-P7-<release>` Integration build (its Mode B), escalating deep root-cause to `/gts-issue-analyst`.
+
 ## Spec Authoring (On-Demand — Specification Phase)
 
 Formal specification documents (DFS / DTS / SRQ) are **not** part of the default Plan → … → PR pipeline. Run this phase **only when the user explicitly asks** for a specification document (e.g. "generate the DFS", "write the DTS for this", "author an SRQ").
@@ -189,6 +195,7 @@ Users can request individual phases:
 - "Write tests for my changes" → Run only Step 4 (RED) + Step 6 (GREEN verify)
 - "Build the project" → Run only Step 8
 - "Generate a PR" → Run only Step 9
+- "Deliver this change" / "Submit to integration" / "Propose the gts-deliver command" → `/gts-delivery` (cross-system, propose-only; never executes; optional post-delivery build monitoring)
 - "Implement this plan" → Steps 3-9 (HARD-GATE still applies at Step 3)
 - "Generate the DFS/DTS/SRQ" / "Author the specification" → Run only the Spec Authoring phase (delegate to `/p7-sdlc-spec-author`)
 - "Debug this issue" → Invoke `skills/systems/p7/p7-debugging` skill before any fix
