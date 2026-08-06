@@ -47,6 +47,7 @@ The cover line, the shared Introduction chapter, and the closing Introduction St
    ## Requirement Summary
    ## Assumptions
    ## Out of Scope                            ← or "Out of Scope and Assumptions"
+   ## Open Point                              ← optional
    ## Related Documents
    ## Abbreviations and Important Terms
 
@@ -70,6 +71,8 @@ The cover line, the shared Introduction chapter, and the closing Introduction St
        ### Initial Settings
        ### Migration Tools/Conversion
        ### Example Setup for Test
+   ## Interface Changes                       ← optional
+   ## Enabling New Functionality              ← optional
 ```
 
 ## Repeatable Blocks
