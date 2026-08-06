@@ -3,7 +3,7 @@ name: t7-orchestrator
 description: "Orchestrate software development lifecycle for the T7 Trading System as an autonomous Ralph-style build loop. Use when: implementing a T7 feature end-to-end, running the T7 development loop (specs \u2192 plan \u2192 build), coordinating planning-development-review phases for T7, managing multi-step T7 development workflows, any work touching gts.t7.core, gts.t7.gateway, gts.t7.admin, or T7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-architect, t7-sdlc-tester, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-builder, t7-sdlc-pr-author, t7-sdlc-knowledge, t7-sdlc-spec-author]
+agents: [gts-prompt-clarifier, t7-sdlc-planner, t7-sdlc-architect, t7-sdlc-tester, t7-sdlc-developer, t7-sdlc-reviewer, t7-sdlc-builder, t7-sdlc-pr-author, t7-sdlc-knowledge, t7-sdlc-spec-author, gts-issue-analyst]
 argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDLC loop"
 user-invocable: true
 ---
@@ -39,10 +39,12 @@ Before starting the pipeline, classify the user request:
 | Intent | Signal words | Action |
 |--------|-------------|--------|
 | **Knowledge query** | "Where is", "How does", "What is", "Who owns", "What changed", "Explain", "Show me", "Find", "Which spec", "What does X do" | Delegate to `/t7-sdlc-knowledge` — do NOT start the pipeline |
+| **Signal analysis** | a failed/UNSTABLE Jenkins build (URL / job+# / console-log path / pasted log), a SonarQube finding, a Dependabot/CodeQL/secret alert, or a GitHub issue/incident/SIR — "why did this fail", "is this a false positive", "root-cause this" | Delegate to `/gts-issue-analyst` — read-only, do NOT start the pipeline |
 | **SDLC task** | "Implement", "Fix", "Add", "Build", "Create", "Change", "Refactor", "Plan" | Start pipeline at Step 1 |
 | **Ambiguous** | Mixed signals or unclear | Ask: "Are you looking for information about T7, or do you want me to implement something?" |
 
 > Knowledge queries are fully handled by `/t7-sdlc-knowledge` and require no plan, gate, or review cycle.
+> Signal analysis (a build failure, a Sonar finding, a security alert, a GitHub issue/incident, or a SIR) is handled **read-only** by `/gts-issue-analyst`, which selects the authoritative engine and grounds the result via `/t7-sdlc-knowledge`. A fix it recommends re-enters the pipeline at Step 1.
 
 ## Core Rule: Coordinator Only
 

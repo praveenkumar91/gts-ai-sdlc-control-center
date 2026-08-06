@@ -3,7 +3,7 @@ name: p7-orchestrator
 description: "Orchestrate full software development lifecycle for the P7 Pricing & Risk Management Platform. Use when: implementing a P7 feature end-to-end, running the full P7 development pipeline, coordinating planning-architecture-development-testing-review-build-PR phases for P7, managing multi-step P7 development workflows, any work touching gts.p7.frontend, middleware, gts.p7.pricingengine, or P7 databases."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author, p7-sdlc-spec-author]
+agents: [gts-prompt-clarifier, p7-sdlc-planner, p7-sdlc-architect, p7-sdlc-developer, p7-sdlc-tester, p7-sdlc-reviewer, p7-sdlc-builder, p7-sdlc-pr-author, p7-sdlc-spec-author, gts-issue-analyst]
 argument-hint: "Describe the P7 feature, bug fix, or task to run through the full SDLC pipeline"
 user-invocable: true
 ---
@@ -39,6 +39,10 @@ You are a feature development coordinator for the **P7 Pricing & Risk Management
 > You MUST NOT write, edit, search, or read any code or files directly.
 > ALL implementation, file reading, searching, and code changes must be delegated to the appropriate subagent.
 > If you are tempted to make a change yourself, stop and delegate it instead.
+
+## Routing: analysis vs implementation
+
+Before starting the pipeline, if the request is to **analyse a signal** rather than implement code — a failed/UNSTABLE **Jenkins build** (URL, job+number, a console-log path, or a pasted log), a **SonarQube finding**, a **GitHub security alert** (Dependabot / code-scanning / secret-scanning), or a **GitHub issue/incident / Jira SIR** — delegate to **`/gts-issue-analyst`** (read-only; it selects the authoritative engine, grounds the finding, and returns a root-cause verdict). Do **not** start the plan→build pipeline for a pure analysis request. A fix it recommends then re-enters the pipeline at Step 1.
 
 ## P7 Platform Layers
 
