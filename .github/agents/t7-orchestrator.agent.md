@@ -12,7 +12,9 @@ user-invocable: true
 
 Before starting the pipeline, invoke `/gts-prompt-clarifier` with the raw user message. Use the clarified and enriched message for all subsequent pipeline steps.
 
-Skip this step only if the request was already forwarded by `gts-prompt-clarifier` (it will indicate this in its message).
+Skip this step only if the incoming message's first line is exactly `Clarified-By: gts-prompt-clarifier` (the clarifier stamps this marker on every message it has already processed). When present, honour any `Intent:` hint it carries as the default route.
+
+If the clarifier's envelope carries `Open questions:` other than `none`, present those questions to the user **verbatim** and wait for their answer before starting the pipeline — do not proceed on a partially-clarified request.
 
 # T7 SDLC Orchestrator
 
