@@ -124,7 +124,7 @@ FILE_NAME: DTS141XXX-MyTitle.md
 ## Revision History Model
 
 - **`REV_DATE` / `REV_AUTHOR` / `REV_VERSION` / `REV_REASON`** — the **current (latest) revision only**. Fills the cover-page version field in the DOCX.
-- **`REVISION_HISTORY`** — the **complete change log**, all revisions including the current one, newest first in the header table. At least one row is required. (Reference files note `docx_template_tool.py` consumes the rows **oldest first** as `--revisions`.)
+- **`REVISION_HISTORY`** — the **complete change log**, all revisions including the current one, newest first in the header table. At least one row is required. The author mirrors it into the body `## Revision History` table, which the renderer converts directly into the DOCX.
 
 The body **must include a Revision History section** immediately after the title (before section 1), rendered from `REVISION_HISTORY`:
 

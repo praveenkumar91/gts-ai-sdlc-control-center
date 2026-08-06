@@ -9,8 +9,6 @@ the Word document to the requested output path.
 from __future__ import annotations
 
 import argparse
-import ast
-import json
 import re
 import zipfile
 from datetime import datetime, timezone
@@ -59,33 +57,6 @@ def parse_metadata(markdown: str) -> tuple[dict[str, str], str]:
     return metadata, markdown[match.end() :]
 
 
-def parse_revision_table(table_text: str) -> list[list[str]]:
-    rows: list[list[str]] = []
-    for line in table_text.splitlines():
-        stripped = line.strip()
-        if not stripped.startswith("|") or not stripped.endswith("|"):
-            continue
-        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        if len(cells) < 4:
-            continue
-        if cells[0].lower() == "date" or set(cells[0]) <= {"-", ":"}:
-            continue
-        if all(set(cell) <= {"-", ":"} for cell in cells):
-            continue
-        rows.append(cells[:4])
-    return rows
-
-
-def parse_revisions(value: str | None, metadata: dict[str, str]) -> list[list[str]]:
-    if value:
-        try:
-            parsed = json.loads(value)
-        except json.JSONDecodeError:
-            parsed = ast.literal_eval(value)
-        return [[str(item) for item in row[:4]] for row in parsed]
-    return parse_revision_table(metadata.get("REVISION_HISTORY", ""))
-
-
 def clean_inline(text: str) -> str:
     text = re.sub(r"!\[([^\]]*)\]\([^)]+\)", r"\1", text)
     text = re.sub(r"\[([^\]]+)\]\(([^)]+)\)", r"\1 (\2)", text)
@@ -131,10 +102,13 @@ def table(rows: Sequence[Sequence[str]]) -> str:
         f'<w:{edge} w:val="single" w:sz="4" w:space="0" w:color="D9DEE5"/>'
         for edge in ("top", "left", "bottom", "right", "insideH", "insideV")
     )
+    # <w:tblGrid> (one <w:gridCol> per column) is a required child of <w:tbl> per OOXML.
+    ncols = max(len(row) for row in rows)
+    grid = "<w:tblGrid>" + '<w:gridCol w:w="2500"/>' * ncols + "</w:tblGrid>"
     return (
         "<w:tbl><w:tblPr><w:tblStyle w:val=\"TableGrid\"/>"
         "<w:tblW w:w=\"0\" w:type=\"auto\"/><w:tblBorders>"
-        f"{borders}</w:tblBorders></w:tblPr>{''.join(trs)}</w:tbl>"
+        f"{borders}</w:tblBorders></w:tblPr>{grid}{''.join(trs)}</w:tbl>"
     )
 
 
@@ -348,10 +322,9 @@ def app_props_xml() -> str:
 </Properties>"""
 
 
-def render_docx(markdown_path: Path, output_path: Path, revisions_arg: str | None = None) -> None:
+def render_docx(markdown_path: Path, output_path: Path) -> None:
     markdown = markdown_path.read_text(encoding="utf-8")
     metadata, body_markdown = parse_metadata(markdown)
-    parse_revisions(revisions_arg, metadata)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     body_xml = markdown_to_word_xml(body_markdown)
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as docx:
@@ -379,10 +352,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("markdown", nargs="?", help="Input Markdown file")
     parser.add_argument("--input", dest="input_path", help="Input Markdown file")
     parser.add_argument("--output", help="Output DOCX path; defaults to FILE_NAME stem next to input")
-    parser.add_argument(
-        "--revisions",
-        help="Optional JSON/Python list of [date, author, version, reason] rows; metadata is used by default",
-    )
     return parser
 
 
@@ -395,7 +364,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     markdown = markdown_path.read_text(encoding="utf-8")
     metadata, _ = parse_metadata(markdown)
     output_path = Path(args.output).resolve() if args.output else default_output(markdown_path, metadata)
-    render_docx(markdown_path, output_path, args.revisions)
+    render_docx(markdown_path, output_path)
     print(output_path)
     return 0
 
