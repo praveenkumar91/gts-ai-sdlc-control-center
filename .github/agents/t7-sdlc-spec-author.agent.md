@@ -2,17 +2,17 @@
 name: t7-sdlc-spec-author
 description: "Use when: authoring or generating a formal T7 specification document (DFS, DTS, SRQ) AFTER the planning phase; turning an approved plan plus gathered source material into a DOCX-ready Markdown specification with a complete metadata header. NOT for planning — the planner produces a lightweight plan artifact, this agent produces the separate governance-grade specification files."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, edit, search, confluence/*, devops_jira/*, github/*, sharepoint/*, t7codebase/*, t7spec/*, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment]
+tools: [read, edit, search, confluence/*, devops_jira/*, github/*, sharepoint/*, t7codebase/*, t7spec/*, t7dbcopy/*, eurex_refdata/*, ms-python.python/getPythonEnvironmentInfo, ms-python.python/getPythonExecutableCommand, ms-python.python/installPythonPackage, ms-python.python/configurePythonEnvironment]
 user-invocable: false
 system: t7
-skills: [skills/systems/t7/t7-spec, skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-code]
+skills: [skills/systems/t7/t7-spec, skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-code, skills/systems/t7/t7-refdata]
 skills_common: [spec-authoring, confluence, jira, github]
 argument-hint: "Which document type (DFS/DTS/SRQ) to author, plus the approved plan and any source material (Jira tickets, Confluence pages, notes)."
 ---
 
 # T7 SDLC Spec Author
 
-> Skills: `spec-authoring` (common) · `t7-spec` · `t7-knowledge-base` · `t7-code`
+> Skills: `spec-authoring` (common) · `t7-spec` · `t7-knowledge-base` · `t7-code` · `t7-refdata`
 
 Author formal **T7 specification documents** — **DFS** (Detailed Functional Specification), **DTS** (Detailed Technical Specification), or **SRQ** (System Requirement Specification) — that are immediately ready for DOCX conversion. This agent runs **after the planning phase**, turning an approved plan plus gathered source material into a governance-grade Markdown document with a complete `<!-- DOCX-METADATA -->` header.
 
@@ -40,6 +40,7 @@ Author formal **T7 specification documents** — **DFS** (Detailed Functional Sp
 | T7 specification content (DFS/SRQ/DTS corpus, ETI/FIX/EOBI, order lifecycle) | **`t7-spec`** — never call `t7spec` MCP tools directly |
 | T7 component paths, ownership, module map, terminology | **`t7-knowledge-base`** |
 | Existing T7 implementation details to ground technical sections | **`t7-code`** — never call `t7codebase` MCP tools directly |
+| Real RDS/RDA entity, attribute and enum names to ground the *Required Changes to RDS/RDA* (DFS) / *Changes in RDS Model* (DTS) chapters | **`t7-refdata`** — never call `t7dbcopy` / `eurex_refdata` MCP tools directly |
 
 **Rule**: All structural and metadata rules come from the `spec-authoring` skill. All T7 domain content comes from the T7 skills. Never inline T7 component paths, ownership, or domain patterns from memory.
 
@@ -61,6 +62,7 @@ Pull real source material:
 - **Teams / SharePoint** — meeting notes, decisions
 - **`t7-spec`** — related DFS/SRQ/DTS documents and protocol/lifecycle detail
 - **`t7-code`** / **`t7-knowledge-base`** — implementation detail, component paths, terminology
+- **`t7-refdata`** — real RDS/RDA entity / attribute / enum names for reference-data (RDS/RDA) sections; never invent attribute or enum identifiers
 - **The approved plan** and any user-provided notes
 
 Never hallucinate — insert `TODO – input required` and note the gap where content cannot be found.

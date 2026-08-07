@@ -79,6 +79,18 @@ For each obligation, decide a status **with file:line evidence**:
 
 Status ∈ **`COVERED` / `PARTIAL` / `MISSING` / `CONTRADICTED` / `OPEN`** (`OPEN` = the requirement itself is undecided, e.g. a `TBC`). Also (reverse): a change touching areas tied to **no** obligation is *undeclared scope* → a `[SUGGESTION]`/NIT, not a block.
 
+### 4a. RDS/RDA obligations (T7 only) — verify against the live reference data
+
+When an obligation names an **RDS/RDA** attribute, enum, or entity (e.g. T7-568436 *"RDS: add `includeTESReversals`, default False"*), checking the **code** alone is not enough — also confirm the declared value against the **real reference data** via the **`t7-refdata`** skill. Do the three-way, baseline-aware check:
+
+1. **Spec obligation** — the value set the ticket / DFS / DTS declares (`t7-spec` for the spec).
+2. **RDS documentation model** — does the model define the attribute/enum for the **target baseline**?
+3. **Live reference data** — is the value present in `rdb` on the stated environment?
+
+Classify `match` / `model-gap` / `data-absent` / `extra-in-data`. **The live database is corroboration, not the gate:** a value in spec + model but not yet in the live data is `data-absent` = *pending deployment* (the change is simply not deployed on that environment yet) — report it, but it is **not** a `MISSING`/gap. A genuine `model-gap` (spec value absent from the RDS model for the target baseline) **is** a gap. If the baselines cannot be aligned, mark the obligation `INTENT_UNVERIFIABLE`.
+
+> **Prerequisite:** the reviewer / knowledge endpoint carries the **`t7-refdata`** skill (`t7dbcopy` read grant). This sub-check is **T7-only** — P7 has no RDS.
+
 ---
 
 ## 5. Test-conformance (corroborate the human tests — don't duplicate)
