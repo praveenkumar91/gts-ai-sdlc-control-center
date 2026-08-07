@@ -200,16 +200,19 @@ State clearly in **Source** that the answer came from parsed files rather than `
 
 ## 6. Cross-system blast radius (why this is a common, not a T7-only, skill)
 
-The graph **spans systems**. `common/*` and `thirdparty/*` components appear — with the **same tag** — in
-**both** the EUREX and P7 baselines (e.g. `common/service/exception`, `thirdparty/boost`, the `build`
-component), and dependency declarations are written **system-parametric** via `${GTS_BASELINE_SYSTEM}`.
-Consequences for an impact answer:
+The graph **spans systems**. **Many** low-level `common/*` and `thirdparty/*` components appear — with the
+**same tag** — in **both** the EUREX and P7 baselines (e.g. `common/service/exception` `078.000.140`,
+`thirdparty/boost`, the `build` component), and dependency declarations are written **system-parametric**
+via `${GTS_BASELINE_SYSTEM}`. Consequences for an impact answer:
 
-- Changing a **shared** `common/*` / `thirdparty/*` component has **cross-system reach** — its dependents
-  (and any reconciliation) can span **multiple projects' baselines** (EUREX, P7, …), not just one. Flag this.
+- Changing a **shared** component has **cross-system reach** — its dependents (and any reconciliation) can
+  span **multiple projects' baselines** (EUREX, P7, …), not just one. Flag this, and report the **union** of
+  `bquery depends` run against **each** affected system's baseline.
 - A **system-specific** component (`eurex/apps/*`, `p7/*`) affects only its own system's baseline.
-
-When the target is shared, run the query against **each** affected system's baseline and report the union.
+- **The `common/` prefix does *not* imply cross-system.** Some `common/*` components exist in only one
+  system — e.g. `common/perfmon` is in EUREX but **not** P7 (P7 has a different `common/intmsg/model/perfmon`).
+  **Verify** the component is actually present (same tag) in the other baseline before claiming cross-system
+  reach; don't infer it from the name.
 
 ---
 
