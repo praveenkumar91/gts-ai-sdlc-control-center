@@ -42,6 +42,31 @@ this skill is the **live data + model** behind that map.
 
 ---
 
+## 1a. How the connections work — availability & graceful degradation
+
+Both connectors are reached **read-only over Cortex** (the `t7dbcopy` / `eurex_refdata` entries in
+`mcp.json`). Two operational facts every caller must know and degrade around:
+
+- **`t7dbcopy` has two layers that fail independently.**
+  - **(A) RDS documentation / semantic model** — `search_entities`, `list_entities`, `get_entity`,
+    `map_entity_to_tables`, `resolve_enum` (doc side), `get_environments`. Served by Cortex; works with
+    the connector credentials alone. **This is the primary layer** for lookups and spec-vs-model conformance.
+  - **(B) Live `rdb` data** — `run_query`, `describe_table`, `query_entity`, `count_entity`, and the
+    live-table verification inside `map_entity_to_tables`. Connects to the real DBCopy MySQL and needs a
+    **valid DBCopy DB grant**.
+  - **Degrade:** if layer B returns a DB/access error (e.g. MySQL `1045 Access denied`), **do not fail the
+    answer** — fall back to layer A, report the finding from the model, and state that *live-data
+    corroboration was unavailable*. Live data is corroboration, not the gate (§4.3).
+- **`eurex_refdata` needs a valid `X-DBP-APIKEY`.** On `401 Unauthorized`, the public plane is
+  unavailable — fall back to `t7dbcopy` (+ `t7-spec`) and note the public cross-check was skipped.
+
+> **Tool names are environment-derived.** In VS Code the wire prefix comes from the server's advertised
+> name, so the tools appear as **`mcp_t7_rds_sense_*`** (t7dbcopy) and **`mcp_eurex_referen_*`**
+> (eurex_refdata), *not* `mcp_t7dbcopy_*`. Match a tool by its **name** (`search_entities`, `run_query`,
+> `graphql`, …) — the prefix below is logical; call whichever matching tool is available.
+
+---
+
 ## 2. Tool selection guide
 
 ### 2a. `t7dbcopy` — T7 RDS Sense (follow this ordered workflow)
