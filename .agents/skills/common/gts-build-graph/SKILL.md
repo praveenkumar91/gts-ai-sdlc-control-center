@@ -81,19 +81,25 @@ supplies it. `tsort` **requires** `-b <baseline>`.
 order that set with `bquery tsort` (or a `tsort` restricted to the impacted subset) so the rebuild runs
 dependencies-first. Distinguish **direct** dependents (edge to X) from **transitive** ones in the answer.
 
-> **What actually rebuilds — validated against the CI.** Delivering a component recompiles **that component
-> *plus* its dependents** — i.e. exactly `bquery depends <changed>` (+ the component itself). Real example: one
-> tag delivered into `150.005.025` (`eurex/common/entitlement`) → `bquery depends` returns **20** dependents,
-> and the Integration build (`INT-EUREX-150.005.025 #49`, `bquery pbuild … --use-cache`) reported
-> **`Components to build: 21/308`** (the 20 + entitlement). So `bquery depends` **predicts** the compile set —
-> it is *not* a loose upper bound. `--use-cache` can only *trim* it (dependents already precompiled at the same
-> build number are skipped), so the CI count is **≤** the closure, never more.
+> **What actually rebuilds — validated against the CI.** A tag delivery recompiles **the changed component +
+> its dependents (`bquery depends <changed>`) + the always-rebuilt `<system>/release` aggregate** (the
+> packaging target that regenerates the release/delivery-info every build). So `Components to build` ≈
+> `1 (self) + |bquery depends| + 1 (release)`, minus any dependents already precompiled (`--use-cache` can
+> only *trim*, so the CI count is **≤** that, never more). **Two real deliveries confirm the formula:**
+>
+> | Delivered | `bquery depends` | INT `Components to build` | = |
+> |---|---|---|---|
+> | `eurex/common/entitlement` (150.005.025 #49) | **19** dependents | **21/308** | 19 + entitlement + `eurex/release` |
+> | `eurex/apps/fagse` (141.007.091 #7, a leaf app) | **0** dependents | **2/305** | fagse + `eurex/release` |
+>
+> So `bquery depends` **predicts the dependents** — the real blast radius of the change; the CI adds the one
+> always-rebuilt `eurex/release` aggregate on top. `bquery depends` is *not* a loose upper bound.
 >
 > **The downstream CMQA/SCM migration does *not* recompile.** `GTS-Migration` (dacci) runs `OneStepMigration.pl`
 > + `prebuild.py … push/pushdev`, **redistributing prebuilt artifacts** (e.g. `Processed: 127/308`, cumulative
-> for the release) with **zero** `cmake`/`make`. So distinguish **compiled** (INT, per delivery = the dependents
-> closure) from **migrated** (CMQA, cumulative prebuild set): compilation happens **once** at the INT build, and
-> everything downstream reuses those prebuilds.
+> for the release) with **zero** `cmake`/`make`. So distinguish **compiled** (INT, per delivery = dependents
+> closure + release aggregate) from **migrated** (CMQA, cumulative prebuild set): compilation happens **once**
+> at the INT build, and everything downstream reuses those prebuilds.
 
 ---
 
