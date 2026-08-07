@@ -45,7 +45,8 @@ So **`bquery` is the v1 engine** and the authoritative answer for the default ba
 (`<configuration project="EUREX|P7" system="eurex|p7" name="<release>"> … <component name="…"><tag>NNN.NNN.NNN</tag>`).
 Obtain the baseline, in order of preference:
 
-1. The **working source area** the engineer already rebased (`baseline.xml` in that directory) — the one they will actually build.
+1. The **working source area** the engineer already rebased (`baseline.xml` in that directory) — the one
+   they will actually build. The CI produces it with `gts-rebase.py -s <system> -r <release> --latest --file=<baseline.xml> --batch --nos3` (the `rebase` tool); you may name that command but need not run it.
 2. The **integration repo** (uniform across systems, one folder per release on `master`):
    `github.deutsche-boerse.de/dev/gts.integration.<system>/<release>/baseline.xml`
    (e.g. `gts.integration.eurex/150.006.020/baseline.xml`, `gts.integration.p7/012.003.020/baseline.xml`).
@@ -80,6 +81,12 @@ supplies it. `tsort` **requires** `-b <baseline>`.
 order that set with `bquery tsort` (or a `tsort` restricted to the impacted subset) so the rebuild runs
 dependencies-first. Distinguish **direct** dependents (edge to X) from **transitive** ones in the answer.
 
+> **Graph impact vs the CI's actual rebuild.** `bquery depends` gives the dependency-graph **upper bound**
+> — every component that *could* rebuild. The Integration build rebuilds a **smaller, incremental** set: it
+> runs `bquery pbuild --command gts-build-precompiled --use-cache` and reports `Components to build: N/total`
+> (e.g. `2/305`), filtering the dependents by what is already precompiled in the build-number DB. Report the
+> `depends` closure as *"what may need rebuilding"*; the CI's real incremental set is a subset — don't equate them.
+
 ---
 
 ## 2. `bquery` command anatomy (the real CLI)
@@ -105,7 +112,10 @@ bquery requires -b /path/to/baseline.xml eurex/cilmsg
 
 **Read-only subcommands only:** `depends`, `requires`, `tsort`. **Never** run `pbuild` / `pbuild-generic`
 / `pbuild-check` / `load-*` / `distcc-*` (these **build**), nor `calc` / `loaddb` (these compute/mutate
-build numbers). None of the three query subcommands mutate anything.
+build numbers). None of the three query subcommands mutate anything. The Integration build itself
+(`INT-EUREX-<release>` / `INT-P7-<release>`, both `BUILDFW Version: 1`) runs `bquery pbuild --command
+gts-build-precompiled --use-cache -b baseline.xml` to order **and build** — recognise it in a build log,
+but this agent runs only the read-only queries, which interrogate the **same** graph.
 
 > **Gotcha — `bquery help <subcommand>` is broken** (a Python-3 regression, `dict.has_key`, in the toolkit).
 > Do **not** rely on it for argument help; the arguments are exactly as documented above.
