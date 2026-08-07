@@ -107,7 +107,7 @@ bquery requires -b /path/to/baseline.xml eurex/cilmsg
 |---|---|
 | `-b FILE` / `--baseline=FILE` | The baseline to analyse. **Required for `tsort`**; `depends`/`requires` default to `./baseline.xml` in the cwd, so always pass `-b` explicitly. |
 | `GITHUB_USERNAME` / `GITHUB_TOKEN` (env) or `--username` / `--password` | Source-control access — `bquery` reads each component's `module-info.xml` from its repo. |
-| `--github-prefix gts` | Component → repo mapping (`eurex/apps/matcher` → `gts.eurex.apps.matcher`). Also `--github-url`, `--github-org`. |
+| `--github-prefix gts` | Component → repo mapping (`eurex/apps/matcher` → `gts.eurex.apps.matcher`). Also `--github-url`, `--github-org` — all three **default from the baseline's `<build><defaults>`**, so they are usually not needed when `-b <baseline>` is supplied. |
 | `-r` / `--refresh-cache`, `--dir-cache=DIR` | Dependency cache (default `/local/<user>/.bquery3`); a cold cache fetches every component's `module-info.xml`, so the first `tsort`/`depends` over a full baseline can be slow. |
 
 **Read-only subcommands only:** `depends`, `requires`, `tsort`. **Never** run `pbuild` / `pbuild-generic`
@@ -155,8 +155,10 @@ run a build.
 
 ## 4. Buildfw v1 vs v2 — pick the right authority
 
-- **Detect v2**: `baseline.xml` carries `configuration/build/defaults/<buildfw>2</buildfw>`, and/or the
-  component has a `dependencies.txt`. Absent that flag, treat the baseline as **v1** (the default).
+- **Detect v2**: the baseline's top-level `<build><defaults>` block carries `<buildfw>2</buildfw>` (that
+  block also holds `<toolchain>`, `<vcs>`, `<github-url>` / `<github-org>` / `<github-prefix>`, `<cmakeVersion>`),
+  and/or the component has a `dependencies.txt`. When `<buildfw>` is **absent**, the baseline is **v1** (the
+  default — confirmed on real EUREX/P7 baselines, which have `<build><defaults>` but no `<buildfw>`).
 - **v1** → `bquery` over `module-info.xml` is authoritative for reverse-deps, forward-deps and `tsort`.
 - **v2** → the graph is **file-level** and **cmake manages build order and which targets (re)build**. Do
   **not** claim `bquery tsort` as the v2 build order. For v2, report the `dependencies.txt`-level facts you
