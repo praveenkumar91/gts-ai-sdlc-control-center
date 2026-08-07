@@ -82,12 +82,12 @@ order that set with `bquery tsort` (or a `tsort` restricted to the impacted subs
 dependencies-first. Distinguish **direct** dependents (edge to X) from **transitive** ones in the answer.
 
 > **What actually rebuilds — validated against the CI.** A tag delivery recompiles **the changed component +
-> its dependents (`bquery depends <changed>`) + the always-rebuilt `<system>/release` aggregate** (the
-> packaging target that regenerates the release/delivery-info every build). So `Components to build` ≈
-> `1 (self) + |bquery depends| + 1 (release)`, minus any dependents already precompiled (`--use-cache` can
+> its dependents (`bquery depends <changed>`) + the always-rebuilt release-packaging aggregate** (`eurex/release`
+> for EUREX, `release/p7` for P7 — it regenerates the release/delivery-info every build). So `Components to build`
+> ≈ `1 (self) + |bquery depends| + 1 (release)`, minus any dependents already precompiled (`--use-cache` can
 > only *trim*, so the CI count is **≤** that, never more). For a **multi-component** delivery it is the
 > **union** of each delivered component's closure, plus the single release aggregate.
-> **Validated on every build of `INT-EUREX-141.007.091` (#2–#7) — all matched:**
+> **Validated across EUREX (`INT-EUREX-141.007.091` #2–#7) and P7 (`INT-P7-012.003.010` #45) — all matched:**
 >
 > | Delivered (build) | `bquery depends` | INT `Components to build` | = |
 > |---|---|---|---|
@@ -95,9 +95,10 @@ dependencies-first. Distinguish **direct** dependents (edge to X) from **transit
 > | `common/controller-monitor/gtspythonlibs` (#4) — a hub | **7** | **9/305** | gtspythonlibs + 7 deps + `eurex/release` |
 > | 4 components together (#5: `matcher`, `perfmon`, `eventviewer`×2) | union **4** | **5/305** | union + `eurex/release` |
 > | `eurex/common/entitlement` (150.005.025 #49) | **19** | **21/308** | entitlement + 19 deps + `eurex/release` |
+> | **P7** `p7/frontend` + `p7/middleware` (P7 #45) — multi, both leaves | union **2** | **3/137** | union + `release/p7` |
 >
 > So `bquery depends` **predicts the dependents** — the real blast radius of the change; the CI adds the one
-> always-rebuilt `eurex/release` aggregate on top. `bquery depends` is *not* a loose upper bound.
+> always-rebuilt release aggregate on top. `bquery depends` is *not* a loose upper bound.
 >
 > **The downstream CMQA/SCM migration does *not* recompile.** `GTS-Migration` (dacci) runs `OneStepMigration.pl`
 > + `prebuild.py … push/pushdev`, **redistributing prebuilt artifacts** (e.g. `Processed: 127/308`, cumulative
