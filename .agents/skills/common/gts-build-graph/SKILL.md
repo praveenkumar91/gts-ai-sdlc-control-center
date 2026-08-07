@@ -81,11 +81,19 @@ supplies it. `tsort` **requires** `-b <baseline>`.
 order that set with `bquery tsort` (or a `tsort` restricted to the impacted subset) so the rebuild runs
 dependencies-first. Distinguish **direct** dependents (edge to X) from **transitive** ones in the answer.
 
-> **Graph impact vs the CI's actual rebuild.** `bquery depends` gives the dependency-graph **upper bound**
-> — every component that *could* rebuild. The Integration build rebuilds a **smaller, incremental** set: it
-> runs `bquery pbuild --command gts-build-precompiled --use-cache` and reports `Components to build: N/total`
-> (e.g. `2/305`), filtering the dependents by what is already precompiled in the build-number DB. Report the
-> `depends` closure as *"what may need rebuilding"*; the CI's real incremental set is a subset — don't equate them.
+> **What actually rebuilds — validated against the CI.** Delivering a component recompiles **that component
+> *plus* its dependents** — i.e. exactly `bquery depends <changed>` (+ the component itself). Real example: one
+> tag delivered into `150.005.025` (`eurex/common/entitlement`) → `bquery depends` returns **20** dependents,
+> and the Integration build (`INT-EUREX-150.005.025 #49`, `bquery pbuild … --use-cache`) reported
+> **`Components to build: 21/308`** (the 20 + entitlement). So `bquery depends` **predicts** the compile set —
+> it is *not* a loose upper bound. `--use-cache` can only *trim* it (dependents already precompiled at the same
+> build number are skipped), so the CI count is **≤** the closure, never more.
+>
+> **The downstream CMQA/SCM migration does *not* recompile.** `GTS-Migration` (dacci) runs `OneStepMigration.pl`
+> + `prebuild.py … push/pushdev`, **redistributing prebuilt artifacts** (e.g. `Processed: 127/308`, cumulative
+> for the release) with **zero** `cmake`/`make`. So distinguish **compiled** (INT, per delivery = the dependents
+> closure) from **migrated** (CMQA, cumulative prebuild set): compilation happens **once** at the INT build, and
+> everything downstream reuses those prebuilds.
 
 ---
 
