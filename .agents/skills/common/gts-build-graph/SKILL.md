@@ -85,12 +85,16 @@ dependencies-first. Distinguish **direct** dependents (edge to X) from **transit
 > its dependents (`bquery depends <changed>`) + the always-rebuilt `<system>/release` aggregate** (the
 > packaging target that regenerates the release/delivery-info every build). So `Components to build` ≈
 > `1 (self) + |bquery depends| + 1 (release)`, minus any dependents already precompiled (`--use-cache` can
-> only *trim*, so the CI count is **≤** that, never more). **Two real deliveries confirm the formula:**
+> only *trim*, so the CI count is **≤** that, never more). For a **multi-component** delivery it is the
+> **union** of each delivered component's closure, plus the single release aggregate.
+> **Validated on every build of `INT-EUREX-141.007.091` (#2–#7) — all matched:**
 >
-> | Delivered | `bquery depends` | INT `Components to build` | = |
+> | Delivered (build) | `bquery depends` | INT `Components to build` | = |
 > |---|---|---|---|
-> | `eurex/common/entitlement` (150.005.025 #49) | **19** dependents | **21/308** | 19 + entitlement + `eurex/release` |
-> | `eurex/apps/fagse` (141.007.091 #7, a leaf app) | **0** dependents | **2/305** | fagse + `eurex/release` |
+> | `eurex/apps/fagse` (#7) · `matcher` (#3) · `service/setup` (#2) · `service/jobschedule` (#6) — leaves | **0** | **2/305** | comp + `eurex/release` |
+> | `common/controller-monitor/gtspythonlibs` (#4) — a hub | **7** | **9/305** | gtspythonlibs + 7 deps + `eurex/release` |
+> | 4 components together (#5: `matcher`, `perfmon`, `eventviewer`×2) | union **4** | **5/305** | union + `eurex/release` |
+> | `eurex/common/entitlement` (150.005.025 #49) | **19** | **21/308** | entitlement + 19 deps + `eurex/release` |
 >
 > So `bquery depends` **predicts the dependents** — the real blast radius of the change; the CI adds the one
 > always-rebuilt `eurex/release` aggregate on top. `bquery depends` is *not* a loose upper bound.
