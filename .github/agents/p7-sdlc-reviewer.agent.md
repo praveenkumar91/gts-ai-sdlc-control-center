@@ -2,7 +2,7 @@
 name: p7-sdlc-reviewer
 description: "Code review agent for the P7 platform. Use when: reviewing code changes, checking code quality, finding bugs, identifying security vulnerabilities, verifying patterns, reviewing pull requests, auditing code for OWASP issues, checking performance."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, search, agent, codereviewer-lens/*, p7spec/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
+tools: [read, search, codereviewer-lens/*, p7spec/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: true
 argument-hint: "What would you like me to review?"
 system: p7

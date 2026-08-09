@@ -66,7 +66,7 @@ Changes may span one or more layers. Always clarify scope with the planner:
 | Layer | Path | Language | Build |
 |-------|------|----------|-------|
 | Frontend | `gts.p7.frontend/` | React/TypeScript (Vite) | `npm run build` |
-| Middleware | `middleware/` | Node.js/Express | `npm run dev` |
+| Middleware | `middleware/` | Node.js/Express | `node -e "require('./src/index.js')"` (load-check — no build step) |
 | Pricing Engine | `gts.p7.pricingengine/` | C++ (CMake/Crow) | `cmake .. && make -j4` |
 | Database (CMDB) | `gts.p7.common.controller-monitor.database/` | SQL (MySQL) | SQL scripts |
 | Database (PEDB) | `gts.p7.pricingengine/sql/` | SQL (MySQL) | SQL scripts |

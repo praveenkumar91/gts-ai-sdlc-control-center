@@ -44,8 +44,7 @@ synthesising an authoritative verdict.
    the inner signal and re-classify (with a depth guard, below).
 5. **Run the engine** — through its **skill**, to full depth (chain the engine's tools; never a single
    shallow call). **Never** call an MCP tool directly outside its skill.
-6. **Ground** — confirm the finding against the real code/spec by delegating to the system's knowledge agent (**`/t7-sdlc-knowledge`** for T7, **`/p7-sdlc-knowledge`** for P7)
-   (T7) or GitHub code search (P7).
+6. **Ground** — confirm the finding against the real code/spec by delegating to the system's knowledge agent (**`/t7-sdlc-knowledge`** for T7, **`/p7-sdlc-knowledge`** for P7).
 7. **Synthesise** — produce the Output Contract verdict.
 8. **Recommend the next step** — read-only: a real fix → hand to the pipeline; a write (dismiss / mark-FP /
    file-SIR / rotate) → recommend only.
