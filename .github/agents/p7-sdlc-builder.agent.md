@@ -2,7 +2,7 @@
 name: p7-sdlc-builder
 description: "Build verification agent for the P7 platform. Use when: running project builds, verifying compilation, checking build errors, validating that code compiles successfully after changes."
 model: "GPT-5 mini (copilot)"
-tools: [execute]
+tools: [execute, github/*]
 user-invocable: false
 system: p7
 skills_common: [github, sdlc-debugging, sdlc-verification, gts-build-graph]
