@@ -3,7 +3,7 @@ name: gts-orchestrator
 description: "Generic SDLC orchestrator for all GTS systems. Routes requests to the correct system subagent (P7, T7, CURE, etc.) and coordinates the full software development lifecycle. Use when: you are working on any GTS system and want to plan, implement, review, test, build, or generate a PR for a feature or fix."
 model: Claude Sonnet 4.6 (copilot)
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, p7-orchestrator, t7-orchestrator, t7-sdlc-knowledge, gts-issue-analyst, gts-delivery]
+agents: [gts-prompt-clarifier, p7-orchestrator, t7-orchestrator, t7-sdlc-knowledge, p7-sdlc-knowledge, gts-issue-analyst, gts-delivery]
 argument-hint: "Describe the system (P7/T7/etc.) and the feature, bug fix, or task to orchestrate"
 user-invocable: true
 ---
@@ -30,6 +30,8 @@ If the clarifier's envelope carries `Open questions:` other than `none`, present
 To add a new system: add an entry to `registry.json` and create `subagents/{system}/agent.md`.
 
 > **Cross-system read-only queries** (Jira tickets, GitHub PRs/commits — no code changes) go to `/t7-sdlc-knowledge`, which carries the *common* `jira`/`github` skills for **all** projects (`T7`, `P7`, `T7DEP`, `P7DEP`, …). This keeps a system-agnostic query (e.g. "list all my assigned tickets") out of a single-system build pipeline and avoids forcing the user to pick P7 vs T7.
+>
+> **System-specific knowledge queries** are handled *inside* each system orchestrator by its read-only knowledge endpoint — `/t7-sdlc-knowledge` for T7 and `/p7-sdlc-knowledge` for P7 (P7 spec corpus, Pricing-Engine internals, data flow, localisation). Route a clearly P7 question to `/p7-orchestrator` (which fast-paths it to `/p7-sdlc-knowledge`); route a clearly T7 question to `/t7-orchestrator`.
 
 > **Signal analysis** (a failed Jenkins build, a SonarQube finding, a Dependabot/CodeQL/secret alert, a GitHub issue/incident, or a Jira SIR that wraps one) goes to `/gts-issue-analyst` — a read-only, cross-system analysis peer of `/t7-sdlc-knowledge`. It selects the authoritative engine (jenkins-lens / sonarqube-lens / github), grounds the finding, and returns a root-cause verdict. It **diagnoses, never implements**; a fix it recommends is then routed back into the pipeline.
 

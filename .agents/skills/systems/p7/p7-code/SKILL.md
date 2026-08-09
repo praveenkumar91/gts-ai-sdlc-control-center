@@ -1,6 +1,6 @@
 ---
 name: p7-code
-description: "P7 platform coding conventions for all 5 layers. Use when: implementing features, writing code, creating new files, adding endpoints, or reviewing code on the P7 platform across Frontend, Middleware, Pricing Engine, CMDB, or PEDB."
+description: "P7 platform coding conventions and change-localisation for all 5 layers. Use when: implementing features, writing code, creating new files, adding endpoints, reviewing code, or locating the exact files a change must touch on the P7 platform across Frontend, Middleware, Pricing Engine, CMDB, or PEDB."
 systems: [p7]
 ---
 
@@ -17,6 +17,64 @@ All P7 implementation work MUST follow these conventions. Match surrounding code
 | Pricing Engine | `gts.p7.pricingengine/` | C++17 (CMake/Crow) | `cmake .. && make -j4` |
 | CMDB | `gts.p7.common.controller-monitor.database/commondb/` | SQL (MySQL) | SQL scripts |
 | PEDB | `gts.p7.pricingengine/sql/schema/` | SQL (MySQL) | SQL scripts |
+
+---
+
+## P7 Repository Map (org `dev` on `github.deutsche-boerse.de` — verified)
+
+The layer table above uses **working-tree paths** (the conventional checkout directory). Each maps to a **git repo** — and that repo name is what the `github` skill and `gts-build-graph` (component `p7/<x>` → repo `gts.p7.<x>`) actually use. The Pricing Engine is **more than one repo**:
+
+| Working path | Git repo | Role | Language |
+|---|---|---|---|
+| `gts.p7.pricingengine/` | `gts.p7.pricingengine` | Main Pricing Engine — data ingest (EMDI / Refinitiv / MDH / CIL over multicast/WS/AMQP), order book, **vola fitting waterfall**, REST (Crow) / WebSocket / AMQP, orchestration; `app/OptionsCalculations` (Black-Scholes / Black76) | C++ |
+| *(linked by the PE)* | **`gts.p7.pricer`** | **The option pricers + greeks / rate math** — `pricer/Pricer.cxx` (analytic), `BinomialPricer.cxx`, `PricerCalculations.cxx`, `PricerUtils.cxx`, `RateInterpolation.cxx`. **A pricing-formula bug (delta / vega / vola / rate) localises HERE, not in `pricingengine`.** | C++ |
+| *(linked by the PE)* | `gts.p7.dataaccess.common` | Shared data-access library used by the PE | C++ |
+| `gts.p7.frontend/` | `gts.p7.frontend` | React / TypeScript UI | TypeScript |
+| `middleware/` | `gts.p7.middleware` | Node.js / Express middleware (`src/routes/api/`, Socket.IO ↔ Faye) | JavaScript |
+| — | `gts.release.p7` | Controls P7 builds & releases (baseline, the `release/p7` aggregate) | — |
+| — | `gts.p7.doc` | P7 documentation | — |
+
+> **Localisation consequence (grounded in SIR P7-2955):** the delta-effective `vola`→`vega` fix was in `gts.p7.pricer/pricer/Pricer.cxx#L111` — a repo the layer table does not surface. So route a **pricing / greeks / rate formula** symptom to `gts.p7.pricer` (analytic `Pricer.cxx` + `BinomialPricer.cxx`), and **data-ingest / order-book / vola-fitting / REST-WS-AMQP / orchestration** to `gts.p7.pricingengine`. `gts.p7.pricer` and `gts.p7.dataaccess.common` each carry their own `module-info.xml`, so a change there has PE-wide blast radius — check dependents via `gts-build-graph` (`system=p7`).
+
+---
+
+## File-Localisation Playbook — from requirement/symptom to the exact file set
+
+> **The highest-value navigation output.** Planner, developer, tester and reviewer all depend on naming the *exact* files a change must touch — the single biggest driver of a correct plan or fix. Optimise for **both** precision (no wrong/fabricated file) **and** recall (no missing coordinated file). Localise to the **fix locus**, not the symptom.
+
+**P7 has no code-index MCP** (unlike T7's `t7codebase`). Localisation is done with the agent's own **`read`/`search`** over the working tree, the **`p7-spec`** skill as the business→code Rosetta bridge, and the **`github`** skill for cross-repo history. Precision comes from *reading* the file, not from an index.
+
+**Input**: a requirement or bug symptom (+ any symbols, log lines, ticket text, DFS label).
+**Output**: a **ranked, evidence-tagged file set** — each file with a role (impl / header / call-site / test / schema / build-config), a tag `[confirmed | likely | candidate | new-planned]`, and the evidence that proves it.
+
+0. **Identify the P7 layer(s)** from the Layer Table above — Frontend / Middleware / Pricing Engine / CMDB / PEDB. Every path below is under that layer's root.
+1. **Translate business → code vocabulary first — via the `p7-spec` skill.** The symptom is *business* language; the code uses different identifiers, and raw grep of a business phrase misfires. Run the symptom through `p7-spec` (`search` / `grep` — see that skill's index-status note) so the DFS/DTS restates it in **canonical P7 vocabulary** and names the concept + parameters. Harvest those canonical nouns + named symbols as your **code-search terms**. *(e.g. "vol curve won't fit at the wings" → DFS11120 → `VolaFittingWaterfall` / `verticalFit` / `parallelShift` / Akima — search PE code for those, not "wings".)*
+2. **Find where the behaviour is defined — iterate; never single-shot.** Seed `search` with the most concrete identifiers you have (exact class / function / REST route / Socket.IO event / config key / log macro ID / error string), scoped to the layer path. Read the top hits; if they are only *near* the locus, extract the real symbols they use and re-search. For the Pricing Engine, the **Key Singletons**, **Important PE Files**, and data-flow tables in this skill name the usual loci (`DataAccess`, `OrderBookBuilder`, `OptionsCalculations`, `VolaFittingWaterfall`, `CrowHandler`, `library/gen/`) — **and for a pricing / greeks / rate formula, the `gts.p7.pricer` repo (`Pricer.cxx` / `BinomialPricer.cxx`), per the Repository Map above.** Exit only when you have **read** the candidate and confirmed it *decides* the behaviour. Try ≥3 term variants before concluding NOT_FOUND.
+3. **Trace to the root cause, not the symptom** — the file that *emits* a symptom (a `PRINTE` log, a REST error, a wrong price) is often not the one to change. Follow the data path back (e.g. Socket.IO event → middleware Faye handler → PE WebSocket push → the computation) to where the behaviour is actually decided.
+4. **Fan out to every coordinated file** — a real P7 change rarely touches one file. Use the **P7 Data Flow** chain and the **New View Checklist (12 Steps)** below as the coordination map:
+
+   | Coordinated file | How to find it |
+   |---|---|
+   | Header ↔ impl pair (`.hxx` ↔ `.cxx`) | `search` the basename in the PE `app/` tree |
+   | **Generated accessor** (`library/gen/*Gen.hxx/.cxx`) when a PEDB table/column changes | regen via the template in `tool/templates` — **never edit `library/gen` directly** |
+   | Cross-layer fan-out of a new PE datum | PEDB schema → `library/gen` regen → `DataAccess` → REST endpoint (`app/RestEndPoints/`) + `CrowHandler` → middleware route (`src/routes/api/`) → Socket.IO event → frontend `useBroadcastStore` slice → grid |
+   | **Call sites** of a changed symbol/signature | `search` the symbol across the layer; enumerate all when a public interface/REST contract/Socket.IO event changes |
+   | **Test file(s)** | Frontend Jest under `src/tests/` mirroring source; PE `test/testRestAPI.py` (REST) + `P7GoogleTests` / `test*.cxx` (unit) |
+   | **Schema / config / data** | PEDB `sql/schema/`, CMDB `commondb/`, `configEnv/*.env`, PE `*Config.xml` |
+
+5. **Corroborate with change history (high-signal)** — when the **`github`** skill is available, inspect recent merged PRs/commits on the affected repo (`gts.p7.pricingengine`, `gts.p7.frontend`, `middleware`, …): files that *historically change together* with your locus are strong candidates you would otherwise miss (evidence, not proof). If `github` is unavailable, record `history: skipped`.
+6. **Rank, tag, justify** — per file emit `path · role · tag · proving evidence`. **Every tag requires a path you actually opened:**
+   - **[confirmed]** = you read it **and** it is the fix locus.
+   - **[likely]** = you read it **and** it is coordinated by a verified rule (header↔impl pair, direct caller, matching test, a 12-step fan-out step).
+   - **[candidate]** = path **verified to exist** but relevance uncertain → developer to confirm.
+   - **[new-planned]** = file does **not** exist yet; its **parent directory and naming convention are verified** (you listed the analogous files) and its creation is justified by an acceptance criterion.
+
+   **Never tag an unverified or guessed path.** If a path can't be verified, don't list it as a file — record it as a **discovery / risk item** with the search strategies tried. Prefer a well-reasoned superset over dropping a real file; never invent a path.
+
+### Search Quality Rules
+- Try at least **three** distinct search strategies (class → method → related enum/route/event) before concluding a symbol is NOT_FOUND.
+- Too many hits → narrow by adding the layer path or component name; nothing → broaden via a canonical term from `p7-spec` or a P7 naming convention (`divident`, `volas`, suffix `S`/`E`/`I`/`Gen`).
+- Always read the **surrounding context** of a match — never act on a single line in isolation.
 
 ---
 
