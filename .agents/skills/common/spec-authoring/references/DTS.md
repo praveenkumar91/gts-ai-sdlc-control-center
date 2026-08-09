@@ -22,13 +22,7 @@ Placeholder tokens: `{{FIELD_NAME}}`
 
 ## Revision History
 
-Source: the `REVISION_HISTORY` multi-row table in the `<!-- DOCX-METADATA -->` header.
-
-Rows are extracted and passed to `docx_template_tool.py` as the `--revisions` parameter:
-
-```
-Format: [[date, author, version, reason], ...]   ← oldest row first
-```
+Source: the `REVISION_HISTORY` change log in the `<!-- DOCX-METADATA -->` header, which the author mirrors into the body `## Revision History` table. The renderer converts that body table directly into the DOCX.
 
 | Column | Description |
 |--------|-------------|
