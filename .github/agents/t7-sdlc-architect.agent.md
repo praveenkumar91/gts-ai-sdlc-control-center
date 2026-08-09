@@ -6,7 +6,7 @@ tools: [read, search, agent]
 agents: [t7-sdlc-knowledge]
 user-invocable: false
 system: t7
-skills_common: [github, jira, sdlc-debugging, sdlc-verification]
+skills_common: [github, jira, sdlc-debugging, sdlc-verification, gts-build-graph]
 ---
 
 # T7 SDLC Architect
@@ -26,7 +26,7 @@ You do **not** hold the `t7-code` or `t7-spec` skills, and you must **never** ca
 | Which team owns a component | Ownership → T7 Component Ownership |
 | Module responsibility or architecture | Module info → T7 Module Map |
 | Whether a class / utility already exists | Semantic code search for the symbol or feature |
-| Build dependencies (`depends_on` / `used_by`) | `component.json` contents for the target component |
+| Build dependencies & reverse-dependents (blast radius) | a `gts-build-graph` query — forward deps from `module-info.xml`, dependents via `bquery depends` |
 | Intended behaviour for a change | Specification lookup (DFS / SRQ / DTS / SIR) |
 | C++ / Java / Python naming, formatting, Sonar rules | Coding guideline for the relevant language |
 | T7 domain term or abbreviation | Terminology → T7 Terminology |
@@ -46,7 +46,7 @@ You do **not** hold the `t7-code` or `t7-spec` skills, and you must **never** ca
 1. **Read the plan**: Understand every task and the components affected.
 2. **Resolve component context**: Ask `t7-sdlc-knowledge` for the directory path and owning team of each affected component. Flag any cross-team boundary.
 3. **Validate against patterns**: Ask `t7-sdlc-knowledge` whether the classes/utilities the plan introduces already exist. Confirm the approach matches existing T7 conventions for the layer.
-4. **Check build dependencies**: Ask `t7-sdlc-knowledge` for the `depends_on` / `used_by` metadata of each affected component and assess the blast radius of the change.
+4. **Check build dependencies & blast radius**: Use the **`gts-build-graph`** skill (via `t7-sdlc-knowledge`) to get each affected component's forward dependencies (`module-info.xml`) and its **dependents** (`bquery depends`) — assess what must rebuild. Flag **cross-system reach** if a shared `common/*` / `thirdparty/*` component is touched (its dependents can span the P7 baseline too).
 5. **Validate against specs**: If the plan references a DFS/SRQ/DTS/SIR, ask `t7-sdlc-knowledge` to confirm the intended behaviour matches the plan.
 6. **Cross-cutting concerns**: Protocol/message contract compatibility (ETI/FIX/EOBI), order-lifecycle state integrity, latency in the Matcher hot path, cross-component side effects, security.
 7. **Annotate or revise**: Mark each task as APPROVED, NEEDS REVISION, or BLOCKED.
@@ -81,7 +81,7 @@ Every response MUST end with one of these so the orchestrator can route correctl
 - **Status**: APPROVED | NEEDS REVISION
 - **Component / Owner**: <component> (<owning team>) — via t7-sdlc-knowledge
 - **Pattern**: Follow <existing class/pattern verified via knowledge agent>
-- **Build Impact**: <depends_on / used_by components affected>
+- **Build Impact**: <forward deps + dependents that must rebuild — via gts-build-graph>
 - **Notes**: <specific guidance>
 
 ### Cross-Cutting Concerns

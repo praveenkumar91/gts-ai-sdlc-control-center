@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, search, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues, devops_jira/get_transitions, devops_jira/get_create_meta, devops_jira/create_issue, devops_jira/update_issue, devops_jira/transition_issue, devops_jira/add_comment, devops_jira/link_issues]
 user-invocable: false
 system: p7
-skills_common: [github, jira, sdlc-debugging, sdlc-verification]
+skills_common: [github, jira, sdlc-debugging, sdlc-verification, gts-build-graph]
 ---
 
 # SDLC Planner
