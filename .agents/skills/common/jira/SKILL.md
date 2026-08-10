@@ -251,6 +251,8 @@ Call these directly, guided by the conventions in this skill. The common ones:
 > already spans every project (`T7`, `P7`, `T7DEP`, `P7DEP`, …). Do not restrict to one project, and do
 > not ask the user to pick a status, unless they said so.
 
+Unless you have a reason why you would want to have each and every field in the response filled (including the empty ones), set request parameter `raw` to `false` to prevent big responses that you will have to retrieve piecewise.
+
 ### Access model — least privilege by agent
 
 Jira access is **scoped per agent to its role**: an agent is granted only the specific `devops_jira/<tool>`
@@ -325,3 +327,15 @@ project = P7 AND issuetype = Container AND status != Closed ORDER BY fixVersion
 - A code-bearing SIR/Sub-task should have its **PR linked** (via key) before it is closed.
 - `SIR` = **System Investigation Request** (not "incident") and `DCCR` = **Data Configuration or
   Change Request** — use the exact type names; never substitute generic `Story`/`Bug`/`Task`.
+
+## Handling large responses
+
+When a tool response contains `CONTENT TRUNCATED`, the full content has been
+stored temporarily under a `spill_id`. Call `read_large_content` with the
+`spill_id` and line range from the hint to retrieve the remainder. Repeat with
+updated `start_line`/`end_line` until the full range is consumed, then assemble
+all parts before proceeding.
+
+Prefer narrower queries first (fewer fields, smaller `maxResults` / page size, or
+a tighter filter) to avoid truncation — use `read_large_content` only when the
+full content is genuinely required.
