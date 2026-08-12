@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 460" width="1720" height="460" role="img" aria-label="Where and when you use GTS AI SDLC. It lives in VS Code Copilot Agent mode, which auto-discovers every agent the moment the repo is open. Five ways in, the same team every time. 1 Describe the work: call gts-orchestrator and routing figures out the system — you get the right orchestrator with no guesswork. 2 Target a system: call p7-orchestrator or t7-orchestrator when you already know P7 or T7 — you get straight into that system's pipeline. 3 One phase on demand: call a single agent such as p7-sdlc-reviewer or t7-sdlc-tester to plan, review, test or author a spec — you get one phase without the full run. 4 Ask, don't build: call t7-sdlc-knowledge for where, who-owns and what-changed questions — you get a read-only answer with no build cycle. 5 Diagnose a signal: hand gts-issue-analyst a red Jenkins build, a SonarQube finding, a security alert, a GitHub issue or a Jira SIR — you get a read-only, evidence-grounded root-cause verdict and a recommended next step, no build cycle.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2045 460" width="2045" height="460" role="img" aria-label="Where and when you use GTS AI SDLC. It lives in VS Code Copilot Agent mode, which auto-discovers every agent the moment the repo is open. Six ways in, the same team every time. 1 Describe the work: call gts-orchestrator and routing figures out the system — you get the right orchestrator with no guesswork. 2 Target a system: call p7-orchestrator or t7-orchestrator when you already know P7 or T7 — you get straight into that system's pipeline. 3 One phase on demand: call a single agent such as p7-sdlc-reviewer or t7-sdlc-tester to plan, review, test or author a spec — you get one phase without the full run. 4 Ask, don't build: call the read-only knowledge agents t7-sdlc-knowledge and p7-sdlc-knowledge for where, who-owns and what-changed questions across P7 and T7 — you get a read-only answer with no build cycle. 5 Diagnose an issue: hand gts-issue-analyst a red Jenkins build, a SonarQube finding, a security alert, a GitHub issue or a Jira SIR — you get a read-only, evidence-grounded root-cause verdict and a recommended next step. 6 Deliver a change: call gts-delivery to run the read-only readiness gates and propose the exact gts-deliver command that ships a merged change into an integration baseline — you run it, then it watches the Integration build.">
   <title>GTS AI SDLC — where and when you use it</title>
 
-  <rect x="0" y="0" width="1720" height="460" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="2045" height="460" fill="#FFFFFF"/>
 
   <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
 
@@ -85,15 +85,15 @@
       <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Ask,</text>
       <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">don't build</text>
       <rect x="24" y="98" width="252" height="30" rx="8" fill="#FAF1DE" stroke="#EFE0C2"/>
-      <text x="40" y="118" font-size="12" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9A6A1E">/t7-sdlc-knowledge</text>
-      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">where · who owns · what changed</text>
+      <text x="40" y="118" font-size="11.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9A6A1E">/t7- · /p7-sdlc-knowledge</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">P7 &amp; T7 · where · who owns · what</text>
       <line x1="24" y1="168" x2="276" y2="168" stroke="#EEF0F2"/>
       <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
       <text x="24" y="214" font-size="13" fill="#46505E">A read-only answer —</text>
       <text x="24" y="234" font-size="13" fill="#46505E">no plan, gate or build cycle.</text>
     </g>
 
-    <!-- ============ 5 · Diagnose a signal (rose) ============ -->
+    <!-- ============ 5 · Diagnose an issue (rose) ============ -->
     <g transform="translate(1360,142)">
       <rect x="0" y="0" width="300" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
       <rect x="0" y="0" width="300" height="4" rx="2" fill="#C77DB0"/>
@@ -103,7 +103,7 @@
         <path d="M4.5 4.5 L12 12"/>
       </g>
       <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Diagnose</text>
-      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">a signal</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">an issue</text>
       <rect x="24" y="98" width="252" height="30" rx="8" fill="#F6E5F1" stroke="#E6CDDD"/>
       <text x="40" y="118" font-size="12" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#A1568F">/gts-issue-analyst</text>
       <text x="24" y="150" font-size="11.5" fill="#9AA1AB">build · Sonar · CVE · issue · SIR</text>
@@ -113,8 +113,28 @@
       <text x="24" y="234" font-size="13" fill="#46505E">verdict — diagnose, not fix.</text>
     </g>
 
+    <!-- ============ 6 · Deliver a change (emerald) ============ -->
+    <g transform="translate(1685,142)">
+      <rect x="0" y="0" width="300" height="248" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="300" height="4" rx="2" fill="#3FA98A"/>
+      <circle cx="48" cy="56" r="24" fill="#DEF3EC"/>
+      <g transform="translate(48,56)" fill="none" stroke="#2E8E74" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-11 -1 v10 a2 2 0 0 0 2 2 h18 a2 2 0 0 0 2 -2 v-10"/>
+        <path d="M0 -13 L0 5 M-6 -7 L0 -13 L6 -7"/>
+      </g>
+      <text x="88" y="48" font-size="17.5" font-weight="700" fill="#1F2733">Deliver</text>
+      <text x="88" y="70" font-size="17.5" font-weight="700" fill="#1F2733">a change</text>
+      <rect x="24" y="98" width="252" height="30" rx="8" fill="#E3F3EE" stroke="#C9E7DE"/>
+      <text x="40" y="118" font-size="12" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#2E7D6A">/gts-delivery</text>
+      <text x="24" y="150" font-size="11.5" fill="#9AA1AB">propose · gates · watch INT build</text>
+      <line x1="24" y1="168" x2="276" y2="168" stroke="#EEF0F2"/>
+      <text x="24" y="192" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="214" font-size="13" fill="#46505E">A ready-to-run gts-deliver</text>
+      <text x="24" y="234" font-size="13" fill="#46505E">command — the human runs it.</text>
+    </g>
+
     <!-- footnote -->
-    <text x="860" y="448" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Auto-discovered in VS Code Copilot the moment the repo is open — no build step, no install. One human gate confirms the plan before any code is written.</text>
+    <text x="1022" y="448" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Auto-discovered in VS Code Copilot the moment the repo is open — no build step, no install. One human gate confirms the plan before any code is written; delivery is proposed, never auto-run.</text>
 
   </g>
 </svg>

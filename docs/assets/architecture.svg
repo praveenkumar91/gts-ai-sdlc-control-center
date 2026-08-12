@@ -1,180 +1,138 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 864" width="1400" height="864" role="img" aria-label="GTS AI SDLC architecture — a 3-tier composition model, read top to bottom in five lanes. A developer request first passes through gts-prompt-clarifier, which resolves ambiguity and enriches context. Tier 1, the gts-orchestrator, knows every registered system and routes the request to the right orchestrator, never implementing anything itself. Tier 2 is the p7-orchestrator (P7 Pricing and Risk, a linear TDD pipeline) and the t7-orchestrator (T7 Trading System, an autonomous Ralph loop). Tier 3 is eight to nine single-purpose pipeline agents — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author and (T7) knowledge — each doing one job and ending its turn with a status code; only the developer writes code. Beside them, a read-only cross-system peer, gts-issue-analyst, diagnoses engineering signals — build failures via jenkins-lens, Sonar findings via sonarqube-lens, security alerts, GitHub issues and Jira SIRs — grounding each in the code and handing any fix back to the pipeline. All agents draw on shared skills: 19 common skills plus system skills, reusable and vendor-neutral across VS Code, Codex and the CLI. Each skill wraps an MCP server — code-review-lens wraps codereviewer-lens, t7-code wraps t7codebase, t7-spec wraps t7spec, github wraps github, jira wraps devops_jira, build-failure-lens wraps jenkins-lens and sonar-finding-lens wraps sonarqube-lens — and agents reach those servers only through the skill, never directly.">
-  <title>GTS AI SDLC — three tiers, composed</title>
-
-  <defs>
-    <marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0 1 L9 5 L0 9 z" fill="#B9BFC8"/>
-    </marker>
-  </defs>
-
-  <rect x="0" y="0" width="1400" height="864" fill="#FFFFFF"/>
-
-  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-
-    <!-- ============ header ============ -->
-    <text x="44" y="52" font-size="15" font-weight="700" fill="#8A92A0" letter-spacing="2">ARCHITECTURE AT A GLANCE</text>
-    <text x="44" y="88" font-size="28" font-weight="700" fill="#1A1A2E" letter-spacing="-0.4">Three tiers, composed</text>
-    <text x="44" y="115" font-size="15" font-weight="500" fill="#5B6472">A generic router on top, one orchestrator per system in the middle, single-purpose agents below — all drawing on shared skills.</text>
-    <line x1="44" y1="134" x2="1356" y2="134" stroke="#ECECEC" stroke-width="1"/>
-
-    <!-- ============ tier lanes (behind everything) ============ -->
-    <g>
-      <rect x="130" y="196" width="1220" height="150" rx="18" fill="#F6F3FC"/>
-      <rect x="130" y="362" width="1220" height="110" rx="18" fill="#F0F5FC"/>
-      <rect x="130" y="488" width="1220" height="150" rx="18" fill="#EEF7F5"/>
-      <rect x="130" y="652" width="1220" height="74"  rx="18" fill="#FBF6EC"/>
-      <rect x="130" y="742" width="1220" height="116" rx="18" fill="#F2F4F7"/>
-    </g>
-
-    <!-- ============ left tier rail ============ -->
-    <g>
-      <line x1="92" y1="214" x2="92" y2="800" stroke="#E4E7EC" stroke-width="1.5"/>
-      <circle cx="92" cy="271" r="5" fill="#6E5BB8"/>
-      <text transform="translate(64,271) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.5" fill="#6E5BB8">TIER 1</text>
-      <circle cx="92" cy="417" r="5" fill="#3F6FB5"/>
-      <text transform="translate(64,417) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.5" fill="#3F6FB5">TIER 2</text>
-      <circle cx="92" cy="563" r="5" fill="#2E8E84"/>
-      <text transform="translate(64,563) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.5" fill="#2E8E84">TIER 3</text>
-      <circle cx="92" cy="689" r="5" fill="#C2862B"/>
-      <text transform="translate(64,689) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.5" fill="#C2862B">SKILLS</text>
-      <circle cx="92" cy="777" r="5" fill="#5B6472"/>
-      <text transform="translate(64,777) rotate(-90)" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="1.5" fill="#5B6472">MCP</text>
-    </g>
-
-    <!-- ============ flow connectors ============ -->
-    <g fill="none" stroke="#B9BFC8" stroke-width="2">
-      <line x1="740" y1="184" x2="740" y2="204" marker-end="url(#arw)"/>
-      <line x1="740" y1="258" x2="740" y2="270" marker-end="url(#arw)"/>
-      <!-- tier1 -> split -->
-      <path d="M740 336 L740 350"/>
-      <path d="M445 350 L1035 350"/>
-      <line x1="445" y1="350" x2="445" y2="372" marker-end="url(#arw)"/>
-      <line x1="1035" y1="350" x2="1035" y2="372" marker-end="url(#arw)"/>
-      <!-- tier2 -> converge -->
-      <path d="M445 462 L445 476"/>
-      <path d="M1035 462 L1035 476"/>
-      <path d="M445 476 L1035 476"/>
-      <line x1="740" y1="476" x2="740" y2="488" marker-end="url(#arw)"/>
-      <!-- tier3 -> skills -->
-      <line x1="740" y1="638" x2="740" y2="652" marker-end="url(#arw)"/>
-    </g>
-
-    <!-- ============ entry request ============ -->
-    <rect x="640" y="150" width="200" height="34" rx="17" fill="#F4F6F8" stroke="#E1E5EA"/>
-    <text x="740" y="172" text-anchor="middle" font-size="13.5" font-weight="600" fill="#46505E">Developer request</text>
-
-    <!-- ============ TIER 1 · clarifier + orchestrator ============ -->
-    <g>
-      <rect x="510" y="206" width="460" height="52" rx="13" fill="#FFFFFF" stroke="#E6E1F2"/>
-      <circle cx="540" cy="232" r="14" fill="#ECE7FA"/>
-      <g transform="translate(540,232)" fill="none" stroke="#6E5BB8" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">
-        <path d="M-7 -5 h14 a2 2 0 0 1 2 2 v6 a2 2 0 0 1 -2 2 h-9 l-5 4 v-4 a2 2 0 0 1 -2 -2 v-6 a2 2 0 0 1 2 -2 z"/>
-      </g>
-      <text x="568" y="229" font-size="15" font-weight="700" fill="#2B3242">gts-prompt-clarifier</text>
-      <text x="568" y="247" font-size="11.5" fill="#8A92A0">resolves ambiguity · enriches context before routing</text>
-    </g>
-
-    <g>
-      <rect x="440" y="272" width="600" height="64" rx="15" fill="#FFFFFF" stroke="#DFD6F4"/>
-      <rect x="440" y="272" width="6" height="64" rx="3" fill="#6E5BB8"/>
-      <circle cx="484" cy="304" r="18" fill="#ECE7FA" stroke="#C9BEEC" stroke-width="1.2"/>
-      <g transform="translate(484,304)" stroke="#6E5BB8" fill="#6E5BB8">
-        <circle cx="0" cy="-9" r="3.1" stroke="none"/>
-        <g fill="none" stroke-width="2" stroke-linecap="round">
-          <path d="M0 -6 C0 0 -10 0 -10 5"/>
-          <path d="M0 -6 L0 5"/>
-          <path d="M0 -6 C0 0 10 0 10 5"/>
-        </g>
-        <circle cx="-10" cy="8" r="2.5" stroke="none"/>
-        <circle cx="0" cy="8" r="2.5" stroke="none"/>
-        <circle cx="10" cy="8" r="2.5" stroke="none"/>
-      </g>
-      <text x="518" y="298" font-size="17" font-weight="700" fill="#1F2733">gts-orchestrator</text>
-      <text x="518" y="320" font-size="12.5" fill="#5B6472">Knows every system · <tspan font-weight="700" fill="#3A4150">routes</tspan> to the right orchestrator · never implements</text>
-    </g>
-
-    <!-- ============ TIER 2 · systems ============ -->
-    <g>
-      <rect x="210" y="372" width="470" height="90" rx="15" fill="#FFFFFF" stroke="#D9E2F1"/>
-      <rect x="234" y="396" width="42" height="42" rx="11" fill="#3F6FB5"/>
-      <text x="255" y="423" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">P7</text>
-      <text x="292" y="404" font-size="16.5" font-weight="700" fill="#1F2733">p7-orchestrator</text>
-      <text x="292" y="426" font-size="12" fill="#5B6472">Pricing &amp; Risk · <tspan font-weight="700" fill="#3A4150">linear TDD pipeline</tspan></text>
-      <text x="292" y="446" font-size="10.5" fill="#9AA1AB">Plan → Architect → Gate → RED → GREEN → Review → Build → PR</text>
-    </g>
-
-    <g>
-      <rect x="800" y="372" width="470" height="90" rx="15" fill="#FFFFFF" stroke="#D9E2F1"/>
-      <rect x="824" y="396" width="42" height="42" rx="11" fill="#3F6FB5"/>
-      <text x="845" y="423" text-anchor="middle" font-size="16" font-weight="800" fill="#FFFFFF">T7</text>
-      <text x="882" y="404" font-size="16.5" font-weight="700" fill="#1F2733">t7-orchestrator</text>
-      <text x="882" y="426" font-size="12" fill="#5B6472">Trading System · <tspan font-weight="700" fill="#3A4150">autonomous Ralph loop</tspan></text>
-      <text x="882" y="446" font-size="10.5" fill="#9AA1AB">specs → plan → gate → build loop, one task per iteration</text>
-    </g>
-
-    <!-- ============ TIER 3 · pipeline agents ============ -->
-    <g>
-      <text x="160" y="516" font-size="14" font-weight="700" fill="#1F2733">Pipeline agents — one job each, every turn ends with a <tspan fill="#2E8E84">status code</tspan></text>
-      <text x="1320" y="516" text-anchor="end" font-size="11.5" font-style="italic" fill="#7E8694">only the developer writes code</text>
-
-      <!-- row 1 -->
-      <g font-size="12.5" font-weight="600" text-anchor="middle">
-        <g><rect x="160"  y="528" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="260"  y="548" fill="#2E7D74">planner</text></g>
-        <g><rect x="400"  y="528" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="500"  y="548" fill="#2E7D74">architect</text></g>
-        <g><rect x="640"  y="528" width="200" height="30" rx="8" fill="#E3F3E8" stroke="#8CCB9F"/><text x="740"  y="548" fill="#2F7A4F">developer ✎</text></g>
-        <g><rect x="880"  y="528" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="980"  y="548" fill="#2E7D74">tester</text></g>
-        <g><rect x="1120" y="528" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="1220" y="548" fill="#2E7D74">reviewer</text></g>
-      </g>
-      <!-- row 2 -->
-      <g font-size="12.5" font-weight="600" text-anchor="middle">
-        <g><rect x="280"  y="566" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="380"  y="586" fill="#2E7D74">builder</text></g>
-        <g><rect x="520"  y="566" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="620"  y="586" fill="#2E7D74">pr-author</text></g>
-        <g><rect x="760"  y="566" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="860"  y="586" fill="#2E7D74">spec-author</text></g>
-        <g><rect x="1000" y="566" width="200" height="30" rx="8" fill="#FFFFFF" stroke="#CFE9E5"/><text x="1100" y="586" fill="#2E7D74">knowledge · T7</text></g>
-        <g><rect x="1240" y="566" width="150" height="30" rx="8" fill="#F0EBFB" stroke="#D9CBF2"/><text x="1315" y="586" fill="#5B49A6">issue-analyst</text></g>
-      </g>
-      <text x="1390" y="614" text-anchor="end" font-size="11" font-style="italic" fill="#7E8694">read-only peers — diagnose, never build</text>
-    </g>
-
-    <!-- ============ SKILLS (wrappers) → MCP SERVERS ============ -->
-    <text x="160" y="672" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#1F2733">Skill-first access</tspan> — each skill wraps an MCP server; agents never call a tool directly. Knowledge-only skills (coding-guidelines · spec-authoring · ralph-loop · requirement-conformance) need no MCP.</text>
-
-    <!-- skill → MCP arrows -->
-    <g fill="none" stroke="#B9BFC8" stroke-width="1.8">
-      <line x1="260"  y1="716" x2="260"  y2="762" marker-end="url(#arw)"/>
-      <line x1="505"  y1="716" x2="505"  y2="762" marker-end="url(#arw)"/>
-      <line x1="750"  y1="716" x2="750"  y2="762" marker-end="url(#arw)"/>
-      <line x1="995"  y1="716" x2="995"  y2="762" marker-end="url(#arw)"/>
-      <line x1="1240" y1="716" x2="1240" y2="762" marker-end="url(#arw)"/>
-    </g>
-
-    <!-- skill chips (wrappers) -->
-    <g font-size="11.5" font-weight="600" text-anchor="middle" fill="#9A6A1E">
-      <g><rect x="185"  y="688" width="150" height="26" rx="13" fill="#FFFFFF" stroke="#EFE0C2"/><text x="260"  y="705">code-review-lens</text></g>
-      <g><rect x="457"  y="688" width="96"  height="26" rx="13" fill="#FFFFFF" stroke="#EFE0C2"/><text x="505"  y="705">t7-code</text></g>
-      <g><rect x="705"  y="688" width="90"  height="26" rx="13" fill="#FFFFFF" stroke="#EFE0C2"/><text x="750"  y="705">t7-spec</text></g>
-      <g><rect x="947"  y="688" width="96"  height="26" rx="13" fill="#FFFFFF" stroke="#EFE0C2"/><text x="995"  y="705">github</text></g>
-      <g><rect x="1202" y="688" width="76"  height="26" rx="13" fill="#FFFFFF" stroke="#EFE0C2"/><text x="1240" y="705">jira</text></g>
-    </g>
-
-    <!-- MCP server chips (the raw namespaces the skills wrap) -->
-    <g font-size="11.5" font-weight="600" text-anchor="middle" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#46505E">
-      <g><rect x="176"  y="764" width="168" height="28" rx="8" fill="#FFFFFF" stroke="#D9DEE5"/><text x="260"  y="782">codereviewer-lens</text></g>
-      <g><rect x="445"  y="764" width="120" height="28" rx="8" fill="#FFFFFF" stroke="#D9DEE5"/><text x="505"  y="782">t7codebase</text></g>
-      <g><rect x="707"  y="764" width="86"  height="28" rx="8" fill="#FFFFFF" stroke="#D9DEE5"/><text x="750"  y="782">t7spec</text></g>
-      <g><rect x="947"  y="764" width="96"  height="28" rx="8" fill="#FFFFFF" stroke="#D9DEE5"/><text x="995"  y="782">github</text></g>
-      <g><rect x="1175" y="764" width="130" height="28" rx="8" fill="#FFFFFF" stroke="#D9DEE5"/><text x="1240" y="782">devops_jira</text></g>
-    </g>
-
-    <!-- lens MCPs used by the read-only issue-analyst -->
-    <g>
-      <line x1="176" y1="812" x2="1305" y2="812" stroke="#EEF0F2"/>
-      <text x="176" y="835" font-size="12" fill="#5B6472"><tspan font-weight="700" fill="#5B49A6">gts-issue-analyst</tspan> adds two more lens MCPs (via build-failure-lens &amp; sonar-finding-lens):</text>
-      <g font-size="11.5" font-weight="600" text-anchor="middle" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#5B49A6">
-        <g><rect x="880" y="822" width="120" height="26" rx="8" fill="#F5F1FC" stroke="#D9CBF2"/><text x="940" y="839">jenkins-lens</text></g>
-        <g><rect x="1012" y="822" width="140" height="26" rx="8" fill="#F5F1FC" stroke="#D9CBF2"/><text x="1082" y="839">sonarqube-lens</text></g>
-      </g>
-    </g>
-
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 846" width="1400" height="846" role="img" font-family="Inter, 'SF Pro Display', 'Segoe UI', Arial, sans-serif" aria-label="GTS AI SDLC architecture. A left-hand rail marks the tiers. A developer request passes through the gts-prompt-clarifier agent to Tier 1, the gts-orchestrator router agent; Tier 2 is the p7-orchestrator (linear TDD pipeline) and t7-orchestrator (autonomous Ralph loop) agents; Tier 3 is eight pipeline-worker agents — planner, architect, developer (the only code writer), tester, reviewer, builder, pr-author, spec-author — which connect down to the SKILLS block. A narrow read-only rail holds T7/P7 Knowledge, gts-issue-analyst and gts-delivery. Each agent carries a distinct role icon. Below sit two inventories: a SKILLS grid (common, T7 and P7) and an MCP SERVERS grid — codereviewer-lens, jenkins-lens, sonarqube-lens, github, devops_jira, confluence, t7codebase, t7spec, t7dbcopy, eurex_refdata and p7spec.">
+<title>GTS AI SDLC — architecture</title>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F7FE"/><stop offset="0.5" stop-color="#FBF6FC"/><stop offset="1" stop-color="#EFFAF6"/></linearGradient><linearGradient id="hero" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2E6BE6"/><stop offset="1" stop-color="#1FC3DA"/></linearGradient><linearGradient id="gP7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C8DF6"/><stop offset="1" stop-color="#2E6BE6"/></linearGradient><linearGradient id="gT7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22C7B8"/><stop offset="1" stop-color="#12998A"/></linearGradient><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" fill="#B7C1D6"/></marker><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 1 L9 5 L0 9 z" fill="#8E9CBA"/></marker></defs>
+<rect width="1400" height="846" fill="url(#bg)"/>
+<circle cx="1290" cy="80" r="180" fill="#F7D8EC" opacity="0.35"/><circle cx="80" cy="800" r="200" fill="#D6E4FB" opacity="0.40"/><circle cx="1330" cy="820" r="150" fill="#D2F0E4" opacity="0.40"/>
+<text x="76" y="60" font-size="36" font-weight="800" letter-spacing="-0.5" fill="url(#hero)">GTS AI SDLC</text>
+<line x1="54" y1="84" x2="1352" y2="84" stroke="#E4E9F2"/>
+<line x1="54" y1="192" x2="54" y2="790" stroke="#E0E5EE" stroke-width="1.6"/>
+<circle cx="54" cy="216" r="5.5" fill="#6E5BB8"/>
+<text transform="translate(32,216) rotate(-90)" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="1.2" fill="#6E5BB8">TIER 1</text>
+<circle cx="54" cy="296" r="5.5" fill="#2E6BE6"/>
+<text transform="translate(32,296) rotate(-90)" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="1.2" fill="#2E6BE6">TIER 2</text>
+<circle cx="54" cy="390" r="5.5" fill="#17A06E"/>
+<text transform="translate(32,390) rotate(-90)" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="1.2" fill="#17A06E">TIER 3</text>
+<circle cx="54" cy="580" r="5.5" fill="#C2862B"/>
+<text transform="translate(32,580) rotate(-90)" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="1.2" fill="#C2862B">SKILLS</text>
+<circle cx="54" cy="766" r="5.5" fill="#6B7A90"/>
+<text transform="translate(32,766) rotate(-90)" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="1.2" fill="#6B7A90">MCP</text>
+<rect x="458" y="101" width="196" height="28" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="458" y="96" width="196" height="28" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<text x="556" y="115" text-anchor="middle" font-size="12.5" fill="#46505E">Developer request</text>
+<line x1="556" y1="129" x2="556" y2="140" stroke="#B7C1D6" stroke-width="2" marker-end="url(#a)"/>
+<rect x="412" y="145" width="288" height="38" rx="12" fill="#C9D3E6" opacity="0.45"/><rect x="412" y="140" width="288" height="38" rx="12" fill="#FFFFFF" stroke="#E7ECF4"/>
+<g transform="translate(464,159)" fill="none" stroke="#7C63C0" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 -4 H5 V1.5 H-0.5 L-3.5 5 V1.5 H-5 Z"/><circle cx="-2" cy="-1.2" r="0.55" fill="#7C63C0" stroke="none"/><circle cx="0" cy="-1.2" r="0.55" fill="#7C63C0" stroke="none"/><circle cx="2" cy="-1.2" r="0.55" fill="#7C63C0" stroke="none"/></g>
+<text x="476" y="164" font-size="13" font-weight="700" fill="#5B49A6">gts-prompt-clarifier</text>
+<line x1="556" y1="183" x2="556" y2="188" stroke="#B7C1D6" stroke-width="2" marker-end="url(#a)"/>
+<rect x="76" y="193" width="960" height="56" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="76" y="188" width="960" height="56" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<g transform="translate(113,216)" fill="none" stroke="#6E5BB8" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="0" cy="-4.5" r="1.3" fill="#6E5BB8" stroke="none"/><path d="M0 -3.2 C0 -0.6 -5 -0.8 -5 3 M0 -3.2 V3 M0 -3.2 C0 -0.6 5 -0.8 5 3"/><circle cx="-5" cy="4.4" r="1.2" fill="#6E5BB8" stroke="none"/><circle cx="0" cy="4.4" r="1.2" fill="#6E5BB8" stroke="none"/><circle cx="5" cy="4.4" r="1.2" fill="#6E5BB8" stroke="none"/></g>
+<text x="128" y="222" font-size="17" font-weight="800" fill="#1E2A44">gts-orchestrator</text>
+<text x="1012" y="222" text-anchor="end" font-size="11.5" fill="#8894A6">routes each request to the right system</text>
+<line x1="556" y1="244" x2="556" y2="258" stroke="#B7C1D6" stroke-width="2" marker-end="url(#a)"/>
+<rect x="76" y="263" width="464" height="76" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="76" y="258" width="464" height="76" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<rect x="100" y="278" width="44" height="44" rx="12" fill="url(#gP7)"/><text x="122" y="306" text-anchor="middle" font-size="15" font-weight="800" fill="#FFF">P7</text>
+<text x="158" y="292" font-size="16.5" font-weight="800" fill="#1E2A44">p7-orchestrator</text>
+<text x="158" y="314" font-size="12.5" font-weight="700" fill="#2E6BE6">linear TDD pipeline</text>
+<rect x="572" y="263" width="464" height="76" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="572" y="258" width="464" height="76" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<rect x="596" y="278" width="44" height="44" rx="12" fill="url(#gT7)"/><text x="618" y="306" text-anchor="middle" font-size="15" font-weight="800" fill="#FFF">T7</text>
+<text x="654" y="292" font-size="16.5" font-weight="800" fill="#1E2A44">t7-orchestrator</text>
+<text x="654" y="314" font-size="12.5" font-weight="700" fill="#12998A">autonomous Ralph loop</text>
+<line x1="308" y1="334" x2="308" y2="348" stroke="#B7C1D6" stroke-width="2" marker-end="url(#a)"/>
+<line x1="804" y1="334" x2="804" y2="348" stroke="#B7C1D6" stroke-width="2" marker-end="url(#a)"/>
+<rect x="76" y="353" width="960" height="84" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="76" y="348" width="960" height="84" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<g font-size="10.5" font-weight="600">
+<g><rect x="100" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(115,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><rect x="-4" y="-4.5" width="8" height="10" rx="1.5"/><rect x="-2" y="-6" width="4" height="2.6" rx="0.8" fill="#2E7D74" stroke="none"/><path d="M-2 -0.5 H2 M-2 2.5 H2"/></g>
+<text x="128" y="394" fill="#2E7D74">planner</text></g>
+<g><rect x="216" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(231,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 5 H5 L-5 -5 Z"/><path d="M-3 5 V3.2 H-1.2"/></g>
+<text x="244" y="394" fill="#2E7D74">architect</text></g>
+<g><rect x="332" y="375" width="102" height="30" rx="9" fill="#DCF1E4" stroke="#A9DBBB"/>
+<g transform="translate(347,390)" fill="none" stroke="#2F7A4F" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M-2 -5 L-6 0 L-2 5"/><path d="M2 -5 L6 0 L2 5"/></g>
+<text x="360" y="394" fill="#2F7A4F">developer</text></g>
+<g><rect x="448" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(463,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M-2 -5 V-0.5 L-5 5 A1.2 1.2 0 0 0 -3.9 6 H3.9 A1.2 1.2 0 0 0 5 5 L2 -0.5 V-5"/><path d="M-3.2 -5 H3.2"/><path d="M-3.2 2.8 H3.2"/></g>
+<text x="476" y="394" fill="#2E7D74">tester</text></g>
+<g><rect x="564" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(579,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 0 C-3.5 -4 3.5 -4 6 0 C3.5 4 -3.5 4 -6 0 Z"/><circle cx="0" cy="0" r="1.7"/></g>
+<text x="592" y="394" fill="#2E7D74">reviewer</text></g>
+<g><rect x="680" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(695,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><circle cx="0" cy="0" r="2.5"/><path d="M0 -5 V-3.3 M0 5 V3.3 M-5 0 H-3.3 M5 0 H3.3 M-3.5 -3.5 L-2.3 -2.3 M3.5 3.5 L2.3 2.3 M3.5 -3.5 L2.3 -2.3 M-3.5 3.5 L-2.3 2.3"/></g>
+<text x="708" y="394" fill="#2E7D74">builder</text></g>
+<g><rect x="796" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(811,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><circle cx="-3.5" cy="-4" r="1.5"/><circle cx="-3.5" cy="4" r="1.5"/><circle cx="3.5" cy="-2" r="1.5"/><path d="M-3.5 -2.5 V2.5"/><path d="M-3.5 0.5 C-3.5 -1.6 3.5 -0.3 3.5 -0.5"/></g>
+<text x="824" y="394" fill="#2E7D74">pr-author</text></g>
+<g><rect x="912" y="375" width="102" height="30" rx="9" fill="#F4F7F6" stroke="#DBE7E3"/>
+<g transform="translate(927,390)" fill="none" stroke="#2E7D74" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M-4 -6 H1.5 L4.5 -3 V6 H-4 Z"/><path d="M1.5 -6 V-3 H4.5"/><path d="M-2 0.8 H2.5 M-2 3.2 H2.5"/></g>
+<text x="940" y="394" fill="#2E7D74">spec-author</text></g>
+</g>
+<line x1="556" y1="437" x2="556" y2="474" stroke="#8E9CBA" stroke-width="2.6" marker-end="url(#a2)"/>
+<rect x="1060" y="193" width="292" height="244" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="1060" y="188" width="292" height="244" rx="14" fill="#FBFAFE" stroke="#E6DEF6"/>
+<g transform="translate(1086,212)" fill="none" stroke="#7B5EA8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="-4" y="-0.5" width="8" height="6.5" rx="1.5"/><path d="M-2.4 -0.5 V-3 A2.4 2.4 0 0 1 2.4 -3 V-0.5"/></g>
+<text x="1100" y="217" font-size="10.5" font-weight="800" letter-spacing="0.4" fill="#7B5EA8">READ-ONLY · NO CODE</text>
+<rect x="1076" y="233" width="260" height="60" rx="11" fill="#C9D3E6" opacity="0.45"/><rect x="1076" y="228" width="260" height="60" rx="11" fill="#FFFFFF" stroke="#EBE4F7"/>
+<g transform="translate(1094,258)" fill="none" stroke="#7C63C0" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -4.5 V5"/><path d="M0 -4.5 C-1.5 -5.5 -3.5 -5.2 -5 -4.5 V4 C-3.5 3.3 -1.5 3.6 0 4.5"/><path d="M0 -4.5 C1.5 -5.5 3.5 -5.2 5 -4.5 V4 C3.5 3.3 1.5 3.6 0 4.5"/></g>
+<text x="1110" y="254" font-size="12" font-weight="700" fill="#5B49A6">T7/P7 Knowledge</text>
+<text x="1110" y="273" font-size="10" fill="#9184C4">ask</text>
+<rect x="1076" y="301" width="260" height="60" rx="11" fill="#C9D3E6" opacity="0.45"/><rect x="1076" y="296" width="260" height="60" rx="11" fill="#FFFFFF" stroke="#EBE4F7"/>
+<g transform="translate(1094,326)" fill="none" stroke="#7C63C0" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><circle cx="-1" cy="-1" r="3.5"/><path d="M1.6 1.6 L5.2 5.2"/></g>
+<text x="1110" y="322" font-size="12" font-weight="700" fill="#5B49A6">gts-issue-analyst</text>
+<text x="1110" y="341" font-size="10" fill="#9184C4">root-cause</text>
+<rect x="1076" y="369" width="260" height="60" rx="11" fill="#C9D3E6" opacity="0.45"/><rect x="1076" y="364" width="260" height="60" rx="11" fill="#FFFFFF" stroke="#EBE4F7"/>
+<g transform="translate(1094,394)" fill="none" stroke="#7C63C0" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 -5 L6 0 L-6 5 L-3 0 Z"/></g>
+<text x="1110" y="390" font-size="12" font-weight="700" fill="#5B49A6">gts-delivery</text>
+<text x="1110" y="409" font-size="10" fill="#9184C4">propose · human-run</text>
+<rect x="76" y="479" width="1276" height="212" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="76" y="474" width="1276" height="212" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<g transform="translate(102,500)" fill="none" stroke="#17998C" stroke-width="1.8" stroke-linejoin="round"><path d="M0 -6 L10 0 L0 6 L-10 0 Z"/><path d="M-10 4 L0 10 L10 4"/></g>
+<text x="122" y="505" font-size="14" font-weight="800" fill="#12776B">SKILLS</text>
+<g font-size="10.5" font-weight="700" text-anchor="middle">
+<g><rect x="100" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="164" y="542" fill="#237267">code-review-lens</text></g>
+<g><rect x="237" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="301" y="542" fill="#237267">coding-guidelines</text></g>
+<g><rect x="374" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="438" y="542" fill="#237267">build-failure-lens</text></g>
+<g><rect x="511" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="575" y="542" fill="#237267">sonar-finding-lens</text></g>
+<g><rect x="648" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="712" y="542" fill="#237267">jira</text></g>
+<g><rect x="785" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="849" y="542" fill="#237267">security-alert-triage</text></g>
+<g><rect x="922" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="986" y="542" fill="#237267">code-review</text></g>
+<g><rect x="1059" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1123" y="542" fill="#237267">confluence</text></g>
+<g><rect x="1196" y="522" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1260" y="542" fill="#237267">document-rendering</text></g>
+<g><rect x="100" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="164" y="580" fill="#237267">gcp-tools</text></g>
+<g><rect x="237" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="301" y="580" fill="#237267">github-pr-miner</text></g>
+<g><rect x="374" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="438" y="580" fill="#237267">github</text></g>
+<g><rect x="511" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="575" y="580" fill="#237267">gts-build-graph</text></g>
+<g><rect x="648" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="712" y="580" fill="#237267">gts-delivery</text></g>
+<g><rect x="785" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="849" y="580" fill="#237267">issue-triage</text></g>
+<g><rect x="922" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="986" y="580" fill="#237267">ralph-loop</text></g>
+<g><rect x="1059" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1123" y="580" fill="#237267">requirement-conformance</text></g>
+<g><rect x="1196" y="560" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1260" y="580" fill="#237267">sdlc-brainstorming</text></g>
+<g><rect x="100" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="164" y="618" fill="#237267">sdlc-debugging</text></g>
+<g><rect x="237" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="301" y="618" fill="#237267">sdlc-verification</text></g>
+<g><rect x="374" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="438" y="618" fill="#237267">spec-authoring</text></g>
+<g><rect x="511" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="575" y="618" fill="#237267">t7-code</text></g>
+<g><rect x="648" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="712" y="618" fill="#237267">t7-spec</text></g>
+<g><rect x="785" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="849" y="618" fill="#237267">t7-refdata</text></g>
+<g><rect x="922" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="986" y="618" fill="#237267">t7-code-review</text></g>
+<g><rect x="1059" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1123" y="618" fill="#237267">t7-knowledge-base</text></g>
+<g><rect x="1196" y="598" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="1260" y="618" fill="#237267">p7-spec</text></g>
+<g><rect x="100" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="164" y="656" fill="#237267">p7-code</text></g>
+<g><rect x="237" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="301" y="656" fill="#237267">p7-code-review</text></g>
+<g><rect x="374" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="438" y="656" fill="#237267">p7-debugging</text></g>
+<g><rect x="511" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="575" y="656" fill="#237267">p7-brainstorming</text></g>
+<g><rect x="648" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="712" y="656" fill="#237267">p7-verification</text></g>
+<g><rect x="785" y="636" width="129" height="30" rx="9" fill="#E3F1EE" stroke="#B7D9D2"/><text x="849" y="656" fill="#237267">p7-github</text></g>
+</g>
+<rect x="76" y="711" width="1276" height="120" rx="14" fill="#C9D3E6" opacity="0.45"/><rect x="76" y="706" width="1276" height="120" rx="14" fill="#FFFFFF" stroke="#E7ECF4"/>
+<g transform="translate(102,730)" fill="none" stroke="#C2862B" stroke-width="1.7"><rect x="-10" y="-7" width="20" height="6" rx="2"/><rect x="-10" y="1" width="20" height="6" rx="2"/><circle cx="-5" cy="-4" r="0.8" fill="#C2862B"/><circle cx="-5" cy="4" r="0.8" fill="#C2862B"/></g>
+<text x="122" y="735" font-size="14" font-weight="800" fill="#9A6A1E">MCP SERVERS</text>
+<g text-anchor="middle" font-family="'SF Mono',ui-monospace,Menlo,monospace">
+<g><rect x="100" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="198" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">codereviewer-lens</text></g>
+<g><rect x="304" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="402" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">jenkins-lens</text></g>
+<g><rect x="508" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="606" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">sonarqube-lens</text></g>
+<g><rect x="712" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="810" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">github</text></g>
+<g><rect x="916" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="1014" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">devops_jira</text></g>
+<g><rect x="1120" y="750" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="1218" y="769" font-size="11.5" font-weight="700" fill="#8A4E12">confluence</text></g>
+<g><rect x="100" y="788" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="198" y="807" font-size="11.5" font-weight="700" fill="#8A4E12">t7codebase</text></g>
+<g><rect x="304" y="788" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="402" y="807" font-size="11.5" font-weight="700" fill="#8A4E12">t7spec</text></g>
+<g><rect x="508" y="788" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="606" y="807" font-size="11.5" font-weight="700" fill="#8A4E12">t7dbcopy</text></g>
+<g><rect x="712" y="788" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="810" y="807" font-size="11.5" font-weight="700" fill="#8A4E12">eurex_refdata</text></g>
+<g><rect x="916" y="788" width="196" height="28" rx="8" fill="#FCEBD6" stroke="#F0C795"/><text x="1014" y="807" font-size="11.5" font-weight="700" fill="#8A4E12">p7spec</text></g>
+</g>
 </svg>

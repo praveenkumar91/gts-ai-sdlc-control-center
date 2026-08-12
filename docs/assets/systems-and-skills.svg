@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 628" width="1500" height="628" role="img" aria-label="GTS AI SDLC systems and skills. Two systems today. P7, the Pricing and Risk Management platform, runs the p7-orchestrator over a linear TDD pipeline with eight roles — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author — and six system skills: p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github. T7, the Trading System, runs the t7-orchestrator as an autonomous Ralph loop with the same eight roles plus a read-only knowledge agent, and four system skills: t7-code, t7-code-review, t7-spec, t7-knowledge-base. The shared skill library groups review and specs (code-review-lens, code-review, requirement-conformance, spec-authoring, coding-guidelines), integrations (github, github-pr-miner, jira, confluence, teams) and SDLC discipline (ralph-loop, sdlc-brainstorming, sdlc-debugging, sdlc-verification), plus four signal-analysis skills (build-failure-lens, sonar-finding-lens, security-alert-triage, issue-triage) used by the read-only gts-issue-analyst peer. Totals: 22 agents, 29 skills (19 common plus 10 system), 2 systems, 8 pipeline phases.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 672" width="1500" height="672" role="img" aria-label="GTS AI SDLC systems and skills. Two systems today, each with its own read-only knowledge agent. P7, the Pricing and Risk Management platform, runs the p7-orchestrator over a linear TDD pipeline with eight roles — planner, architect, developer, tester, reviewer, builder, pr-author, spec-author — plus a read-only p7-sdlc-knowledge agent, and seven system skills: p7-code, p7-code-review, p7-debugging, p7-brainstorming, p7-verification, p7-github, p7-spec. T7, the Trading System, runs the t7-orchestrator as an autonomous Ralph loop with the same eight roles plus a read-only knowledge agent, and five system skills: t7-code, t7-code-review, t7-spec, t7-knowledge-base, t7-refdata. The shared skill library groups review and specs (code-review-lens, code-review, requirement-conformance, spec-authoring, coding-guidelines, document-rendering), integrations (github, github-pr-miner, jira, confluence, teams, gcp-tools), SDLC discipline (ralph-loop, sdlc-brainstorming, sdlc-debugging, sdlc-verification) and delivery and build (gts-delivery, gts-build-graph), plus four issue-analysis skills (build-failure-lens, sonar-finding-lens, security-alert-triage, issue-triage) used by the read-only gts-issue-analyst and gts-delivery peers. Totals: 24 agents, 34 skills (22 common plus 12 system), 2 systems, 8 pipeline phases.">
   <title>GTS AI SDLC — systems &amp; the shared skill library</title>
 
-  <rect x="0" y="0" width="1500" height="628" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1500" height="672" fill="#FFFFFF"/>
 
   <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
 
@@ -17,95 +17,104 @@
 
     <!-- ============ P7 card ============ -->
     <g>
-      <rect x="44" y="184" width="686" height="158" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
-      <rect x="44" y="184" width="6" height="158" rx="3" fill="#3F6FB5"/>
+      <rect x="44" y="184" width="686" height="164" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="44" y="184" width="6" height="164" rx="3" fill="#3F6FB5"/>
       <rect x="70" y="208" width="44" height="44" rx="11" fill="#3F6FB5"/>
       <text x="92" y="237" text-anchor="middle" font-size="17" font-weight="800" fill="#FFFFFF">P7</text>
       <text x="128" y="224" font-size="18" font-weight="700" fill="#1F2733">p7-orchestrator</text>
       <text x="128" y="245" font-size="12.5" fill="#5B6472">Pricing &amp; Risk Management · <tspan font-weight="700" fill="#3A4150">linear TDD pipeline</tspan></text>
       <line x1="70" y1="268" x2="704" y2="268" stroke="#EEF0F2"/>
       <text x="70" y="292" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">ROLES</text>
-      <text x="128" y="292" font-size="12" fill="#46505E">planner · architect · developer · tester · reviewer · builder · pr-author · spec-author</text>
+      <text x="128" y="292" font-size="11.5" fill="#46505E">planner · architect · developer · tester · reviewer · builder · pr-author · spec-author · <tspan font-weight="700" fill="#2E5C9E">knowledge</tspan></text>
       <text x="70" y="320" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">SKILLS</text>
-      <text x="128" y="320" font-size="12" fill="#3F6FB5">p7-code · p7-code-review · p7-debugging · p7-brainstorming · p7-verification · p7-github</text>
+      <text x="128" y="320" font-size="11.5" fill="#3F6FB5">p7-code · p7-code-review · p7-debugging · p7-brainstorming · p7-verification · p7-github · <tspan font-weight="700">p7-spec</tspan></text>
     </g>
 
     <!-- ============ T7 card ============ -->
     <g>
-      <rect x="44" y="358" width="686" height="164" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
-      <rect x="44" y="358" width="6" height="164" rx="3" fill="#2E8E84"/>
-      <rect x="70" y="384" width="44" height="44" rx="11" fill="#2E8E84"/>
-      <text x="92" y="413" text-anchor="middle" font-size="17" font-weight="800" fill="#FFFFFF">T7</text>
-      <text x="128" y="400" font-size="18" font-weight="700" fill="#1F2733">t7-orchestrator</text>
-      <text x="128" y="421" font-size="12.5" fill="#5B6472">Trading System · <tspan font-weight="700" fill="#3A4150">autonomous Ralph loop</tspan></text>
-      <line x1="70" y1="444" x2="704" y2="444" stroke="#EEF0F2"/>
-      <text x="70" y="468" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">ROLES</text>
-      <text x="128" y="468" font-size="12" fill="#46505E">planner · architect · developer · tester · reviewer · builder · pr-author · spec-author · <tspan font-weight="700" fill="#2E7D74">knowledge</tspan></text>
-      <text x="70" y="496" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">SKILLS</text>
-      <text x="128" y="496" font-size="12" fill="#2E7D74">t7-code · t7-code-review · t7-spec · t7-knowledge-base</text>
+      <rect x="44" y="364" width="686" height="164" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="44" y="364" width="6" height="164" rx="3" fill="#2E8E84"/>
+      <rect x="70" y="388" width="44" height="44" rx="11" fill="#2E8E84"/>
+      <text x="92" y="417" text-anchor="middle" font-size="17" font-weight="800" fill="#FFFFFF">T7</text>
+      <text x="128" y="404" font-size="18" font-weight="700" fill="#1F2733">t7-orchestrator</text>
+      <text x="128" y="425" font-size="12.5" fill="#5B6472">Trading System · <tspan font-weight="700" fill="#3A4150">autonomous Ralph loop</tspan></text>
+      <line x1="70" y1="448" x2="704" y2="448" stroke="#EEF0F2"/>
+      <text x="70" y="472" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">ROLES</text>
+      <text x="128" y="472" font-size="11.5" fill="#46505E">planner · architect · developer · tester · reviewer · builder · pr-author · spec-author · <tspan font-weight="700" fill="#2E7D74">knowledge</tspan></text>
+      <text x="70" y="500" font-size="10.5" font-weight="700" fill="#B6BCC4" letter-spacing="1">SKILLS</text>
+      <text x="128" y="500" font-size="11.5" fill="#2E7D74">t7-code · t7-code-review · t7-spec · t7-knowledge-base · <tspan font-weight="700">t7-refdata</tspan></text>
     </g>
 
     <!-- ============ skill library panel ============ -->
     <g>
-      <rect x="770" y="184" width="686" height="338" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
-      <rect x="770" y="184" width="6" height="338" rx="3" fill="#C2862B"/>
+      <rect x="770" y="184" width="686" height="390" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="770" y="184" width="6" height="390" rx="3" fill="#C2862B"/>
 
-      <!-- group A -->
-      <text x="796" y="214" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">REVIEW &amp; SPECS</text>
+      <!-- group A · review & specs -->
+      <text x="796" y="210" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">REVIEW &amp; SPECS</text>
       <g font-size="11.5" font-weight="600" text-anchor="middle" fill="#3A4150">
-        <g><rect x="796" y="224" width="156" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="874" y="242">code-review-lens</text></g>
-        <g><rect x="962" y="224" width="112" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1018" y="242">code-review</text></g>
-        <g><rect x="1084" y="224" width="204" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1186" y="242">requirement-conformance</text></g>
-        <g><rect x="796" y="260" width="132" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="862" y="278">spec-authoring</text></g>
-        <g><rect x="938" y="260" width="150" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1013" y="278">coding-guidelines</text></g>
+        <g><rect x="796" y="220" width="150" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="871" y="238">code-review-lens</text></g>
+        <g><rect x="958" y="220" width="112" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1014" y="238">code-review</text></g>
+        <g><rect x="1082" y="220" width="205" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1184" y="238">requirement-conformance</text></g>
+        <g><rect x="796" y="252" width="132" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="862" y="270">spec-authoring</text></g>
+        <g><rect x="940" y="252" width="150" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1015" y="270">coding-guidelines</text></g>
+        <g><rect x="1102" y="252" width="170" height="28" rx="14" fill="#FBF1DC" stroke="#EFE0C2"/><text x="1187" y="270">document-rendering</text></g>
       </g>
 
-      <!-- group B -->
-      <text x="796" y="316" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">INTEGRATIONS</text>
+      <!-- group B · integrations -->
+      <text x="796" y="298" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">INTEGRATIONS</text>
       <g font-size="11.5" font-weight="600" text-anchor="middle" fill="#3A4150">
-        <g><rect x="796" y="326" width="86" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="839" y="344">github</text></g>
-        <g><rect x="892" y="326" width="150" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="967" y="344">github-pr-miner</text></g>
-        <g><rect x="1052" y="326" width="64" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1084" y="344">jira</text></g>
-        <g><rect x="1126" y="326" width="118" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1185" y="344">confluence</text></g>
-        <g><rect x="1254" y="326" width="82" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1295" y="344">teams</text></g>
+        <g><rect x="796" y="308" width="86" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="839" y="326">github</text></g>
+        <g><rect x="894" y="308" width="150" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="969" y="326">github-pr-miner</text></g>
+        <g><rect x="1056" y="308" width="64" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1088" y="326">jira</text></g>
+        <g><rect x="1132" y="308" width="118" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1191" y="326">confluence</text></g>
+        <g><rect x="796" y="340" width="82" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="837" y="358">teams</text></g>
+        <g><rect x="890" y="340" width="100" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="940" y="358">gcp-tools</text></g>
       </g>
 
-      <!-- group C -->
-      <text x="796" y="392" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">SDLC DISCIPLINE</text>
+      <!-- group C · SDLC discipline -->
+      <text x="796" y="386" font-size="11" font-weight="700" fill="#B07F2C" letter-spacing="0.8">SDLC DISCIPLINE</text>
       <g font-size="11.5" font-weight="600" text-anchor="middle" fill="#3A4150">
-        <g><rect x="796" y="402" width="110" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="851" y="420">ralph-loop</text></g>
-        <g><rect x="916" y="402" width="164" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="998" y="420">sdlc-brainstorming</text></g>
-        <g><rect x="1090" y="402" width="146" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1163" y="420">sdlc-debugging</text></g>
-        <g><rect x="1246" y="402" width="150" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1321" y="420">sdlc-verification</text></g>
+        <g><rect x="796" y="396" width="110" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="851" y="414">ralph-loop</text></g>
+        <g><rect x="918" y="396" width="164" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1000" y="414">sdlc-brainstorming</text></g>
+        <g><rect x="1094" y="396" width="146" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1167" y="414">sdlc-debugging</text></g>
+        <g><rect x="1252" y="396" width="150" height="28" rx="14" fill="#F6F1E6" stroke="#EBE0CB"/><text x="1327" y="414">sdlc-verification</text></g>
       </g>
 
-      <line x1="796" y1="454" x2="1430" y2="454" stroke="#EEF0F2"/>
-      <text x="796" y="482" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">System skills</tspan> extend the base per system — 6 for P7, 4 for T7.</text>
-      <text x="796" y="504" font-size="12" fill="#9AA1AB">Reached through a skill, never a raw MCP call · reusable across VS Code · Codex · CLI.</text>
-      <text x="796" y="526" font-size="12" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">+ Signal analysis</tspan> (read-only gts-issue-analyst): build-failure-lens · sonar-finding-lens · security-alert-triage · issue-triage.</text>
+      <!-- group D · delivery & build (new) -->
+      <text x="796" y="442" font-size="11" font-weight="700" fill="#7B5EA8" letter-spacing="0.8">DELIVERY &amp; BUILD</text>
+      <g font-size="11.5" font-weight="600" text-anchor="middle" fill="#3A4150">
+        <g><rect x="796" y="452" width="130" height="28" rx="14" fill="#F3EEF9" stroke="#E0D6F0"/><text x="861" y="470">gts-delivery</text></g>
+        <g><rect x="938" y="452" width="150" height="28" rx="14" fill="#F3EEF9" stroke="#E0D6F0"/><text x="1013" y="470">gts-build-graph</text></g>
+      </g>
+
+      <line x1="796" y1="500" x2="1430" y2="500" stroke="#EEF0F2"/>
+      <text x="796" y="524" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">System skills</tspan> extend the base per system — 7 for P7, 5 for T7.</text>
+      <text x="796" y="546" font-size="12" fill="#9AA1AB">Reached through a skill, never a raw MCP call · reusable across VS Code · Codex · CLI.</text>
+      <text x="796" y="568" font-size="12" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">+ Issue &amp; delivery skills:</tspan> build-failure-lens · sonar-finding-lens · security-alert-triage · issue-triage.</text>
     </g>
 
     <!-- ============ stat band ============ -->
     <g>
-      <rect x="44" y="546" width="1412" height="60" rx="14" fill="#FBFBFC" stroke="#EEF0F2"/>
+      <rect x="44" y="596" width="1412" height="60" rx="14" fill="#FBFBFC" stroke="#EEF0F2"/>
       <g text-anchor="middle">
-        <text x="223" y="580" font-size="24" font-weight="800" fill="#1A1A2E">22</text>
-        <text x="223" y="596" font-size="11" font-weight="600" fill="#8A92A0">AGENTS</text>
+        <text x="223" y="630" font-size="24" font-weight="800" fill="#1A1A2E">24</text>
+        <text x="223" y="646" font-size="11" font-weight="600" fill="#8A92A0">AGENTS</text>
       </g>
-      <line x1="446" y1="560" x2="446" y2="592" stroke="#ECECEC"/>
+      <line x1="446" y1="610" x2="446" y2="642" stroke="#ECECEC"/>
       <g text-anchor="middle">
-        <text x="625" y="580" font-size="24" font-weight="800" fill="#1A1A2E">29</text>
-        <text x="625" y="596" font-size="11" font-weight="600" fill="#8A92A0">SKILLS · 19 COMMON + 10 SYSTEM</text>
+        <text x="625" y="630" font-size="24" font-weight="800" fill="#1A1A2E">34</text>
+        <text x="625" y="646" font-size="11" font-weight="600" fill="#8A92A0">SKILLS · 22 COMMON + 12 SYSTEM</text>
       </g>
-      <line x1="880" y1="560" x2="880" y2="592" stroke="#ECECEC"/>
+      <line x1="880" y1="610" x2="880" y2="642" stroke="#ECECEC"/>
       <g text-anchor="middle">
-        <text x="1035" y="580" font-size="24" font-weight="800" fill="#1A1A2E">2</text>
-        <text x="1035" y="596" font-size="11" font-weight="600" fill="#8A92A0">SYSTEMS</text>
+        <text x="1035" y="630" font-size="24" font-weight="800" fill="#1A1A2E">2</text>
+        <text x="1035" y="646" font-size="11" font-weight="600" fill="#8A92A0">SYSTEMS</text>
       </g>
-      <line x1="1225" y1="560" x2="1225" y2="592" stroke="#ECECEC"/>
+      <line x1="1225" y1="610" x2="1225" y2="642" stroke="#ECECEC"/>
       <g text-anchor="middle">
-        <text x="1340" y="580" font-size="24" font-weight="800" fill="#1A1A2E">8</text>
-        <text x="1340" y="596" font-size="11" font-weight="600" fill="#8A92A0">PIPELINE PHASES</text>
+        <text x="1340" y="630" font-size="24" font-weight="800" fill="#1A1A2E">8</text>
+        <text x="1340" y="646" font-size="11" font-weight="600" fill="#8A92A0">PIPELINE PHASES</text>
       </g>
     </g>
 
