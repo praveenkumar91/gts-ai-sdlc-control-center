@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 560" width="1560" height="560" role="img" aria-label="The GTS AI SDLC pipeline, left to right, eight phases each bound to one agent that returns a status code. 1 Plan (-sdlc-planner): break the request into tasks with acceptance criteria and evidence-located paths. 2 Architect (-sdlc-architect): validate the plan against architecture, boundaries, ownership and build order; returns APPROVE, REVISE or BLOCK. 3 Human gate: confirm the plan before any code is written; yes, no or revise. 4 RED tests (-sdlc-tester): classify the change first, then write a discriminating failing test — right reason, right value; returns RED_READY or NOT_APPLICABLE. 5 Develop (-sdlc-developer): the minimal code to turn the RED suite green, the only agent that writes code; returns DONE or NEEDS_CONTEXT. 6 Review (-sdlc-reviewer): the code-review-lens brain plus requirement conformance against the Jira ticket; APPROVED or CHANGES_REQUIRED. 7 Build (-sdlc-builder): compile affected components in dependency order; BUILD_PASS or BUILD_FAIL. 8 PR (-sdlc-pr-author): PR title, description, changelog and ticket links. Two shapes, one contract: P7 runs a linear TDD pipeline; T7 runs an autonomous Ralph loop, one task per iteration.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1747 560" width="1747" height="560" role="img" aria-label="The GTS AI SDLC pipeline, left to right, eight phases each bound to one agent that returns a status code. 1 Plan (-sdlc-planner): break the request into tasks with acceptance criteria and evidence-located paths. 2 Architect (-sdlc-architect): validate the plan against architecture, boundaries, ownership and build order; returns APPROVE, REVISE or BLOCK. 3 Human gate: confirm the plan before any code is written; yes, no or revise. 4 RED tests (-sdlc-tester): classify the change first, then write a discriminating failing test — right reason, right value; returns RED_READY or NOT_APPLICABLE. 5 Develop (-sdlc-developer): the minimal code to turn the RED suite green, the only agent that writes code; returns DONE or NEEDS_CONTEXT. 6 Review (-sdlc-reviewer): the code-review-lens brain plus requirement conformance against the Jira ticket; APPROVED or CHANGES_REQUIRED. 7 Build (-sdlc-builder): compile affected components in dependency order; BUILD_PASS or BUILD_FAIL. 8 PR (-sdlc-pr-author): PR title, description, changelog and ticket links. Then a terminal, cross-system, human-run step: Deliver (gts-delivery) proposes the gts-deliver command that ships the merged change into an integration release baseline and watches the resulting Integration build — propose and read-only, the human runs the delivery. Two shapes, one contract: P7 runs a linear TDD pipeline; T7 runs an autonomous Ralph loop, one task per iteration.">
   <title>GTS AI SDLC — the pipeline, phase by phase</title>
 
-  <rect x="0" y="0" width="1560" height="560" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1747" height="560" fill="#FFFFFF"/>
 
   <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
 
@@ -33,6 +33,16 @@
       <circle cx="1060" cy="196" r="22" fill="#DBF0EE" stroke="#2E8E84" stroke-width="2"/><text x="1060" y="203" fill="#2E8E84">6</text>
       <circle cx="1247" cy="196" r="22" fill="#FBF1DC" stroke="#C2862B" stroke-width="2"/><text x="1247" y="203" fill="#C2862B">7</text>
       <circle cx="1434" cy="196" r="22" fill="#E7E9F9" stroke="#4A54B8" stroke-width="2"/><text x="1434" y="203" fill="#4A54B8">8</text>
+    </g>
+
+    <!-- terminal deliver hand-off · dashed lilac rail to a human-run node (not a numbered phase) -->
+    <g>
+      <line x1="1460" y1="196" x2="1599" y2="196" stroke="#C9B8EC" stroke-width="2" stroke-dasharray="5 5"/>
+      <path d="M1522 189 l7 7 l-7 7" fill="none" stroke="#B7A4E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="1621" cy="196" r="22" fill="#F0EBFB" stroke="#5B49A6" stroke-width="2" stroke-dasharray="3 3"/>
+      <g transform="translate(1621,196)" fill="none" stroke="#5B49A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 -7 L0 5 M-5 0 L0 5 L5 0"/>
+      </g>
     </g>
 
     <!-- ===================== phase cards ===================== -->
@@ -158,6 +168,23 @@
       <text x="85" y="202" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4A54B8">evidence-linked PR</text>
     </g>
 
+    <!-- terminal · DELIVER (gts-delivery) — cross-system, human-run peer, not a status-code phase -->
+    <g transform="translate(1536,240)">
+      <rect x="0" y="0" width="170" height="224" rx="14" fill="#FBF9FF" stroke="#D9CBF2" stroke-dasharray="4 3"/>
+      <rect x="0" y="0" width="170" height="4" rx="2" fill="#7C5CFF"/>
+      <text x="16" y="34" font-size="13" font-weight="800" fill="#1F2733">DELIVER</text>
+      <text x="16" y="54" font-size="10.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#9AA1AB">gts-delivery</text>
+      <line x1="16" y1="66" x2="154" y2="66" stroke="#EEE7F8"/>
+      <text x="16" y="90" font-size="11" fill="#46505E">Propose the gts-deliver</text>
+      <text x="16" y="107" font-size="11" fill="#46505E">command into the release</text>
+      <text x="16" y="124" font-size="11" fill="#46505E">baseline; watch INT build.</text>
+      <rect x="16" y="137" width="138" height="19" rx="9" fill="#F0EBFB"/>
+      <text x="85" y="150" text-anchor="middle" font-size="8.5" font-weight="700" fill="#5B49A6">CROSS-SYSTEM · HUMAN-RUN</text>
+      <text x="16" y="176" font-size="9" font-weight="700" fill="#B6BCC4" letter-spacing="1">PROPOSES</text>
+      <rect x="16" y="186" width="138" height="24" rx="12" fill="#F0EBFB"/>
+      <text x="85" y="202" text-anchor="middle" font-size="8.5" font-weight="700" fill="#5B49A6">gts-deliver cmd · INT build</text>
+    </g>
+
     <!-- ===================== two shapes band ===================== -->
     <text x="44" y="506" font-size="12.5" font-weight="700" fill="#7E8694" letter-spacing="0.6">TWO SHAPES, ONE CONTRACT</text>
     <g>
@@ -171,7 +198,7 @@
       <text x="952" y="508" font-size="12.5" fill="#5B6472"><tspan font-weight="700" fill="#3A4150">autonomous Ralph loop</tspan> — converge specs, one task per iteration</text>
     </g>
 
-    <text x="780" y="540" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Non-behavioural change? The tester abstains with NOT_APPLICABLE and names the fit verification — no fabricated test.</text>
+    <text x="873" y="540" text-anchor="middle" font-size="12.5" font-style="italic" fill="#9AA1AB">Non-behavioural change? The tester abstains with NOT_APPLICABLE and names the fit verification — no fabricated test.</text>
 
   </g>
 </svg>

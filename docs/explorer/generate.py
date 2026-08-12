@@ -76,6 +76,47 @@ SCEN = {
 # performance, security, spec work and ops incidents).
 HOWTO = [
     {
+        "key": "prompting", "label": "Prompting 101",
+        "lead": "",
+        "body": """<div class="wotitle">Constructing a good prompt <span class="wotsub">— in the GTS AI SDLC context</span></div>
+<div class="wointro">Treat every request as a <b>work-order</b> for the agents: hand over one goal, the real artifacts, the guardrails, and a clear definition of done. Fill the four blocks and paste it to <code>/gts-orchestrator</code> — the sharper the order, the sharper the result.</div>
+<div class="woheading"><span class="wohn">1</span>The shape <span class="wohs">— a reusable work-order</span></div>
+<pre class="wocode">━━━━━━━━━━━━━━━━━━━━━  AGENT WORK-ORDER  ━━━━━━━━━━━━━━━━━━━━━
+
+GOAL             one imperative sentence — the single outcome
+CONTEXT          the real artifacts — paste links, not descriptions
+                 • build / log URL · SIR / Jira · PR / commit / repo
+                 • component + branch (+ baseline) · recent change · already tried
+CONSTRAINTS      the guardrails — scope · toolchain · read-only · propose, don't push
+DONE LOOKS LIKE  acceptance criteria + format — verdict first, then evidence, then next step</pre>
+<div class="woheading"><span class="wohn">2</span>A worked example <span class="wohs">— build root-cause</span></div>
+<pre class="wocode">━━━━━━━━━━━━━━━━━━━━━  AGENT WORK-ORDER  ━━━━━━━━━━━━━━━━━━━━━
+
+GOAL  (one imperative sentence — the single outcome)
+  Find the root cause of this UNSTABLE build and give me a
+  definitive, owner-ready fix.
+
+CONTEXT  (the real artifacts — paste links, not descriptions)
+  • Build / log URL   : https://gtsci.xeops.deutsche-boerse.de/job/&lt;job&gt;/123/console
+  • SIR / Jira issue  : &lt;SIR key or full URL&gt;
+  • PR / commit / repo: https://github.deutsche-boerse.de/&lt;org&gt;/&lt;repo&gt;/pull/&lt;n&gt;
+  • Component + branch: perfmon_core / release-x.y   (baseline: &lt;prod baseline&gt;)
+  • Recent change     : &lt;what landed / merged / config changed since last green&gt;
+  • Already tried     : &lt;what you checked and ruled out&gt;
+
+CONSTRAINTS  (the guardrails)
+  • Re-derive from the LIVE log/tools — do not reuse earlier conclusions.
+  • Propose, don't push — surface the fix and the owner; I coordinate the merge.
+  • Respect the toolchain: GCC 14, x86_64 EL9, CMake/make.
+  • Read-only on all connectors — no mutations.
+
+DONE LOOKS LIKE  (acceptance criteria + format)
+  • One definitive verdict per issue — root cause and true- vs false-positive.
+  • Quoted log/tool evidence for every claim (file:line or console excerpt).
+  • Concrete next step: who fixes what, and where.
+  • Verdict first, then evidence — no hedging.</pre>""",
+    },
+    {
         "key": "ask", "label": "Ask & understand",
         "lead": "Read-only questions about either codebase, its specs, ownership or terminology. No pipeline, no code changes \u2014 you just get an answer.",
         "handled": ["t7-sdlc-knowledge"],
@@ -486,6 +527,59 @@ def model_kind(model):
     return (model or "—", "#8A92A0")
 
 
+# The MCP servers the agents reach their tools through (skill-first access).
+# Grouped by purpose; tools are a representative set, not the exhaustive list.
+MCPS = [
+    {"id": "github", "label": "GitHub Enterprise", "group": "code", "auth": "GitHub PAT", "repo": "dev/cortex-mcp",
+     "blurb": "Read the T7 / P7 GitHub Enterprise repos — code search, files, commits, diffs, pull requests, issues, branches, tags and CI workflow runs. (T7 also uses the read-only browse variants github_dbg / github_ghe.)",
+     "tools": ["search_code", "get_file_contents", "list_commits", "get_commit", "get_pull_request", "get_pull_request_diff", "list_pull_requests", "list_pull_request_files", "get_issue", "list_issues", "list_workflow_runs", "get_workflow_run", "list_branches", "get_repository"]},
+    {"id": "t7spec", "label": "T7 specifications", "group": "spec", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
+     "blurb": "Search and read the T7 specification corpus (DFS / DTS / SRQ / manuals) — keyword, semantic and structured queries over hundreds of documents.",
+     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "list_files", "status"]},
+    {"id": "p7spec", "label": "P7 specifications", "group": "spec", "auth": "Cortex (OAuth)", "repo": "dev/cortex-mcp",
+     "blurb": "Search and read the P7 (Pricing & Risk) specification corpus — the same keyword / semantic / structured retrieval as t7spec, for P7 documents.",
+     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "status"]},
+    {"id": "t7codebase", "label": "T7 Codebase Explorer", "group": "refdata", "auth": "Cortex bearer + AAD group", "repo": "dev/mcp.codebase-explorer",
+     "blurb": "Navigate the T7 source across projects, environments and releases — keyword code search, file listing and semantic page-index lookups.",
+     "tools": ["search_code", "list_files", "list_projects", "list_environments", "list_releases", "page_index_search", "get_page_chunk"]},
+    {"id": "t7dbcopy", "label": "T7 RDS Sense · reference data", "group": "refdata", "auth": "DBCopy login", "repo": "dev/cortex-mcp",
+     "blurb": "Query the T7 Reference Data System (DBCopy) — a semantic RDS model plus read-only SQL over the live 'rdb' and Contract-Manager 'comadb' databases, baseline-aware.",
+     "tools": ["search_entities", "get_entity", "map_entity_to_tables", "describe_table", "run_query", "query_entity", "count_entity", "resolve_enum", "diff_baselines", "get_deployed_version"]},
+    {"id": "eurex_refdata", "label": "Eurex reference data", "group": "refdata", "auth": "API key", "repo": "dev/cortex-mcp",
+     "blurb": "Query public Eurex reference data via the GraphQL API — products, contracts, trading hours, settlement prices, holidays, expirations and tick rules.",
+     "tools": ["query_products", "query_contracts", "query_trading_hours", "query_settlement_prices", "query_holidays", "query_expirations", "query_tick_rules", "graphql"]},
+    {"id": "devops_jira", "label": "Jira · SIRs & tickets", "group": "tickets", "auth": "Jira PAT", "repo": "dev/cortex-mcp",
+     "blurb": "Read and write Jira across all projects — look up issues and SIRs, run JQL, list your tickets, and (for the right agents) create, update, transition, comment and link.",
+     "tools": ["get_issue", "search_issues", "run_jql", "get_my_issues", "get_issues_assigned_to", "get_issue_comments", "get_issue_links", "get_transitions", "create_issue", "update_issue", "transition_issue", "add_comment", "link_issues"]},
+    {"id": "confluence", "label": "Confluence", "group": "tickets", "auth": "Confluence PAT", "repo": "dev/cortex-mcp",
+     "blurb": "Read Confluence spaces and pages — search content, fetch pages by title or id, browse children and comments, and (where granted) append or update sections.",
+     "tools": ["search_content", "get_page", "get_page_by_title", "list_spaces", "get_space", "list_page_children", "get_page_comments", "append_to_page", "update_page_section"]},
+    {"id": "feedback", "label": "Cortex feedback tracker", "group": "tickets", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
+     "blurb": "File and manage feedback about the tooling itself — create issues, comment and label in the shared Cortex feedback tracker.",
+     "tools": ["create_issue", "get_issue", "list_issues", "update_issue", "add_comment", "edit_comment", "add_label", "remove_label", "list_labels"]},
+    {"id": "codereviewer-lens", "label": "Code-review brain", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.codereviewer-lens",
+     "blurb": "The review engine behind the reviewer agents — deterministic + LLM checks for security, quality, architecture boundaries, concurrency, guideline compliance and change impact.",
+     "tools": ["review_diff", "review_pr", "review_commit", "review_snippet", "review_semantics", "check_architecture_rules", "analyse_concurrency", "trace_impact", "query_code_graph", "validate_intent", "check_compliance", "ask_guideline", "explain_rule", "list_guidelines"]},
+    {"id": "jenkins-lens", "label": "Jenkins build analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.jenkins-lens",
+     "blurb": "Root-cause failing or unstable Jenkins builds — pull build info, diagnose console logs, score a build and separate real failures from infrastructure noise. Used by gts-issue-analyst.",
+     "tools": ["analyze_build", "diagnose_log", "build_info", "score_build", "job_status", "list_jobs", "ask"]},
+    {"id": "sonarqube-lens", "label": "SonarQube finding analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.sonarqube-lens",
+     "blurb": "Turn a SonarQube issue or hotspot into a grounded root-cause verdict — parse a Sonar URL and analyse the finding against the real code. Used by gts-issue-analyst.",
+     "tools": ["analyze_finding", "parse_sonar_url"]},
+]
+
+# Agentic-harness benchmarking campaigns (results dashboards + artifact repos), newest first.
+EVALS = [
+    {"key": "aug2026", "label": "August 2026", "title": "Benchmarking · August 2026", "status": "Current campaign",
+     "blurb": "The agents work a fresh slate of real T7 / P7 SIRs and tasks, scored against frozen oracles for plan quality, evidence localisation, fix correctness and review.",
+     "dashboard": "https://pages.github.deutsche-boerse.de/dev/gts.ai.harness.eval-results/gts.ai.sdlc/runs/views/dashboard.html",
+     "artifacts": "https://github.deutsche-boerse.de/dev/gts.ai.harness.eval-results"},
+    {"key": "jul2026", "label": "July 2026", "title": "Benchmarking · July 2026", "status": "Previous campaign",
+     "blurb": "The first full benchmarking pass — the baseline scorecard that every later run is measured against.",
+     "dashboard": "https://pages.github.deutsche-boerse.de/dev/gts.ai.harness.eval-results/gts.ai.sdlc/runs/views/dashboard.html",
+     "artifacts": "https://github.deutsche-boerse.de/dev/gts.ai.harness.eval-results"},
+]
+
 agents = []
 for path in sorted(glob.glob(os.path.join(AGENT_DIR, "*.agent.md"))):
     text = open(path, encoding="utf-8").read()
@@ -633,8 +727,8 @@ TEMPLATE = r"""<!doctype html>
     font-size:12.5px;color:var(--body);margin-bottom:14px;display:flex;gap:10px;align-items:center}
   .xnote b{color:var(--ink)}
   .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
-  .tabs{display:flex;gap:8px;border-bottom:2px solid var(--line);margin:12px 0 22px}
-  .tab{padding:11px 22px;font-size:15.5px;font-weight:700;color:#fff;cursor:pointer;border:2px solid #3F6FB5;background:#3F6FB5;border-radius:12px 12px 0 0;margin-bottom:-2px;transition:.14s;position:relative;top:4px}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--line);margin:12px 0 22px}
+  .tab{padding:9px 15px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;border:2px solid #3F6FB5;background:#3F6FB5;border-radius:11px 11px 0 0;margin-bottom:-2px;transition:.14s;position:relative;top:4px}
   .tab:hover:not(.on){background:#4E7AC0;border-color:#4E7AC0;top:2px}
   .tab.on{color:var(--ink);background:#fff;top:0;border-bottom-color:#fff;box-shadow:inset 0 3px 0 #3F6FB5,0 -3px 8px rgba(15,23,42,.05)}
   .uw{font-size:11.5px;font-weight:700;color:var(--body);margin:0 0 3px}
@@ -647,6 +741,45 @@ TEMPLATE = r"""<!doctype html>
   .hintro{background:#fff;border:1px solid var(--line);border-radius:0;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
   .hintro b{color:var(--ink)}
   .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
+  ol.hprin{margin:11px 0 2px;padding-left:22px}
+  ol.hprin li{margin:6px 0;font-size:13.5px;color:var(--body);line-height:1.55}
+  ol.hprin li b{color:var(--ink)}
+  ol.hprin li::marker{color:#3F6FB5;font-weight:800}
+  .hprinnote{display:block;margin-top:9px;color:var(--muted);font-size:13px}
+  .woheading{display:flex;align-items:center;gap:10px;margin:22px 0 2px;font-size:15px;font-weight:800;color:var(--ink)}
+  .woheading .wohn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#3F6FB5,#2E8E84);color:#fff;font-size:12.5px;font-weight:800;flex:0 0 auto}
+  .woheading .wohs{font-weight:600;color:var(--muted);font-size:13px}
+  .wotitle{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.2px;margin:4px 0 0;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+  .wotitle .wotsub{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}
+  .wointro{font-size:13.5px;color:var(--body);line-height:1.6;margin:9px 0 2px}
+  .wointro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
+  .wocode{margin:9px 0 2px;background:#fff;border:1px solid #DCE6F3;border-radius:8px;padding:13px 15px;overflow-x:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.7px;line-height:1.6;color:#33415A;white-space:pre;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .mcplayout{display:grid;grid-template-columns:344px 1fr;gap:20px;align-items:start}
+  .mcprepo{font-size:12.5px;font-weight:700;color:#2B5CB8;text-decoration:none;font-family:'SF Mono',ui-monospace,Menlo,monospace;word-break:break-all}
+  .mcprepo:hover{text-decoration:underline}
+  .evcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:0 4px 18px rgba(15,23,42,.07);max-width:780px;overflow:hidden}
+  .evstripe{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3F6FB5,#2E8E84)}
+  .evcard-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:4px}
+  .evtitle{font-size:21px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+  .evsub{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:#3F6FB5;margin-top:4px}
+  .evdesc{font-size:13.5px;color:var(--body);line-height:1.6;margin:15px 0 2px}
+  .evbtns{display:grid;grid-template-columns:1fr;gap:12px;margin-top:18px}
+  .evbtn{display:flex;align-items:center;gap:14px;padding:15px 18px;border-radius:13px;text-decoration:none;transition:.16s;border:1px solid transparent}
+  .evbtn svg{flex:0 0 auto}
+  .evbtn-l{flex:1;min-width:0}
+  .evbtn-t{display:block;font-size:14px;font-weight:800;line-height:1.2}
+  .evbtn-s{display:block;font-size:11.5px;margin-top:3px;font-weight:600;opacity:.92}
+  .evbtn-arw{font-size:19px;font-weight:800;transition:transform .16s}
+  .evbtn:hover .evbtn-arw{transform:translateX(4px)}
+  .evbtn.primary{background:linear-gradient(135deg,#3F6FB5,#2E8E84);color:#fff;box-shadow:0 5px 16px rgba(46,142,132,.3)}
+  .evbtn.primary:hover{box-shadow:0 8px 24px rgba(46,142,132,.42);transform:translateY(-1px)}
+  .evbtn.primary .evbtn-s{color:#EAF6F3}
+  .evbtn.ghost{background:#F6F9FD;color:var(--ink);border-color:#DCE6F3}
+  .evbtn.ghost:hover{background:#EEF3FA;border-color:#3F6FB5;transform:translateY(-1px)}
+  .evbtn.ghost .evbtn-s{color:var(--muted)}
+  @media(min-width:600px){.evbtns{grid-template-columns:1fr 1fr}}
+  .evtag{font-size:11px;font-weight:800;padding:4px 11px;border-radius:999px;background:#F1F3F6;color:#8A92A0;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+  .evtag.cur{background:#E8F2EC;color:#3E8C61}
   ol.setup{counter-reset:s;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
   ol.setup li{position:relative;background:#fff;border:1px solid var(--line);padding:13px 16px 13px 54px;font-size:13.5px;color:var(--body);line-height:1.55;box-shadow:0 1px 3px rgba(15,23,42,.04)}
   ol.setup li b{color:var(--ink)}
@@ -654,14 +787,33 @@ TEMPLATE = r"""<!doctype html>
   ol.setup li code{background:#F1F5FA;border:1px solid #E1E8F0;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#2B5CB8}
   ol.setup li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:#3F6FB5;color:#fff;font-weight:800;font-size:14px}
   .setsrv{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
+  .setsrv b{color:var(--ink)}
   .setnote{margin-top:14px;background:#EEF3FA;border:1px solid #DCE6F3;padding:11px 14px;font-size:12.5px;color:var(--body);line-height:1.55}
   .setnote b{color:var(--ink)}
-  .subtabs{display:flex;flex-wrap:nowrap;gap:5px;margin:2px 0 20px;border-bottom:2px solid var(--line);overflow-x:auto}
-  .subtab{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex:0 0 auto;border:2px solid #C4D8F0;background:#DCE8F8;color:#3F6FB5;border-radius:11px 11px 0 0;padding:8px 12px 8px 8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.14s;position:relative;top:3px;margin-bottom:-2px}
-  .subtab:hover:not(.on){background:#CFE0F5;top:1px}
+  .setgrp{margin:24px 2px 10px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#1F6B45;display:flex;align-items:center;gap:9px}
+  .setgrp::after{content:"";flex:1;height:1px;background:var(--line)}
+  ol.setup li .setd{display:block;margin-top:7px;font-size:12.8px;color:var(--body);line-height:1.55}
+  pre.setcode{margin:10px 0 2px;background:#0F1E36;border:1px solid #24344F;border-radius:8px;padding:13px 15px;overflow-x:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.8px;line-height:1.65;color:#CBD8EE;white-space:pre}
+  .setcred{margin:9px 0 2px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .setcred>div{display:grid;grid-template-columns:132px 1fr;border-top:1px solid var(--line)}
+  .setcred>div:first-child{border-top:0}
+  .setcred .ck{background:#F6F9FD;padding:10px 13px;font-weight:800;color:var(--ink);font-size:12.5px}
+  .setcred .cv{padding:10px 13px;color:var(--body);line-height:1.55;font-size:12.8px}
+  .setverify{margin:10px 0 2px;background:#EAF6EF;border:1px solid #C7E7D5;border-radius:8px;padding:11px 14px;font-size:12.8px;color:#2C6B4A;line-height:1.6}
+  .setverify b{color:#245C3E}
+  ol.setup .excmd{margin-top:6px}
+  .trouble{margin-top:18px;border:1px solid #EAD9B6;border-radius:10px;overflow:hidden;background:#fff}
+  .trouble .th{background:#FBF3E0;padding:11px 15px;font-weight:800;font-size:13px;color:#8A6D2F;display:flex;align-items:center;gap:8px}
+  .troubler{display:grid;grid-template-columns:210px 1fr;border-top:1px solid #F0E6CE;font-size:12.6px}
+  .troubler .sym{padding:11px 14px;font-weight:700;color:#7A5E28;background:#FCF9EF}
+  .troubler .fix{padding:11px 14px;color:var(--body);line-height:1.6}
+  .trouble code{background:#F1F5FA;border:1px solid #E1E8F0;padding:1px 5px;border-radius:4px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.3px;color:#2B5CB8}
+  .subtabs{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 20px}
+  .subtab{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:1px solid #C4D8F0;background:#EAF1FB;color:#3F6FB5;border-radius:9px;padding:7px 12px 7px 8px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.14s}
+  .subtab:hover:not(.on){background:#DCE8F8}
   .subtab .stpn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:7px;background:#fff;color:#3F6FB5;font-size:11px;font-weight:800}
-  .subtab.on{background:#fff;color:var(--ink);top:0;border-bottom-color:#fff;box-shadow:inset 0 3px 0 #3F6FB5,0 -3px 8px rgba(15,23,42,.05)}
-  .subtab.on .stpn{background:#E7F0FB;color:#3F6FB5}
+  .subtab.on{background:#3F6FB5;color:#fff;border-color:#3F6FB5;box-shadow:0 1px 4px rgba(63,111,181,.28)}
+  .subtab.on .stpn{background:#fff;color:#3F6FB5}
   .hlead{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between;margin:2px 2px 15px}
   .hleadtxt{font-size:14px;color:var(--body);flex:1 1 340px;line-height:1.55}
   .hhandled{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -704,6 +856,8 @@ TEMPLATE = r"""<!doctype html>
   </div>
   <div class="howto" id="howto" style="display:none"></div>
   <div class="howto" id="setup" style="display:none"></div>
+  <div class="howto" id="mcp" style="display:none"></div>
+  <div class="howto" id="evals" style="display:none"></div>
   <footer id="foot"></footer>
 </main>
 <script>
@@ -712,15 +866,19 @@ const GROUPS = /*__GROUPS__*/;
 const SYS = /*__SYS__*/;
 const PIPE = /*__PIPE__*/;
 const HOWTO = /*__HOWTO__*/;
+const MCPS = /*__MCPS__*/;
+const EVALS = /*__EVALS__*/;
 const PCOL = {"Developer":"#2E8E84","Tester":"#3E9460","Reviewer":"#C2862B","Architect":"#6E5BB8","Release manager":"#3F6FB5","Business analyst":"#C2557A","Product owner":"#B0518F","Ops engineer":"#5B6472","Security engineer":"#C0553B","Build engineer":"#6B7A45","Newcomer":"#8A92A0","Anyone":"#8A92A0"};
 let sel = "/*__DEFAULT__*/";
 let fTab = "howto", fSkill = null, q = "";
 let hStep = HOWTO[0].key;
+let selMcp = MCPS[0].id;
+let eStep = EVALS[0].key;
 
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byName = n => AGENTS.find(a => a.name === n);
-function syncTab(){ if(fTab==="howto"||fTab==="setup") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
+function syncTab(){ if(fTab==="howto"||fTab==="setup"||fTab==="mcp"||fTab==="evals") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
 function go(n){ if(byName(n)){ sel=n; syncTab(); try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
 
 function legend(){
@@ -852,14 +1010,20 @@ function renderDetail(){
     el.onclick = () => { fSkill=null; go(el.dataset.go); });
 }
 function renderHowto(){
-  const intro = `<div class="hintro"><b>A whole SDLC team — one simple way in.</b> These agents cover the entire software lifecycle for <b>P7</b> and <b>T7</b>: answering questions, analysing issues, writing specifications, implementing, testing, reviewing, building and shipping. The easiest way to use them — in VS Code Copilot Chat, describe what you want to <code>/gts-orchestrator</code> and let it do the rest: paste a Jira SIR, a GitHub issue, a stack trace, a requirement note or a code snippet, and ask for one thing or ten. It clarifies your request, routes it to the right platform, and drives the right specialists end to end. Prefer to steer yourself? You can also call a system orchestrator (<code>/t7-orchestrator</code>, <code>/p7-orchestrator</code>) or an invocable specialist directly. The stages below are real ways people put the team to work — examples, not limits.</div>`;
+  const intro = `<div class="hintro"><b>The agentic output is only as good as your prompt</b>, so keep three principles in mind:
+    <ol class="hprin">
+      <li><b>Say exactly what you want</b> — the clearer you describe the goal, the more focused, actionable and goal-oriented the agents' work becomes.</li>
+      <li><b>Give links and context</b> — the real Jira SIR, GitHub issue or PR, build log or URL behind your request, so the agents ground their work on the right thing.</li>
+      <li><b>Treat the agent as a companion, not a test</b> — rather than quizzing its intelligence, share the background, the constraints and what &ldquo;done&rdquo; looks like, and refine together.</li>
+    </ol>
+    <span class="hprinnote">The stages below are real ways people put the team to work — examples, not limits.</span></div>`;
   const subtabs = `<div class="subtabs">` + HOWTO.map((s,i)=>
-    `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}"><span class="stpn">${i+1}</span>${esc(s.label)}</button>`).join("") + `</div>`;
+    `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}"><span class="stpn">${i}</span>${esc(s.label)}</button>`).join("") + `</div>`;
   const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
-  const handled = step.handled.map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
-  const lead = `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
-    `<div class="hhandled"><span class="hbylab">Handled by</span>${handled}</div></div>`;
-  const boxes = `<div class="exgrid">` + step.examples.map(e=>{
+  const handled = (step.handled||[]).map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
+  const lead = step.lead ? `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
+    ((step.handled&&step.handled.length)?`<div class="hhandled"><span class="hbylab">Handled by</span>${handled}</div>`:``)+`</div>` : ``;
+  const boxes = step.body ? step.body : `<div class="exgrid">` + (step.examples||[]).map(e=>{
     const pc = PCOL[e.pers] || "#8A92A0";
     const rt = e.route || step.defRoute || "";
     const proms = (e.prompts || [e.ask]).map((p,i)=>
@@ -877,49 +1041,171 @@ function renderHowto(){
   $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=(t.system==="generic"?"t7":t.system); go(el.dataset.go); });
 }
 function renderSetup(){
+  const D = "https://cortex-mcp.cash.dev.fra.gcp.dbgservice.com";
   $("#setup").innerHTML = `
-    <div class="hintro"><b>Set it up in VS Code — there's no build step.</b> The repo <i>is</i> the agent &amp; skill definitions, so setup is just pointing VS Code at it and giving the skills their tools. Five steps:</div>
+    <div class="hintro"><b>A step-by-step setup guide</b> &mdash; from zero to a working <code>/gts-orchestrator</code> chat. You need three things: <b>VS Code</b>, <b>GitHub Copilot</b> in Agent mode, and a <b>Cortex <code>mcp.json</code></b> holding the MCP connectors GTS AI SDLC needs, each with its token (Cortex bearer or PAT). Follow the steps in order.</div>
+
+    <div class="setgrp">Before you start</div>
     <ol class="setup">
-      <li><b>Prerequisites.</b> VS Code with <b>GitHub Copilot</b> in <b>Agent mode</b> (custom agents enabled).</li>
-      <li><b>Open this repo.</b> Clone <code>dev/gts.ai.sdlc</code> and open the folder — Copilot auto-discovers all <b>${AGENTS.length}</b> <code>.github/agents/*.agent.md</code> and every skill under <code>.agents/skills/</code>. Nothing to build.</li>
-      <li><b>Add the MCP servers</b> the skills reach their tools through, in <code>.vscode/mcp.json</code> — only the ones your work needs:<span class="setsrv">Cortex-hosted (HTTP): <code>github</code> · <code>t7codebase</code> · <code>t7spec</code> · <code>devops_jira</code> · <code>feedback</code></span><span class="setsrv">Review lenses (local): <code>codereviewer-lens</code> · <code>jenkins-lens</code> · <code>sonarqube-lens</code></span></li>
-      <li><b>Add your tokens</b> when VS Code prompts: the <b>Cortex bearer</b> (shared by github / t7codebase / t7spec / feedback) and your <b>Jira PAT</b> (devops_jira). Secrets stay local — never in the repo.</li>
-      <li><b>Start.</b> Open Copilot Chat, pick <code>gts-orchestrator</code>, and describe your task. New here? See <a href="#howto">How to use GTS AI SDLC Agents</a> for examples.</li>
+      <li>Get <b>VS Code</b> with <b>GitHub Copilot</b>, and switch Copilot Chat to <b>Agent mode</b> (custom agents enabled).
+        <span class="setd">New to Copilot or Cortex on a Simplify device? Do the one-time enrolment and install first &mdash; it's fully scripted in the <a href="${D}/tutorial" target="_blank" rel="noopener">Cortex setup tutorial</a> (steps 0&ndash;3).</span>
+      </li>
+      <li><b>Clone the repo and open the folder</b> &mdash; Copilot auto-discovers all <b>${AGENTS.length}</b> agents in <code>.github/agents/</code> and every skill in <code>.agents/skills/</code>.
+        <pre class="setcode">git clone https://github.deutsche-boerse.de/dev/gts.ai.sdlc
+code gts.ai.sdlc</pre>
+        <span class="setd">To check, open Copilot Chat and look in the agent picker for <code>gts-orchestrator</code>, <code>t7-orchestrator</code> and <code>p7-orchestrator</code>.</span>
+      </li>
     </ol>
-    <div class="setnote"><b>Why only servers, never agents?</b> Skills follow <b>skill-first tool access</b> — an agent never calls an MCP tool directly; it goes through a skill that wraps the server. So you configure servers once in <code>mcp.json</code>, and every agent that needs them just works.</div>`;
+
+    <div class="setgrp">Add the Cortex MCP servers</div>
+    <ol class="setup" style="counter-reset:s 2">
+      <li><b>Get your <code>mcp.json</code> from Cortex.</b> Open the <a href="${D}/" target="_blank" rel="noopener">Cortex dashboard</a>, click <b>+ Manage connectors</b>, select the services you need, then click <b>Copy mcp.json</b>. Every server is Cortex-hosted over HTTP, so there is nothing to install or run locally. Full walkthrough: <a href="${D}/tutorial" target="_blank" rel="noopener">tutorial step 4</a>.</li>
+      <li><b>Save the config in VS Code as <code>.vscode/mcp.json</code>.</b> In the repo root, create a folder named <code>.vscode</code>, add a file called <code>mcp.json</code> inside it, paste what you copied from Cortex, and save. VS Code detects the file and lists the servers under <b>MCP: List Servers</b> (reload the window if they don't appear yet). The file you copied already has one block like this for <b>every</b> server you selected &mdash; you don't write them by hand:
+        <pre class="setcode">{
+  "servers": {
+    "t7codebase": {
+      "type": "http",
+      "url": "${D}/v2/mcp/t7codebase",
+      "headers": { "Authorization": "Bearer &#36;{input:cortex-bearer}" }
+    }
+  },
+  "inputs": [
+    { "type": "promptString", "id": "cortex-bearer",
+      "password": true, "description": "Cortex MCP bearer token" }
+  ]
+}</pre>
+        <span class="setd"><code>&#36;{input:cortex-bearer}</code> makes VS Code prompt you for the token the first time the server starts and keep it in its secret store, so the secret never goes in the file. Servers that share a token reuse the same input id.</span>
+      </li>
+      <li><b>Keep the servers your platform uses.</b> Together they give the agents their full capability &mdash; code, specs, reference data, tickets and review:
+        <span class="setsrv"><b>Code &amp; GitHub</b> &mdash; <code>github</code> (repos, PRs, commits); T7 knowledge also uses <code>github_dbg</code> / <code>github_ghe</code></span>
+        <span class="setsrv"><b>Specifications</b> &mdash; <code>t7spec</code> for T7, <code>p7spec</code> for P7</span>
+        <span class="setsrv"><b>T7 codebase &amp; reference data</b> &mdash; <code>t7codebase</code>, <code>t7dbcopy</code>, <code>eurex_refdata</code></span>
+        <span class="setsrv"><b>Tickets, docs &amp; feedback</b> &mdash; <code>devops_jira</code> (Jira &amp; SIRs), <code>confluence</code>, <code>feedback</code></span>
+        <span class="setsrv"><b>Review &amp; analysis</b> &mdash; <code>codereviewer-lens</code>, <code>jenkins-lens</code>, <code>sonarqube-lens</code>: code review, root-cause analysis and issue diagnosis</span>
+      </li>
+    </ol>
+
+    <div class="setgrp">Add your tokens</div>
+    <ol class="setup" style="counter-reset:s 5">
+      <li>The copied <code>mcp.json</code> already wires each server's authentication &mdash; you don't edit headers by hand. The first time a server starts, VS Code prompts for the secret it needs and stores it locally. Two cover most setups:
+        <div class="setcred">
+          <div><div class="ck">Cortex bearer</div><div class="cv">One shared token for the Cortex knowledge and spec services (<code>t7codebase</code>, <code>t7spec</code>, <code>feedback</code>). Get it from the <a href="${D}/" target="_blank" rel="noopener">Cortex dashboard</a> &rarr; <b>Manage connectors</b>.</div></div>
+          <div><div class="ck">Jira PAT</div><div class="cv">Its own Personal Access Token for <code>devops_jira</code>, which Cortex passes through to Jira. Create it at <code>devopsjira.deutsche-boerse.com</code> &rarr; <b>Profile &rarr; Personal Access Tokens &rarr; Create token</b>.</div></div>
+        </div>
+        <span class="setd">Any other server you keep authenticates on its own &mdash; <code>github</code>, <code>confluence</code>, <code>sonarqube</code>, <code>t7dbcopy</code> and <code>eurex_refdata</code> each prompt for their own token, which you get from that service.</span>
+        <span class="setd"><code>t7codebase</code> (T7 Codebase Explorer) also requires membership of the <b>&ldquo;Derivatives &amp; Cash Trading IT&rdquo;</b> Azure AD group &mdash; a <code>403</code> means ask your lead to add you. Microsoft services (Teams, SharePoint, Outlook) sign in with an Azure AD popup on first use. See the <a href="${D}/tutorial" target="_blank" rel="noopener">Cortex tutorial</a>.</span>
+        <span class="setd">Typically that's just the Cortex bearer, plus a Jira PAT if you use Jira. Tokens are entered at the VS Code prompt and stored by VS Code &mdash; never committed to the repo.</span>
+      </li>
+    </ol>
+
+    <div class="setgrp">Check it works</div>
+    <ol class="setup" style="counter-reset:s 6">
+      <li><b>Verify the servers.</b> Run <b>MCP: List Servers</b> from the Command Palette; every server you kept should read <b>green / running</b>.
+        <div class="setverify"><b>Smoke test</b> &mdash; open Copilot Chat, pick <code>gts-orchestrator</code>, and send one of the prompts below. A grounded answer means agents, skills and servers are all wired correctly.</div>
+        <div class="excmd"><span class="sl">/gts-orchestrator</span> What is the current state of T7-573481?</div>
+        <div class="excmd"><span class="sl">/gts-orchestrator</span> How many commits have been made to resolve T7-573481, and what are they?</div>
+        <div class="excmd"><span class="sl">/gts-orchestrator</span> What is the root cause of failure? Please do a deep-dive analysis of this Jenkins build failure: https://gtsci.xeops.deutsche-boerse.de/view/P7-EUREX-MONITOR/job/INT-EUREX-150.004.030/72/console</div>
+      </li>
+      <li><b>Start building.</b> Describe any task to <code>/gts-orchestrator</code> &mdash; a Jira SIR, a stack trace or a requirement &mdash; and it routes the work and drives the pipeline. New here? See <a href="#howto">How to use GTS AI SDLC Agents</a> for real examples.</li>
+    </ol>
+
+    <div class="trouble">
+      <div class="th"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B8862F" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Troubleshooting &mdash; the four most common snags</div>
+      <div class="troubler"><div class="sym">A server shows red / disconnected</div><div class="fix">Usually the corporate proxy can't reach Cortex &mdash; common on Remote-SSH / WSL / OTD Linux. Add the host to <code>http.noProxy</code> in the <b>Remote</b> settings (Command Palette &rarr; <b>Preferences: Open Remote Settings (JSON)</b>): <code>"http.noProxy": ["cortex-mcp.cash.dev.fra.gcp.dbgservice.com"]</code>, then reload. Details: <a href="${D}/tutorial" target="_blank" rel="noopener">tutorial step 8</a>.</div></div>
+      <div class="troubler"><div class="sym">401 / Unauthorized</div><div class="fix">The bearer or Jira PAT is wrong or expired. Re-copy <code>mcp.json</code> from Cortex (or regenerate the Jira PAT), then <b>MCP: List Servers &rarr; Restart</b>. Prefer a long-lived token so it doesn't rotate out from under you.</div></div>
+      <div class="troubler"><div class="sym">The agent doesn't appear</div><div class="fix">Copilot Chat isn't in <b>Agent mode</b>, custom agents are off, or the wrong folder is open. Switch to Agent mode, open the <code>gts.ai.sdlc</code> folder (agents live in <code>.github/agents/</code>), and reload the window.</div></div>
+      <div class="troubler"><div class="sym"><code>mcp.json</code> isn't picked up</div><div class="fix">Wrong path &mdash; it must be <code>.vscode/mcp.json</code> at the repo root. Check for JSON syntax errors, save, then run <b>MCP: List Servers</b>.</div></div>
+    </div>
+
+    <div class="setnote"><b>You configure servers, not agents</b> &mdash; an agent reaches a tool only through a skill that wraps its server, so once the servers are in <code>mcp.json</code>, every agent that needs them just works.</div>`;
+}
+function renderMcp(){
+  const intro = `<div class="hintro"><b>Every capability the agents use — through one gateway.</b> Skills reach their tools only through these MCP servers (skill-first access), all Cortex-hosted over HTTP. Pick a server on the left to see what it does and the tools it provides. Keep the ones your work needs — see <a href="#setup">Setup</a>.</div>`;
+  const GRP = {code:"Code & GitHub", spec:"Specifications", refdata:"T7 codebase & reference data", tickets:"Tickets, docs & feedback", review:"Review & analysis"};
+  let list = "";
+  for(const g of Object.keys(GRP)){
+    const items = MCPS.filter(m=>m.group===g);
+    if(!items.length) continue;
+    list += `<div class="group">${esc(GRP[g])}</div>`;
+    for(const m of items){
+      list += `<button class="agent ${m.id===selMcp?'sel':''}" data-m="${esc(m.id)}">`+
+        `<span class="bar" style="background:#3F6FB5"></span>`+
+        `<div class="an">${esc(m.id)}</div>`+
+        `<div class="ar">${esc(m.label)}</div>`+
+      `</button>`;
+    }
+  }
+  const m = MCPS.find(x=>x.id===selMcp) || MCPS[0];
+  const tools = m.tools.map(t=>`<span class="pill srv">${esc(t)}</span>`).join("");
+  const repo = m.repo ? `<a class="mcprepo" href="https://github.deutsche-boerse.de/${esc(m.repo)}" target="_blank" rel="noopener">${esc(m.repo)} \u2197</a>` : `<span class="none">\u2014</span>`;
+  const users = AGENTS.filter(a=>a.servers.includes(m.id)).map(a=>a.name);
+  const usedby = users.length ? `<div class="tchips">`+users.map(n=>`<span class="pill srv go" data-go="${esc(n)}">${esc(n)}</span>`).join("")+`</div>` : `<span class="none">reached indirectly through skills</span>`;
+  const detail = `<div class="dhead"><div><div class="dname">${esc(m.id)}</div>`+
+      `<div class="reach">${m.tools.length} tools · Cortex-hosted over HTTP</div></div>`+
+      `<div class="badges"><span class="b" style="background:#EEF3FA;color:#2B5CB8">${esc(m.label)}</span></div></div>`+
+    `<div class="sect">What it does</div><div class="ddesc">${esc(m.blurb)}</div>`+
+    `<div class="sect">Tools it provides</div><div class="tchips">${tools}</div>`+
+    `<div class="sect">Authentication</div><div class="ddesc">${esc(m.auth)}</div>`+
+    `<div class="sect">Repository</div>${repo}`+
+    `<div class="sect">Used by agents</div>${usedby}`;
+  $("#mcp").innerHTML = intro + `<div class="mcplayout"><aside class="list card">${list}</aside><section class="detail card">${detail}</section></div>`;
+  $("#mcp").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ selMcp=b.dataset.m; renderMcp(); });
+  $("#mcp").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t){ fTab=(t.system==="generic"?"t7":t.system); go(el.dataset.go); } });
+}
+function renderEvals(){
+  const intro = `<div class="hintro"><b>How good are the agents, really?</b> Each benchmarking campaign runs the agents through the <b>agentic harness eval</b> — real T7 / P7 SIRs and tasks scored against frozen oracles — then publishes the scorecards and every artifact the agents produced.</div>`;
+  const subtabs = `<div class="subtabs">` + EVALS.map((e,i)=>
+    `<button class="subtab ${e.key===eStep?'on':''}" data-e="${esc(e.key)}"><span class="stpn">${i}</span>${esc(e.label)}</button>`).join("") + `</div>`;
+  const ev = EVALS.find(e=>e.key===eStep) || EVALS[0];
+  const dash = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7"/><rect x="12" y="6" width="3" height="11"/><rect x="17" y="13" width="3" height="4"/></svg>`;
+  const box = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96 12 12.01l8.73-5.05"/><path d="M12 22.08V12"/></svg>`;
+  const card = `<div class="evcard"><div class="evstripe"></div>`+
+    `<div class="evcard-head"><div><div class="evtitle">${esc(ev.title)}</div><div class="evsub">Agentic Harness Eval</div></div>`+
+      `<span class="evtag ${ev.status==="Current campaign"?"cur":""}">${esc(ev.status)}</span></div>`+
+    `<div class="evdesc">${esc(ev.blurb)}</div>`+
+    `<div class="evbtns">`+
+      `<a class="evbtn primary" href="${esc(ev.dashboard)}" target="_blank" rel="noopener">${dash}<span class="evbtn-l"><span class="evbtn-t">View assessment dashboard</span><span class="evbtn-s">Scorecards, radar &amp; per-run results</span></span><span class="evbtn-arw">→</span></a>`+
+      `<a class="evbtn ghost" href="${esc(ev.artifacts)}" target="_blank" rel="noopener">${box}<span class="evbtn-l"><span class="evbtn-t">Browse agent artifacts</span><span class="evbtn-s">Every plan, patch &amp; report produced</span></span><span class="evbtn-arw">→</span></a>`+
+    `</div></div>`;
+  $("#evals").innerHTML = intro + subtabs + card;
+  $("#evals").querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ eStep=b.dataset.e; renderEvals(); });
 }
 function render(){
-  const guide = fTab==="howto" || fTab==="setup";
+  const guide = fTab==="howto" || fTab==="setup" || fTab==="mcp" || fTab==="evals";
   document.querySelector(".controls").style.display = guide ? "none" : "";
   document.querySelector(".layout").style.display = guide ? "none" : "";
   $("#howto").style.display = fTab==="howto" ? "" : "none";
   $("#setup").style.display = fTab==="setup" ? "" : "none";
+  $("#mcp").style.display = fTab==="mcp" ? "" : "none";
+  $("#evals").style.display = fTab==="evals" ? "" : "none";
   if(fTab==="howto") renderHowto();
   else if(fTab==="setup") renderSetup();
+  else if(fTab==="mcp") renderMcp();
+  else if(fTab==="evals") renderEvals();
   else { renderList(); renderDetail(); }
   document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.v===fTab));
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"VS Code SetUp Steps"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"}]
+  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"VS Code SetUp Steps"},{v:"mcp",t:"MCP Servers"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"},{v:"evals",t:"Harness Evals"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;
-    if(fTab!=="howto" && fTab!=="setup"){
+    if(fTab!=="howto" && fTab!=="setup" && fTab!=="mcp" && fTab!=="evals"){
       const cur=byName(sel);
       if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
     }
-    try{history.replaceState(null,"",fTab==="howto"?"#howto":fTab==="setup"?"#setup":"#"+sel)}catch(e){}
+    try{history.replaceState(null,"",fTab==="howto"?"#howto":fTab==="setup"?"#setup":fTab==="mcp"?"#mcp":fTab==="evals"?"#evals":"#"+sel)}catch(e){}
     render();
   });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
-  if(fromHash==="howto"||fromHash==="setup") fTab=fromHash;
+  if(fromHash==="howto"||fromHash==="setup"||fromHash==="mcp"||fromHash==="evals") fTab=fromHash;
   else if(fromHash && byName(fromHash)){ sel = fromHash; const a=byName(sel); fTab=(a.system==="generic"?"t7":a.system); }
   syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if(n==="howto"||n==="setup"){ fTab=n; render(); }
+    if(n==="howto"||n==="setup"||n==="mcp"||n==="evals"){ fTab=n; render(); }
     else if(byName(n)){ sel = n; const a=byName(n); fTab=(a.system==="generic"?"t7":a.system); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
@@ -938,6 +1224,8 @@ html = (TEMPLATE
         .replace("/*__SYS__*/", json.dumps(SYSTEMS, ensure_ascii=False))
         .replace("/*__PIPE__*/", json.dumps(PIPELINE, ensure_ascii=False))
         .replace("/*__HOWTO__*/", json.dumps(HOWTO, ensure_ascii=False))
+        .replace("/*__MCPS__*/", json.dumps(MCPS, ensure_ascii=False))
+        .replace("/*__EVALS__*/", json.dumps(EVALS, ensure_ascii=False))
         .replace("/*__DEFAULT__*/", DEFAULT))
 
 out = os.path.join(HERE, "index.html")
