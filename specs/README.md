@@ -8,7 +8,7 @@ Output location for **formal specification documents** authored during the speci
 
 DFS / DTS / SRQ are a **shared corporate document standard** (common `spec-authoring` skill). Each system's spec-author supplies its own release marker, components, and domain content.
 
-These files carry a `<!-- DOCX-METADATA -->` header and the canonical section structure defined by the common `spec-authoring` skill, and are ready for DOCX conversion via `docx_template_tool.py`.
+These files carry a `<!-- DOCX-METADATA -->` header and the canonical section structure defined by the common `spec-authoring` skill. The Markdown is the canonical source. When a Word deliverable is requested or required, the spec-author renders a co-located `.docx` beside it (same filename stem) via the common `document-rendering` skill (`.agents/skills/common/document-rendering/tools/docx_template_tool.py`) — the render is additive and never replaces the Markdown.
 
 > Planning artifacts are **not** stored here — the planner produces a lightweight in-conversation plan, not a separate document.
 

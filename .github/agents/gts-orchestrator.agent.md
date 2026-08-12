@@ -3,7 +3,7 @@ name: gts-orchestrator
 description: "Generic SDLC orchestrator for all GTS systems. Routes requests to the correct system subagent (P7, T7, CURE, etc.) and coordinates the full software development lifecycle. Use when: you are working on any GTS system and want to plan, implement, review, test, build, or generate a PR for a feature or fix."
 model: Claude Sonnet 4.6 (copilot)
 tools: [agent, todo]
-agents: [gts-prompt-clarifier, p7-orchestrator, t7-orchestrator, t7-sdlc-knowledge, gts-issue-analyst]
+agents: [gts-prompt-clarifier, p7-orchestrator, t7-orchestrator, t7-sdlc-knowledge, p7-sdlc-knowledge, gts-issue-analyst, gts-delivery]
 argument-hint: "Describe the system (P7/T7/etc.) and the feature, bug fix, or task to orchestrate"
 user-invocable: true
 ---
@@ -30,6 +30,8 @@ If the clarifier's envelope carries `Open questions:` other than `none`, present
 To add a new system: add an entry to `registry.json` and create `subagents/{system}/agent.md`.
 
 > **Cross-system read-only queries** (Jira tickets, GitHub PRs/commits — no code changes) go to `/t7-sdlc-knowledge`, which carries the *common* `jira`/`github` skills for **all** projects (`T7`, `P7`, `T7DEP`, `P7DEP`, …). This keeps a system-agnostic query (e.g. "list all my assigned tickets") out of a single-system build pipeline and avoids forcing the user to pick P7 vs T7.
+>
+> **System-specific knowledge queries** are handled *inside* each system orchestrator by its read-only knowledge endpoint — `/t7-sdlc-knowledge` for T7 and `/p7-sdlc-knowledge` for P7 (P7 spec corpus, Pricing-Engine internals, data flow, localisation). Route a clearly P7 question to `/p7-orchestrator` (which fast-paths it to `/p7-sdlc-knowledge`); route a clearly T7 question to `/t7-orchestrator`.
 
 > **Signal analysis** (a failed Jenkins build, a SonarQube finding, a Dependabot/CodeQL/secret alert, a GitHub issue/incident, or a Jira SIR that wraps one) goes to `/gts-issue-analyst` — a read-only, cross-system analysis peer of `/t7-sdlc-knowledge`. It selects the authoritative engine (jenkins-lens / sonarqube-lens / github), grounds the finding, and returns a root-cause verdict. It **diagnoses, never implements**; a fix it recommends is then routed back into the pipeline.
 
@@ -37,10 +39,11 @@ To add a new system: add an entry to `registry.json` and create `subagents/{syst
 
 1. **Cross-system query** — if the request is a read-only Jira / ticket / GitHub query with no system-specific *code* scope (e.g. "list my assigned tickets", "show `P7-3099`", "which PRs are open") → delegate directly to `/t7-sdlc-knowledge`. Do **not** enter a P7/T7 SDLC pipeline and do **not** ask which system.
 2. **Signal analysis (read-only)** — if the request is to *analyse a signal* rather than build code: a **failed/UNSTABLE Jenkins build** (build URL, job+number, a console-log file path, or a pasted log), a **SonarQube finding** (issue/dashboard/hotspot URL or key), a **GitHub security alert** (Dependabot / code-scanning / secret-scanning), a **GitHub issue/incident** (any repo, any component), or a **Jira SIR** that wraps any of these → delegate directly to `/gts-issue-analyst`. Do **not** enter a P7/T7 pipeline and do **not** ask which system — it infers the system while grounding. If it surfaces a real defect to fix, then route that to `/p7-orchestrator` or `/t7-orchestrator`.
-3. If the user mentions P7, pricing engine, risk management, or frontend/middleware layers → delegate to `/p7-orchestrator`
-4. If the user mentions T7, trading system, exchange, or T7-specific components → delegate to `/t7-orchestrator`
-5. If the system is ambiguous **and the request needs SDLC/code work** → ask: "Which system are you working on? (P7 / T7 / other)"
-6. Never perform SDLC work yourself — always delegate to the subagent
+3. **Delivery (propose-only, human-gated)** — if the request is to *deliver* a merged, reviewed change into an integration baseline with `gts-deliver` (T7/`eurex` or P7/`p7`) → delegate directly to `/gts-delivery`. It runs the read-only readiness gates and **proposes** the exact `gts-deliver` command (the human runs it); it **never executes** delivery, and it also does read-only post-delivery Integration-build monitoring. Do **not** run a full P7/T7 code pipeline for a pure delivery request.
+4. If the user mentions P7, pricing engine, risk management, or frontend/middleware layers → delegate to `/p7-orchestrator`
+5. If the user mentions T7, trading system, exchange, or T7-specific components → delegate to `/t7-orchestrator`
+6. If the system is ambiguous **and the request needs SDLC/code work** → ask: "Which system are you working on? (P7 / T7 / other)"
+7. Never perform SDLC work yourself — always delegate to the subagent
 
 ## Delegation Format
 

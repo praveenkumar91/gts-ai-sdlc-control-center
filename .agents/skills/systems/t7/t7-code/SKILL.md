@@ -46,7 +46,7 @@ Use this skill whenever you need to locate, read, or explore T7 source code. Thi
 | Find test files for a component | `list_files` (component, pattern=`*Test*` or `*_test*`) |
 | Find all callers of a function | `search_codebase` (function name) |
 | Verify a class hierarchy | `search_codebase` (base class) → `get_page_chunk` (header) |
-| Locate build dependency metadata | `list_files` (component, pattern=`component.json`) → `get_page_chunk` |
+| Locate build dependency metadata | `list_files` (component, pattern=`module-info.xml`) → `get_page_chunk` (declared forward deps); for reverse-deps / build order use the `gts-build-graph` skill |
 
 ---
 
@@ -116,7 +116,7 @@ Repeat step 2 for adjacent sections as needed to gather complete context before 
    | **Call sites / usages** of a changed symbol or signature | `search_codebase("<symbol>")` across components. Enumerate **all** when the change alters a public interface, signature, enum, or shared contract; for internal-only changes include the **representative** callers needed to verify the locus, not every passive usage |
    | Subclasses / implementers of a changed interface | `search_codebase("<base class>")` → read the header |
    | **Test file(s)** for the locus | `list_files(component, "*Test*")` · `"*_test*"` · `"test_*"` (GTest / Catch2 / JUnit / pytest) |
-   | **Build / config / data** (new file, or changed symbol / dependency / interface / schema) | `list_files(component, "component.json")` + CMake / Makefile, config (`*.xml` / `*.cfg`), and **SQL/schema** (`*.sql`) or generated/model files when the change is non-C++ |
+   | **Build / config / data** (new file, or changed symbol / dependency / interface / schema) | `list_files(component, "module-info.xml")` (declared deps) + `CMakeLists.txt`, config (`*.xml` / `*.cfg`), and **SQL/schema** (`*.sql`) or generated/model files when the change is non-C++ |
 
 5. **Corroborate with change history (high-signal)** — when the **`github`** skill is available, inspect recent merged PRs/commits on the component: files that *historically change together* with your locus (logical coupling) are strong candidates you would otherwise miss (evidence, not proof). If `github` is unavailable, record `history: skipped`.
 6. **Rank, tag, justify** — per file emit `path · role · tag · proving query`. **Every tag requires a *verified* path:**

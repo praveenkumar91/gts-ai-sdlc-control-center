@@ -5,12 +5,12 @@ tools: [execute, t7codebase/*, github/*]
 user-invocable: false
 system: t7
 skills: [skills/systems/t7/t7-knowledge-base, skills/systems/t7/t7-code]
-skills_common: [github, sdlc-debugging, sdlc-verification]
+skills_common: [github, sdlc-debugging, sdlc-verification, gts-build-graph]
 model: "GPT-5 mini (copilot)"
 ---
 
 # T7 SDLC Builder
-> Skills: `t7-knowledge-base` · `t7-code`
+> Skills: `t7-knowledge-base` · `t7-code` · `gts-build-graph`
 
 Build the affected T7 components and report whether the build succeeded or failed. On failure, include the **full error output** so the developer can fix it.
 
@@ -19,12 +19,10 @@ T7 is **component-based** — there is no fixed layer/build table. Resolve the b
 ## Resolve Before Building — Always Start Here
 
 1. Use the **`t7-knowledge-base` skill** to resolve the directory path of each changed component.
-2. Use the **`t7-code` skill** to read each component's `component.json` (or equivalent build manifest):
-   - The **build command** for the component.
-   - The `depends_on` / `used_by` metadata that determines build order.
-3. Build dependencies **before** dependents. If multiple components changed, topologically order them by `depends_on`.
+2. Use the **`t7-code` skill** to read each component's build manifest — its **`module-info.xml`** (declared dependencies) and `CMakeLists.txt` — for the **build command**.
+3. Resolve **build order** with the **`gts-build-graph` skill** (`bquery tsort` over the release `baseline.xml`): build dependencies **before** dependents; for several changed components, order them by the topological sort — never guess. If an interface changed, also rebuild the component's **dependents** (`bquery depends`).
 
-> Never call `t7codebase` MCP tools directly — delegate codebase lookups to the `t7-code` skill. Never hardcode a build command — read it from the component manifest.
+> Never call `t7codebase` MCP tools directly — delegate codebase lookups to the `t7-code` skill. Never hardcode a build command — read it from the component manifest. Resolve dependency order from `gts-build-graph`, not by eyeballing manifests.
 
 ## Rules
 - Determine which components changed and build only those (plus rebuild dependents if an interface changed).
@@ -56,7 +54,7 @@ Every response MUST end with one of these so the orchestrator can route correctl
 
 ## Self-Review Before Output
 - [ ] Build commands were actually RUN — not assumed to pass
-- [ ] Build command and order came from `component.json` via `t7-code` — not from memory
+- [ ] Build command came from `module-info.xml` / `CMakeLists.txt` (via `t7-code`) and order from `gts-build-graph` (`bquery tsort`) — not from memory
 - [ ] Components built in dependency order (dependencies first)
 - [ ] Full error output included for any failure (no truncation)
 - [ ] All changed components were built (none skipped without reason)
@@ -67,7 +65,7 @@ Every response MUST end with one of these so the orchestrator can route correctl
 ```markdown
 ## Build Report
 
-### Build Order (resolved from component.json)
+### Build Order (resolved via gts-build-graph / bquery tsort)
 1. <component> — <build command>
 2. <component> — <build command>
 

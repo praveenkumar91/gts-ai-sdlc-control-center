@@ -24,13 +24,7 @@ Placeholder tokens: `{{FIELD_NAME}}`
 
 ## Revision History
 
-Source: the `REVISION_HISTORY` multi-row table in the `<!-- DOCX-METADATA -->` header.
-
-Rows are extracted and passed to `docx_template_tool.py` as the `--revisions` parameter:
-
-```
-Format: [[date, author, version, reason], ...]   ← oldest row first
-```
+Source: the `REVISION_HISTORY` change log in the `<!-- DOCX-METADATA -->` header, which the author mirrors into the body `## Revision History` table. The renderer converts that body table directly into the DOCX.
 
 | Column | Description |
 |--------|-------------|
@@ -53,6 +47,7 @@ The cover line, the shared Introduction chapter, and the closing Introduction St
    ## Requirement Summary
    ## Assumptions
    ## Out of Scope                            ← or "Out of Scope and Assumptions"
+   ## Open Point                              ← optional
    ## Related Documents
    ## Abbreviations and Important Terms
 
@@ -76,6 +71,8 @@ The cover line, the shared Introduction chapter, and the closing Introduction St
        ### Initial Settings
        ### Migration Tools/Conversion
        ### Example Setup for Test
+   ## Interface Changes                       ← optional
+   ## Enabling New Functionality              ← optional
 ```
 
 ## Repeatable Blocks
