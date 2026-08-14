@@ -154,6 +154,32 @@ The framework needs no build step — it *is* the agent and skill definitions. T
 
 ---
 
+## Feedback & bug reports&nbsp;&nbsp;<a href="https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback/issues/new/choose"><img src="https://img.shields.io/badge/Report%20a%20bug%20or%20request%20a%20feature-1f9e89?style=flat-square&logo=github&logoColor=white" alt="Report a bug or request a feature"></a>
+
+<p align="center">
+  <a href="https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback">
+    <img src="docs/assets/how-to-report.svg" alt="How to report a bug or send feedback in three steps: 1 Capture the chat — for a bug, export the conversation via the VS Code Command Palette then Chat: Export Chat to get a verbatim transcript file; 2 Open a ticket — run /gts-feedback in the chat, or open a New issue and pick a form, in dev/gts.ai.sdlc-feedback; 3 Attach and submit — attach the exported chat, redact secrets and submit. Only for the AI SDLC tooling; product bugs in T7/P7 code go to Jira/SIRs, not here." width="100%">
+  </a>
+</p>
+
+### 🐞 Report a bug — with the whole conversation
+
+The most useful bug report carries the exact conversation that went wrong. It takes about a minute.
+
+1. **Export the conversation.** In VS Code, open the **Command Palette** (`Ctrl`/`Cmd`+`Shift`+`P`) and run **`Chat: Export Chat`**. Save the file.
+2. **Open the issue** — whichever is quicker:
+   - **Agent-assisted:** run **`/gts-feedback`** in the chat where it broke. It writes a redacted summary, checks for duplicates, and hands you a **one-click, pre-filled issue link**.
+   - **Manual:** [**open a New issue**](https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback/issues/new/choose) → **Bug report**.
+3. **Attach the exported chat** — drag the file straight into the issue.
+4. **Redact & submit.** Remove any secrets first (tokens, `Authorization: Bearer …`, passwords, PII) — this is a shared repo — then submit.
+
+### 💡 Send feedback or request a feature
+
+1. [**Open a New issue**](https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback/issues/new/choose) → **Feature request** — or just run **`/gts-feedback`**.
+2. Say what you'd like and why. Submit.
+
+---
+
 ## License
 
 Internal to Deutsche Börse AG — see [`LICENSE.md`](LICENSE.md).

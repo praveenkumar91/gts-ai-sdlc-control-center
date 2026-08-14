@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" width="1200" height="470" role="img" aria-label="How to report a bug or send feedback in three steps. Step 1 Capture the chat: for a bug, export the conversation with the VS Code Command Palette then Chat Export Chat to get a verbatim transcript file to attach. Step 2 Open a ticket: run slash gts-feedback in the chat, or open a New issue and pick a form, to get a pre-filled issue in dev gts.ai.sdlc-feedback. Step 3 Attach and submit: attach the exported chat, redact secrets and submit; we triage and fix it and replies land on the issue. Only for the AI SDLC tooling; product bugs in T7 or P7 code go to Jira or SIRs, not here.">
+  <title>How to report — a bug or feedback, in three steps</title>
+  <rect x="0" y="0" width="1200" height="470" fill="#FFFFFF"/>
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="60" y="54" font-size="15" font-weight="700" fill="#8A92A0" letter-spacing="2">REPORT A BUG · SEND FEEDBACK</text>
+    <text x="60" y="92" font-size="27" font-weight="700" fill="#1A1A2E" letter-spacing="-0.4">Tell us in under a minute</text>
+    <text x="470" y="92" font-size="15" font-weight="500" fill="#9AA1AB">three steps, from VS Code to a tracked ticket</text>
+
+    <g transform="translate(60,140)">
+      <rect x="0" y="0" width="320" height="250" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="320" height="4" rx="2" fill="#A99BE0"/>
+      <circle cx="288" cy="34" r="15" fill="#ECE7FA"/>
+      <text x="288" y="39" font-size="15" font-weight="700" fill="#6E5BB8" text-anchor="middle">1</text>
+      <circle cx="48" cy="60" r="24" fill="#ECE7FA"/>
+      <g transform="translate(48,60)" fill="none" stroke="#6E5BB8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 -12 L0 4"/><path d="M-6 -2 L0 4 L6 -2"/><path d="M-11 9 L-11 12 L11 12 L11 9"/>
+      </g>
+      <text x="88" y="52" font-size="17.5" font-weight="700" fill="#1F2733">Capture</text>
+      <text x="88" y="74" font-size="17.5" font-weight="700" fill="#1F2733">the chat</text>
+      <rect x="24" y="100" width="272" height="30" rx="8" fill="#F0EBFB" stroke="#E0D6F4"/>
+      <text x="40" y="120" font-size="12.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#5B49A6">Chat: Export Chat</text>
+      <text x="24" y="152" font-size="11.5" fill="#9AA1AB">VS Code Command Palette → export</text>
+      <line x1="24" y1="170" x2="296" y2="170" stroke="#EEF0F2"/>
+      <text x="24" y="196" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="218" font-size="13" fill="#46505E">A verbatim transcript</text>
+      <text x="24" y="238" font-size="13" fill="#46505E">file to attach.</text>
+    </g>
+    <path d="M402 251 L418 265 L402 279" fill="none" stroke="#C7CDD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g transform="translate(440,140)">
+      <rect x="0" y="0" width="320" height="250" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="320" height="4" rx="2" fill="#8FB0E4"/>
+      <circle cx="288" cy="34" r="15" fill="#E3ECFB"/>
+      <text x="288" y="39" font-size="15" font-weight="700" fill="#3F6FB5" text-anchor="middle">2</text>
+      <circle cx="48" cy="60" r="24" fill="#E3ECFB"/>
+      <g transform="translate(48,60)" fill="none" stroke="#3F6FB5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="0" r="12"/><path d="M0 -6 L0 6 M-6 0 L6 0"/>
+      </g>
+      <text x="88" y="52" font-size="17.5" font-weight="700" fill="#1F2733">Open</text>
+      <text x="88" y="74" font-size="17.5" font-weight="700" fill="#1F2733">a ticket</text>
+      <rect x="24" y="100" width="272" height="30" rx="8" fill="#EAF1FB" stroke="#D2E0F2"/>
+      <text x="40" y="120" font-size="12.5" font-family="'SF Mono', ui-monospace, Menlo, monospace" fill="#2E5C9E">/gts-feedback</text>
+      <text x="24" y="152" font-size="11.5" fill="#9AA1AB">in the chat, or New issue → form</text>
+      <line x1="24" y1="170" x2="296" y2="170" stroke="#EEF0F2"/>
+      <text x="24" y="196" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="218" font-size="13" fill="#46505E">A pre-filled issue in</text>
+      <text x="24" y="238" font-size="13" fill="#46505E">gts.ai.sdlc-feedback.</text>
+    </g>
+    <path d="M782 251 L798 265 L782 279" fill="none" stroke="#C7CDD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g transform="translate(820,140)">
+      <rect x="0" y="0" width="320" height="250" rx="16" fill="#FCFCFD" stroke="#E8EAED"/>
+      <rect x="0" y="0" width="320" height="4" rx="2" fill="#57B5AD"/>
+      <circle cx="288" cy="34" r="15" fill="#DBF0EE"/>
+      <text x="288" y="39" font-size="15" font-weight="700" fill="#2E8E84" text-anchor="middle">3</text>
+      <circle cx="48" cy="60" r="24" fill="#DBF0EE"/>
+      <g transform="translate(48,60)" fill="none" stroke="#2E8E84" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="0" r="12"/><path d="M-5 0 L-1.5 4 L6 -5"/>
+      </g>
+      <text x="88" y="52" font-size="17.5" font-weight="700" fill="#1F2733">Attach &amp;</text>
+      <text x="88" y="74" font-size="17.5" font-weight="700" fill="#1F2733">submit</text>
+      <rect x="24" y="100" width="272" height="30" rx="8" fill="#E3F1EF" stroke="#CBE7E2"/>
+      <text x="40" y="120" font-size="12.5" fill="#256F67">attach · redact · submit</text>
+      <text x="24" y="152" font-size="11.5" fill="#9AA1AB">we triage &amp; fix it</text>
+      <line x1="24" y1="170" x2="296" y2="170" stroke="#EEF0F2"/>
+      <text x="24" y="196" font-size="10" font-weight="700" fill="#B6BCC4" letter-spacing="1">YOU GET</text>
+      <text x="24" y="218" font-size="13" fill="#46505E">Tracked feedback —</text>
+      <text x="24" y="238" font-size="13" fill="#46505E">replies on the issue.</text>
+    </g>
+
+    <text x="60" y="432" font-size="12.5" fill="#9AA1AB">Only for the AI SDLC tooling · product bugs in T7/P7 code go to Jira/SIRs, not here · redact secrets before you attach.</text>
+  </g>
+</svg>
