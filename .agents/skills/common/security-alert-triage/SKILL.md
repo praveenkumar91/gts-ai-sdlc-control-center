@@ -21,7 +21,7 @@ Three GitHub security-alert families only:
 - **Code scanning** — CodeQL / SAST findings.
 - **Secret scanning** — leaked credentials.
 
-It is **not** holistic code review of a change (`code-review-lens` / `codereviewer-lens`), **not** a
+It is **not** holistic code review of a change (`code-review-lens` / `codereviewer_lens`), **not** a
 SonarQube finding (`sonar-finding-lens`), and **not** general GitHub browsing (`github`). Those are
 separate skills.
 

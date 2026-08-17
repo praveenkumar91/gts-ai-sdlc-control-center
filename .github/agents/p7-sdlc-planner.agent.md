@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, search, p7spec/*, github/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues, devops_jira/get_transitions, devops_jira/get_create_meta, devops_jira/create_issue, devops_jira/update_issue, devops_jira/transition_issue, devops_jira/add_comment, devops_jira/link_issues]
 user-invocable: false
 system: p7
-skills: [skills/systems/p7/p7-spec, skills/systems/p7/p7-code, skills/systems/p7/p7-brainstorming]
+skills: [skills/systems/p7/p7-spec, skills/systems/p7/p7-code, skills/systems/p7/p7-brainstorming, skills/systems/p7/p7-github]
 skills_common: [github, jira, sdlc-debugging, sdlc-verification, gts-build-graph, sdlc-brainstorming]
 ---
 
@@ -114,7 +114,7 @@ Expected: PASS
 - [ ] **Step 5: Commit**
 ```bash
 git add <files>
-git commit -m "feat(frontend): add myFunction for <feature>"
+git commit -m "P7-XXX Add myFunction for <feature>"
 ```
 
 **Acceptance Criteria**: <measurable, binary — pass/fail>

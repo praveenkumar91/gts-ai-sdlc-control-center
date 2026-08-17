@@ -300,7 +300,7 @@ After the human runs `gts-deliver`, the **Integration ("dev") build** runs for t
 `INT-<PROJECT>-<release>` on the **gtsci** instance (T7 → `INT-EUREX-<release>`, P7 → `INT-P7-<release>`).
 This is the **CR** (candidate-release) stage — after the developer's local **AD** build and before the
 separate production **GA** build (GA is out of scope).
-Delegate all Jenkins reading to the **`build-failure-lens`** skill (never call the `jenkins-lens` MCP
+Delegate all Jenkins reading to the **`build-failure-lens`** skill (never call the `jenkins_lens` MCP
 directly); pass `jenkins_instance="gtsci"`:
 
 | Question | build-failure-lens tool |

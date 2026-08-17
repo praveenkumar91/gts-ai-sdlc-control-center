@@ -1,7 +1,7 @@
 ---
 name: coding-guidelines
 description: "Use when: applying or checking C++, Java, or Python coding standards; reviewing naming conventions, formatting rules, indentation, comments, or file organization; answering questions about SonarQube rules; verifying exception handling patterns; checking security coding requirements; enforcing code quality standards. Covers: C++ Coding Guidelines v1.4, Java Coding Guidelines v1.4, Python Coding Guidelines v1.4, naming conventions, formatting, Sonar compliance, clean code principles, unit testing practices."
-tools: [codereviewer-lens/ask_guideline, codereviewer-lens/explain_rule, codereviewer-lens/list_guidelines]
+tools: [codereviewer_lens/ask_guideline, codereviewer_lens/explain_rule, codereviewer_lens/list_guidelines]
 ---
 
 # Coding Guidelines
@@ -10,13 +10,13 @@ This skill provides authoritative answers about mandatory coding standards for C
 
 > **Authoritative fallback (complete corpus).** The reference files below are a curated, bounded
 > subset. For the **complete or authoritative text of any rule** — especially anything not covered
-> here — query the full embedded guideline corpus via `codereviewer-lens/ask_guideline(question,
+> here — query the full embedded guideline corpus via `codereviewer_lens/ask_guideline(question,
 > language)` (RAG over the full C++/Java/Python coding-guideline PDFs, returning page-cited answers);
 > use `explain_rule(rule_id)` to expand a specific SonarQube/tool rule. At **review** time, guideline
 > compliance is enforced by the `code-review-lens` skill (the review brain), not here.
 
 > **Version & canonical source.** Pinned to **v1.4**. The **canonical** documents are the PDFs
-> embedded in `codereviewer-lens` (`guidelines/<lang>/source/*.pdf`); the reference files here are a
+> embedded in `codereviewer_lens` (`guidelines/<lang>/source/*.pdf`); the reference files here are a
 > readable **projection** for authoring. On a version bump, update lens's PDFs **and** these
 > references together.
 
@@ -26,7 +26,7 @@ This skill provides authoritative answers about mandatory coding standards for C
 > mirror here — so the complete, enforced rule set is the **live quality profile queried by
 > `code-review-lens` at review time**. For authoring, browse the authoritative live catalogue at
 > **https://sonarp1.deutsche-boerse.de/coding_rules** (filter by language / quality profile), ask
-> `codereviewer-lens/ask_guideline` for the prose standard, or `explain_rule(<rule_id>)` to expand a
+> `codereviewer_lens/ask_guideline` for the prose standard, or `explain_rule(<rule_id>)` to expand a
 > specific finding. Do **not** inline or maintain a rule-ID catalogue here.
 
 ### Languages: prose guidelines vs SonarQube enforcement

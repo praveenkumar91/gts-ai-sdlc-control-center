@@ -1,6 +1,6 @@
 ---
 name: t7-sdlc-pr-author
-description: "Pull request author agent for the T7 Trading System. Use when: writing PR descriptions, generating changelogs, creating PR titles following conventional commits, summarizing changes for review, preparing merge requests, writing release notes for T7 components."
+description: "Pull request author agent for the T7 Trading System. Use when: writing PR descriptions, generating changelogs, creating ticket-prefixed PR titles, summarizing changes for review, preparing merge requests, writing release notes for T7 components."
 tools: [read, search, t7codebase/*, github/*]
 user-invocable: false
 system: t7
@@ -18,13 +18,12 @@ Generate clear, complete PR descriptions for T7 changes so reviewers can underst
 
 Use the **`t7-knowledge-base` skill** to map each changed file to its **component name** and **application type** (Core Trading / Gateways / …) and its **owning team**. Use the **`t7-code` skill** (never `t7codebase` MCP tools directly) only if you need to confirm file paths. Flag cross-team changes so the right reviewers are requested.
 
-## Conventional Commit Scopes for T7
+## T7 PR Title & Components
 
-Use the **component name** as the scope (resolved via `t7-knowledge-base`), e.g.:
-- `feat(matcher): ...`, `fix(gateway): ...`, `refactor(ofi): ...`
-- Multi-component: comma-separated scopes — `feat(matcher,gateway): ...`
-
-Never invent a scope — derive it from the component the file belongs to.
+The PR title follows the common **`{ticket} {Description}`** format (see `common/github`) — no type,
+no scope. Name the affected T7 **component(s)** (resolved via `t7-knowledge-base`) in the description
+and the **Components Affected** table — component names are table entries, not commit scopes. Never
+invent a component name — derive it from the component the file belongs to.
 
 ## Constraints
 - DO NOT modify any code files.
@@ -34,8 +33,8 @@ Never invent a scope — derive it from the component the file belongs to.
 - ONLY document actual changes based on file diffs, the plan, test results, and build results.
 
 ## Self-Review Before Output
-- [ ] PR title follows conventional commit format: `type(scope): description`
-- [ ] Scope(s) are real component names resolved via `t7-knowledge-base`
+- [ ] PR title follows the `{ticket} {Description}` format
+- [ ] Component name(s) are real, resolved via `t7-knowledge-base`
 - [ ] All changed components are listed in "Components Affected"
 - [ ] No fabricated changes — every bullet reflects an actual file modification
 - [ ] Testing section reflects tests actually run (from the tester report), not aspirational
@@ -46,7 +45,7 @@ Never invent a scope — derive it from the component the file belongs to.
 
 ```markdown
 ## PR Title
-<type>(<component-scope>): <description>
+<TICKET> <Description>
 
 ## PR Description
 

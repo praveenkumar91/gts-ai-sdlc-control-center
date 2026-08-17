@@ -29,7 +29,7 @@ A generic pre-completion checklist to verify work quality before moving to the n
 - [ ] Authentication/authorization checks in place for new endpoints
 
 ### Documentation
-- [ ] Commit message follows Conventional Commits format
+- [ ] Commit message follows the `{ticket} {Description}` format (per the `github` skill)
 - [ ] PR description is complete (summary, changes, testing notes)
 - [ ] Any new API endpoints are documented
 

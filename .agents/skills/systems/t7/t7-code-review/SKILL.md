@@ -17,7 +17,7 @@ and apply the T7-specific rules and **retained gates** below.
   resolve).
 - **Codebase navigation** → `t7-code`. **Specs** → `t7-spec`. **Component map / ownership /
   terminology** → `t7-knowledge-base`. **Guideline lookup/explanation** → `coding-guidelines`.
-  Never call `t7codebase` / `t7spec` / `codereviewer-lens` MCP tools directly — delegate to the skill.
+  Never call `t7codebase` / `t7spec` / `codereviewer_lens` MCP tools directly — delegate to the skill.
 
 ## Retained gates (T7 owns these — lens does not)
 

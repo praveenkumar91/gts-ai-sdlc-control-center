@@ -1,21 +1,21 @@
 ---
 name: sonar-finding-lens
-description: "Use when: investigating a SPECIFIC existing SonarQube finding (or a Sonar issue URL / dashboard / hotspot / bulk selection) — adjudicating true-vs-false-positive, understanding a finding end-to-end, or triaging a project's Sonar backlog. Covers the sonarqube-lens MCP server: analyze_finding runs six perspectives and returns a true/false-positive probability plus a verdict and fix plan; parse_sonar_url classifies a pasted Sonar URL/key. This is DISTINCT from code-review-lens (holistic review of a change/diff/PR): use this for a named Sonar finding, not for reviewing new code. Agents delegate here and never call the sonarqube-lens MCP tools directly."
+description: "Use when: investigating a SPECIFIC existing SonarQube finding (or a Sonar issue URL / dashboard / hotspot / bulk selection) — adjudicating true-vs-false-positive, understanding a finding end-to-end, or triaging a project's Sonar backlog. Covers the sonarqube_lens MCP server: analyze_finding runs six perspectives and returns a true/false-positive probability plus a verdict and fix plan; parse_sonar_url classifies a pasted Sonar URL/key. This is DISTINCT from code-review-lens (holistic review of a change/diff/PR): use this for a named Sonar finding, not for reviewing new code. Agents delegate here and never call the sonarqube_lens MCP tools directly."
 systems: [all]
-tools: [sonarqube-lens/analyze_finding, sonarqube-lens/parse_sonar_url]
+tools: [sonarqube_lens/analyze_finding, sonarqube_lens/parse_sonar_url]
 user-invocable: false
 ---
 
 # Sonar-Finding Lens — the SonarQube finding-investigation brain
 
-`sonarqube-lens` investigates **a specific, existing SonarQube finding** end-to-end: it collects the
+`sonarqube_lens` investigates **a specific, existing SonarQube finding** end-to-end: it collects the
 evidence, runs **six perspectives**, adjudicates **true-vs-false-positive with a probability**, and
 (read-only) proposes a **verdict + fix plan**. An agent **delegates** finding-investigation to the
-lens through this skill and **never** calls the `sonarqube-lens` MCP tools directly outside it.
+lens through this skill and **never** calls the `sonarqube_lens` MCP tools directly outside it.
 
 ## Why this is separate from `code-review-lens`
 
-`code-review-lens` (the `codereviewer-lens` engine) reviews **a change** — a diff, commit or PR —
+`code-review-lens` (the `codereviewer_lens` engine) reviews **a change** — a diff, commit or PR —
 holistically, aggregating SonarQube *among many sources* (Fortify, scanning, guideline RAG, arch/
 concurrency rules) into one review verdict. It answers *"is this new code good?"*
 
@@ -63,14 +63,14 @@ grounded against live source, treat the result as **needs escalation**, not a co
 
 ## Fail-safe (lens unavailable)
 
-If the `sonarqube-lens` MCP server is **unreachable**, do **not** hand-adjudicate a finding as a false
-positive from memory. Report that the finding **could not be analysed — sonarqube-lens unavailable**
+If the `sonarqube_lens` MCP server is **unreachable**, do **not** hand-adjudicate a finding as a false
+positive from memory. Report that the finding **could not be analysed — sonarqube_lens unavailable**
 and escalate. A per-provider degradation (e.g. GHE source unavailable for grounding) is reported by the
 lens as a lowered confidence / escalation, not an outage.
 
 ## Constraints
 
-- DELEGATE here — never call `sonarqube-lens` MCP tools directly from an agent body.
+- DELEGATE here — never call `sonarqube_lens` MCP tools directly from an agent body.
 - **Read-only analysis**: never mark a finding false-positive or file a Jira SIR without explicit human
   approval — those writes are gated and out of this skill's scope.
 - This skill investigates **existing SonarQube findings** — it is **not** the holistic code review of a

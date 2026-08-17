@@ -2,6 +2,7 @@
 name: requirement-conformance
 description: "Use when: reviewing a code change to verify it implements the requirement set out in its Jira ticket (Epic / Issue / SIR) for T7 or P7 — i.e. 'does this change actually do what the ticket requires?'. Recovers the ticket's testable intent, links it to the code change, and produces a conformance matrix + verdict. Applies to both systems; complements code-quality review and the STT/ACT human tests."
 systems: [all]
+tools: [codereviewer_lens/assess_conformance]
 ---
 
 # Requirement-Conformance Skill — *does the change implement what the ticket requires?*
@@ -9,7 +10,7 @@ systems: [all]
 Code review checks that a change is **well-built** (correctness, security, style). This skill checks that it is the **right change** — that it delivers the requirement stated in its Jira ticket. It is the third, orthogonal review lens:
 
 - **code quality/security/intent-vs-plan** — is the code good, and does it match the *dispatched plan*? *(the `common/code-review` discipline via `code-review-lens`; lens's `review_semantics` uses the task/plan/PR body as the intent)*
-- **requirement conformance** — does it do what the *Jira ticket* asked? *(this skill — the ticket's own obligations, which lens does **not** consume)*
+- **requirement conformance** — does it do what the *Jira ticket* asked? *(this skill — the ticket's own obligations. The `codereviewer_lens` engine does **not** read the ticket for you, but once you have recovered the obligations it can produce an advisory obligation→change matrix via `assess_conformance` — see §4b.)*
 - **STT / ACT test-tasks** — does it pass human system/acceptance test? *(downstream; corroborate, don't duplicate)*
 
 > Follow the **`jira`** skill for all issue-type, workflow, field and link conventions. Never invent fields, states or links — read them from the ticket. Read-only: this skill never mutates Jira.
@@ -90,6 +91,10 @@ When an obligation names an **RDS/RDA** attribute, enum, or entity (e.g. T7-5684
 Classify `match` / `model-gap` / `data-absent` / `extra-in-data`. **The live database is corroboration, not the gate:** a value in spec + model but not yet in the live data is `data-absent` = *pending deployment* (the change is simply not deployed on that environment yet) — report it, but it is **not** a `MISSING`/gap. A genuine `model-gap` (spec value absent from the RDS model for the target baseline) **is** a gap. If the baselines cannot be aligned, mark the obligation `INTENT_UNVERIFIABLE`.
 
 > **Prerequisite:** the reviewer / knowledge endpoint carries the **`t7-refdata`** skill (`t7dbcopy` read grant). This sub-check is **T7-only** — P7 has no RDS.
+
+### 4b. Corroborate the mapping with the lens (advisory)
+
+Once the obligation checklist and the recovered diff are in hand, corroborate the mapping with the `codereviewer_lens` engine: call `assess_conformance(diff_text, requirement_text=<the assembled obligations>)` — or `requirement_url=<ticket/spec URL>` when the source is fetchable. It runs the same concern + synthesis pipeline the reviewer uses and returns an **advisory** obligation→change matrix; it **never posts and never gates by itself** (the response is flagged `advisory`). Use it as a second opinion — it can surface an obligation you scored `COVERED` that the engine judges unmet, or vice-versa. Reconcile against your own reading: **your Jira-grounded verdict is authoritative**; the lens result corroborates it. If the lens is unavailable, proceed with the manual mapping — this step is corroboration, not a prerequisite.
 
 ---
 

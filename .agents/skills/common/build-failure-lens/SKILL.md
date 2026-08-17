@@ -1,18 +1,18 @@
 ---
 name: build-failure-lens
-description: "Use when: a Jenkins / CI build has failed or gone UNSTABLE, or you need a job/build status, and you want the root cause, a false-positive scan, or build/job context. Covers Jenkins build-failure analysis and Q&A via the jenkins-lens MCP server — given a build URL, a job + build number, or a pasted console log, it returns the likely root cause, quoted log evidence, a per-substep false-positive verdict, and job/build metadata. Agents delegate build analysis here and never call the jenkins-lens MCP tools directly. This is read-only build analysis — NOT the local compile step (that is the builder's own `execute`) and NOT code review (that is code-review-lens)."
+description: "Use when: a Jenkins / CI build has failed or gone UNSTABLE, or you need a job/build status, and you want the root cause, a false-positive scan, or build/job context. Covers Jenkins build-failure analysis and Q&A via the jenkins_lens MCP server — given a build URL, a job + build number, or a pasted console log, it returns the likely root cause, quoted log evidence, a per-substep false-positive verdict, and job/build metadata. Agents delegate build analysis here and never call the jenkins_lens MCP tools directly. This is read-only build analysis — NOT the local compile step (that is the builder's own `execute`) and NOT code review (that is code-review-lens)."
 systems: [all]
-tools: [jenkins-lens/analyze_build, jenkins-lens/diagnose_log, jenkins-lens/score_build, jenkins-lens/list_jobs, jenkins-lens/job_status, jenkins-lens/build_info, jenkins-lens/ask]
+tools: [jenkins_lens/analyze_build, jenkins_lens/diagnose_log, jenkins_lens/score_build, jenkins_lens/list_jobs, jenkins_lens/job_status, jenkins_lens/build_info, jenkins_lens/ask]
 user-invocable: false
 ---
 
 # Build-Failure Lens — the CI build-failure brain
 
-`jenkins-lens` is a read-only diagnosis engine for **Jenkins / CI builds**. Given a failed or
+`jenkins_lens` is a read-only diagnosis engine for **Jenkins / CI builds**. Given a failed or
 `UNSTABLE` build it fetches the console log, localises the failing substep, and returns the **likely
 root cause** with **quoted log evidence**, a **false-positive scan** (is the red real, or noise?),
 and build/job metadata. It is **the brain for CI build-failure analysis** — an agent **delegates**
-this concern to the lens through this skill and **never** calls the `jenkins-lens` MCP tools directly
+this concern to the lens through this skill and **never** calls the `jenkins_lens` MCP tools directly
 outside this skill.
 
 ## Scope — what this skill is, and is NOT
@@ -25,7 +25,7 @@ following are **not** owned by this skill:
   (a build URL, a `job` + `build_number`, or a pasted Jenkins console log), or to explain whether a
   red CI build is a real defect or a false positive.
 - **Code review** (correctness / security / quality / guideline) — that is `code-review-lens`
-  (`codereviewer-lens`). A compiler/linker error is a build concern; a code smell is a review concern.
+  (`codereviewer_lens`). A compiler/linker error is a build concern; a code smell is a review concern.
 - **Any write to Jenkins** — this skill never triggers, retries, cancels, or mutates a build. It is
   strictly read-only diagnosis.
 
@@ -79,13 +79,13 @@ and a **suggested next step**. `score_build` returns a **per-substep table** (`v
 
 ## Fail-safe (lens unavailable)
 
-If the `jenkins-lens` MCP server is **unreachable**, do **not** guess a root cause from memory.
-Report that the CI failure **could not be diagnosed — jenkins-lens unavailable**, hand back any raw
+If the `jenkins_lens` MCP server is **unreachable**, do **not** guess a root cause from memory.
+Report that the CI failure **could not be diagnosed — jenkins_lens unavailable**, hand back any raw
 console output you already have, and escalate. No diagnosis ⇒ no verdict on whether the red is real.
 
 ## Constraints
 
-- DELEGATE here — never call `jenkins-lens` MCP tools directly from an agent body.
+- DELEGATE here — never call `jenkins_lens` MCP tools directly from an agent body.
 - **Read-only**: never trigger, retry, cancel, or otherwise mutate a Jenkins build or job.
 - This skill is **CI build-failure diagnosis only** — not the local compile (builder `execute`), not
   code review (`code-review-lens`).

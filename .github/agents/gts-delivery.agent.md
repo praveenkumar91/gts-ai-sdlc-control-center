@@ -106,7 +106,7 @@ Offer the **private-baseline trial** variant when useful. The command is for the
 
 After the human has delivered, the **Integration "dev" build** is `INT-<PROJECT>-<release>` on the
 **gtsci** instance (T7 → `INT-EUREX-<release>`, P7 → `INT-P7-<release>`). Use the **`build-failure-lens`
-skill** (never call `jenkins-lens` directly), `jenkins_instance="gtsci"` — see the **`gts-delivery`
+skill** (never call `jenkins_lens` directly), `jenkins_instance="gtsci"` — see the **`gts-delivery`
 skill §6**:
 
 1. **Find the dev build** — `job_status("INT-<PROJECT>-<release>")` / `list_jobs(...)` to list recent

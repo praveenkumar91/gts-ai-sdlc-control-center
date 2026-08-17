@@ -9,26 +9,29 @@ extends: skills/common/github
 
 **Extends: skills/common/github**
 
-Applies the common GitHub conventions (Conventional Commits, branch naming, PR template) with P7-specific layer scopes, Jira project key examples, and a layer impact table required in every P7 PR description.
+Applies the common GitHub conventions (the `{ticket} {Description}` commit format, branch naming, PR template) with P7-specific layer identification, Jira project-key examples, and a layer-impact table required in every P7 PR description.
 
 ---
 
-## P7 Commit Scope Conventions
+## P7 Commit Messages
 
-Use layer-specific scopes in all Conventional Commits on the P7 platform:
+P7 commits follow the common **`{ticket} {Description}`** format — no type prefix, no scope (see
+`common/github`). The P7 **layers** below are the vocabulary for the PR **Layer-Impact table** and for
+describing *what* changed in the body; they are **not** commit scopes.
 
-| Scope | Layer | Example |
-|-------|-------|---------|
-| `frontend` | React/TypeScript (`gts.p7.frontend/`) | `feat(frontend): add settlement pricing view` |
-| `middleware` | Node.js/Express (`middleware/`) | `fix(middleware): correct Socket.IO event name for volas push` |
-| `pe` | Pricing Engine C++ (`gts.p7.pricingengine/`) | `feat(pe): add theo price REST endpoint` |
-| `db` | Any database change | `fix(db): correct foreign key on positions table` |
-| `cmdb` | CMDB-specific changes (`gts.p7.common.controller-monitor.database/`) | `feat(cmdb): add divident adjustment column` |
-| `pedb` | PEDB-specific changes (`gts.p7.pricingengine/sql/`) | `feat(pedb): add volas snapshot table` |
+| Layer | Path |
+|-------|------|
+| Frontend | React/TypeScript (`gts.p7.frontend/`) |
+| Middleware | Node.js/Express (`middleware/`) |
+| Pricing Engine | C++ (`gts.p7.pricingengine/`) |
+| CMDB | `gts.p7.common.controller-monitor.database/` |
+| PEDB | `gts.p7.pricingengine/sql/` |
 
-**Multi-layer commits**: use the primary layer as scope; list all layers in the commit body:
+Examples: `P7-123 Add settlement pricing view` · `P7-456 Correct Socket.IO event name for volas push`.
+**Multi-layer change**: keep one `{ticket} {Description}` header and list the layers in the commit body
+and the PR Layer-Impact table:
 ```
-feat(frontend): add real-time volas grid
+P7-789 Add real-time volas grid
 
 Layers changed:
 - frontend: new VolasView component and Zustand slice
@@ -40,14 +43,14 @@ Layers changed:
 
 ## P7 Branch Naming
 
-Follow the common pattern `{jira-ticket}-{short-description}` using P7 Jira project keys:
+Follow the common `{TICKET}_{short_description}` pattern using P7 Jira project keys (words joined by `_`):
 
 | Jira Project | Layer Focus | Example Branch |
 |-------------|-------------|---------------|
-| `P7` | Any P7 feature/bug | `P7-123-add-divident-view` |
-| `P7` | Frontend-only | `P7-456-volas-grid-columns` |
-| `P7` | PE fix | `P7-789-theo-price-ws-push` |
-| `P7` | Database migration | `P7-321-pedb-snapshot-table` |
+| `P7` | Any P7 feature/bug | `P7-123_add_divident_view` |
+| `P7` | Frontend-only | `P7-456_volas_grid_columns` |
+| `P7` | PE fix | `P7-789_theo_price_ws_push` |
+| `P7` | Database migration | `P7-321_pedb_snapshot_table` |
 
 Branch names must use P7 terminology as-is: `divident` not `dividend`, `volas` not `volatilities`.
 

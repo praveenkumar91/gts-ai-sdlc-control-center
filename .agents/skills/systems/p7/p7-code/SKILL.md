@@ -398,20 +398,20 @@ When adding a new AG Grid view or page, complete all 12 steps:
 
 ---
 
-## Commit Scope Format
+## Commit Messages
 
-Use layer-specific scopes for Conventional Commits:
+Commits follow the common **`{ticket} {Description}`** format (see `common/github`) — no type, no scope.
+The P7 layer names below are the vocabulary for describing *what* changed (body / PR Layer-Impact table):
 
-| Scope | Layer |
+| Layer | Path |
 |-------|-------|
-| `feat(frontend):` | React/TypeScript changes |
-| `feat(middleware):` | Node.js/Express changes |
-| `feat(pe):` | Pricing Engine C++ changes |
-| `feat(db):` | Any database change |
-| `feat(cmdb):` | CMDB-specific schema/data changes |
-| `feat(pedb):` | PEDB-specific schema/data changes |
+| Frontend | React/TypeScript changes |
+| Middleware | Node.js/Express changes |
+| Pricing Engine | C++ changes |
+| CMDB | CMDB schema/data changes |
+| PEDB | PEDB schema/data changes |
 
-Multi-layer commits: use the primary changed layer as scope and list all layers in the commit body.
+Multi-layer change: one `{ticket} {Description}` header; list all layers in the commit body.
 
 ---
 

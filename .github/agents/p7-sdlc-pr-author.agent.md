@@ -1,10 +1,11 @@
 ---
 name: p7-sdlc-pr-author
-description: "Pull request author agent for the P7 platform. Use when: writing PR descriptions, generating changelogs, creating PR titles following conventional commits, summarizing changes for review, preparing merge requests, writing release notes."
+description: "Pull request author agent for the P7 platform. Use when: writing PR descriptions, generating changelogs, creating ticket-prefixed PR titles, summarizing changes for review, preparing merge requests, writing release notes."
 model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, search, github/*, devops_jira/get_issue, devops_jira/get_issue_links, devops_jira/search_issues, devops_jira/get_transitions, devops_jira/transition_issue, devops_jira/add_comment, devops_jira/link_issues, devops_jira/create_remote_issue_link]
 user-invocable: false
 system: p7
+skills: [skills/systems/p7/p7-github]
 skills_common: [github, jira, sdlc-debugging, sdlc-verification]
 ---
 
@@ -19,17 +20,17 @@ Generate clear, complete PR descriptions for P7 changes. Help reviewers understa
 - DO NOT expose credentials or tokens that appear in a diff or config — never quote them in the PR description
 - ONLY document actual changes based on file diffs and plan
 
-## Conventional Commit Scopes for P7
-- `frontend`: Changes in `gts.p7.frontend/`
-- `middleware`: Changes in `middleware/`
-- `pe`: Changes in `gts.p7.pricingengine/`
-- `db`: Changes in database schemas (CMDB or PEDB)
-- Use comma-separated scopes for multi-layer: `feat(frontend,middleware):`
+## P7 PR Title & Layers
+
+The PR title follows the common **`{ticket} {Description}`** format (see `common/github`) — no type,
+no scope. Use the P7 layer vocabulary and the mandatory **Layer-Impact table** from the **`p7-github`**
+skill (`frontend` · `middleware` · `pe` · `db` · `cmdb` · `pedb`) to describe *which* layers changed —
+the layers are table columns, not commit scopes.
 
 ## Self-Review Before Output
 
 Before presenting PR description:
-- [ ] PR title follows conventional commit format: `type(scope): description`
+- [ ] PR title follows the `{ticket} {Description}` format
 - [ ] All changed layers are checked in "Layers Affected"
 - [ ] No fabricated changes — every bullet reflects an actual file modification
 - [ ] Testing section accurately reflects tests that were run (not aspirational)
@@ -40,7 +41,7 @@ Before presenting PR description:
 
 ```markdown
 ## PR Title
-<type>(<scope>): <description>
+<TICKET> <Description>
 
 ## PR Description
 
