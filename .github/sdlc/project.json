@@ -1,0 +1,239 @@
+{
+  "schema_version": "1.0",
+  "project_id": "gts-ai-sdlc-control-center-template",
+  "adoption_complete": false,
+  "default_risk_tier": "critical",
+  "evidence_directory": ".github/sdlc/evidence",
+  "commands": [
+    {
+      "id": "control-plane",
+      "enabled": true,
+      "required": true,
+      "timeout_seconds": 120,
+      "args": [
+        "python",
+        ".github/scripts/validate_control_plane.py",
+        "--adoption"
+      ]
+    },
+    {
+      "id": "build",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_BUILD_EXECUTABLE",
+        "REPLACE_WITH_ARGUMENT"
+      ]
+    },
+    {
+      "id": "unit-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "integration-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1800,
+      "args": [
+        "REPLACE_WITH_INTEGRATION_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "contract-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1800,
+      "args": [
+        "REPLACE_WITH_CONTRACT_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "end-to-end-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_END_TO_END_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "static-analysis",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_STATIC_ANALYSIS_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "dependency-review",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_DEPENDENCY_REVIEW_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "security-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1800,
+      "args": [
+        "REPLACE_WITH_SECURITY_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "property-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1800,
+      "args": [
+        "REPLACE_WITH_PROPERTY_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "mutation-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_MUTATION_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "concurrency-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_CONCURRENCY_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "replay-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_REPLAY_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "migration-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_MIGRATION_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "performance-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_PERFORMANCE_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "resilience-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_RESILIENCE_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "rollback-tests",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_ROLLBACK_TEST_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "sbom",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_SBOM_EXECUTABLE"
+      ]
+    },
+    {
+      "id": "provenance",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1200,
+      "args": [
+        "REPLACE_WITH_PROVENANCE_EXECUTABLE"
+      ]
+    }
+  ],
+  "operations": {
+    "enabled": false,
+    "preproduction_environment": "preproduction",
+    "production_environment": "production",
+    "rollout_strategy": "canary",
+    "commands": [
+      {
+        "id": "preproduction-validation",
+        "enabled": false,
+        "timeout_seconds": 3600,
+        "args": [
+          "REPLACE_WITH_PREPRODUCTION_VALIDATION_EXECUTABLE"
+        ]
+      },
+      {
+        "id": "business-invariant-tests",
+        "enabled": false,
+        "timeout_seconds": 3600,
+        "args": [
+          "REPLACE_WITH_BUSINESS_INVARIANT_EXECUTABLE"
+        ]
+      },
+      {
+        "id": "deploy-canary",
+        "enabled": false,
+        "timeout_seconds": 1800,
+        "args": [
+          "REPLACE_WITH_CANARY_DEPLOY_EXECUTABLE"
+        ]
+      },
+      {
+        "id": "canary-health",
+        "enabled": false,
+        "timeout_seconds": 1800,
+        "args": [
+          "REPLACE_WITH_CANARY_HEALTH_EXECUTABLE"
+        ]
+      },
+      {
+        "id": "production-reconciliation",
+        "enabled": false,
+        "timeout_seconds": 3600,
+        "args": [
+          "REPLACE_WITH_RECONCILIATION_EXECUTABLE"
+        ]
+      },
+      {
+        "id": "rollback",
+        "enabled": false,
+        "timeout_seconds": 1800,
+        "args": [
+          "REPLACE_WITH_ROLLBACK_EXECUTABLE"
+        ]
+      }
+    ]
+  }
+}

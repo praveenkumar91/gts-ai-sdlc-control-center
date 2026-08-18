@@ -1,0 +1,4 @@
+interface:
+  display_name: "Coordinate PR Set"
+  short_description: "Prepare and verify linked multi-repository PRs"
+  default_prompt: "Use $coordinate-pr-set to prepare the linked draft PR set for this approved change."

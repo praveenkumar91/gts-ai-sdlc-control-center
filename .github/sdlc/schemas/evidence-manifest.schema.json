@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sdlc/evidence-manifest.schema.json",
+  "type": "object",
+  "required": [
+    "change_id",
+    "commit_sha",
+    "risk_tier",
+    "requirements",
+    "gates",
+    "independent_reviews",
+    "decision"
+  ],
+  "properties": {
+    "change_id": {
+      "type": "string"
+    },
+    "commit_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "risk_tier": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1
+    },
+    "independent_reviews": {
+      "type": "array",
+      "minItems": 1
+    },
+    "decision": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE"
+      ]
+    }
+  }
+}

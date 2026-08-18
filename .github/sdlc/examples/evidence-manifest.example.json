@@ -1,0 +1,58 @@
+{
+  "change_id": "CHG-12345",
+  "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "risk_tier": "low",
+  "requirements": [
+    {
+      "id": "DOC-100",
+      "status": "PASS",
+      "source_refs": [
+        "specification:1.2"
+      ],
+      "design_refs": [
+        "ADR-001"
+      ],
+      "code_refs": [
+        "README.md"
+      ],
+      "test_refs": [
+        "test_documentation"
+      ],
+      "result_refs": [
+        "quality-gates:unit-tests"
+      ]
+    }
+  ],
+  "gates": [
+    {
+      "id": "control-plane",
+      "status": "PASS",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "build",
+      "status": "PASS",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "unit-tests",
+      "status": "PASS",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "static-analysis",
+      "status": "PASS",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "reviewer": "reviewer-1",
+      "independent": true,
+      "status": "PASS",
+      "commit_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "open_findings": [],
+  "decision": "PASS"
+}

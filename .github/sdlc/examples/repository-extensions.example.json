@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "repository_id": "pricing-engine",
+  "quality_config": ".github/sdlc/project.json",
+  "instructions": [
+    {
+      "id": "pricing-rules",
+      "path": ".github/instructions/pricing.instructions.md",
+      "required": true,
+      "activate_when": {
+        "request_terms": [
+          "pricing",
+          "valuation"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "id": "validate-pricing-model",
+      "path": ".github/skills/validate-pricing-model/SKILL.md",
+      "required": true,
+      "activate_when": {
+        "modes": [
+          "implementation"
+        ],
+        "risk_tiers": [
+          "high",
+          "critical"
+        ]
+      }
+    }
+  ],
+  "agents": [
+    {
+      "id": "pricing-domain-reviewer",
+      "path": ".github/agents/pricing-domain-reviewer.agent.md",
+      "role": "independent-domain-review",
+      "required": true,
+      "activate_when": {
+        "risk_tiers": [
+          "critical"
+        ]
+      }
+    }
+  ]
+}

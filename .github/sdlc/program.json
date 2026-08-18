@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0",
+  "program_id": "gts-enterprise-sdlc",
+  "adoption_complete": false,
+  "workspace_root": ".github/sdlc/workspace/repositories",
+  "worktree_root": ".github/sdlc/workspace/worktrees",
+  "runs_directory": ".github/sdlc/program-runs",
+  "branch_prefix": "change/",
+  "maximum_parallel_repositories": 8,
+  "default_quality_configs": {
+    "contracts": ".github/sdlc/project.json",
+    "cpp": ".github/sdlc/project.json",
+    "python": ".github/sdlc/project.json",
+    "node": ".github/sdlc/project.json",
+    "typescript": ".github/sdlc/project.json",
+    "vite-typescript": ".github/sdlc/project.json",
+    "infrastructure": ".github/sdlc/project.json",
+    "custom": ".github/sdlc/project.json"
+  },
+  "agent_runtime_config": ".github/sdlc/agent-runtime.json",
+  "integration_quality_config": ".github/sdlc/integration-gates.json",
+  "controls": {
+    "human_plan_approval": true,
+    "human_pr_approval": true,
+    "human_production_approval": true,
+    "allow_agent_self_approval": false,
+    "maximum_remediation_cycles": 3
+  },
+  "repositories": [
+    {
+      "id": "example-contracts",
+      "enabled": false,
+      "system": "shared",
+      "url": "ssh://git@github.example.invalid/gts/contracts.git",
+      "local_path": "contracts",
+      "default_branch": "main",
+      "stack": "contracts",
+      "criticality": "critical",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": []
+    },
+    {
+      "id": "example-p7-pricing-engine",
+      "enabled": false,
+      "system": "p7",
+      "url": "ssh://git@github.example.invalid/gts/p7-pricing-engine.git",
+      "local_path": "p7-pricing-engine",
+      "default_branch": "main",
+      "stack": "cpp",
+      "criticality": "critical",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "example-contracts"
+      ]
+    },
+    {
+      "id": "example-p7-middleware",
+      "enabled": false,
+      "system": "p7",
+      "url": "ssh://git@github.example.invalid/gts/p7-middleware.git",
+      "local_path": "p7-middleware",
+      "default_branch": "main",
+      "stack": "node",
+      "criticality": "critical",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "example-p7-pricing-engine"
+      ]
+    },
+    {
+      "id": "example-p7-automation",
+      "enabled": false,
+      "system": "p7",
+      "url": "ssh://git@github.example.invalid/gts/p7-automation.git",
+      "local_path": "p7-automation",
+      "default_branch": "main",
+      "stack": "python",
+      "criticality": "high",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "example-p7-middleware"
+      ]
+    },
+    {
+      "id": "example-p7-frontend",
+      "enabled": false,
+      "system": "p7",
+      "url": "ssh://git@github.example.invalid/gts/p7-frontend.git",
+      "local_path": "p7-frontend",
+      "default_branch": "main",
+      "stack": "vite-typescript",
+      "criticality": "high",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "example-p7-middleware",
+        "example-p7-automation"
+      ]
+    },
+    {
+      "id": "example-t7-gateway",
+      "enabled": false,
+      "system": "t7",
+      "url": "ssh://git@github.example.invalid/gts/t7-gateway.git",
+      "local_path": "t7-gateway",
+      "default_branch": "main",
+      "stack": "cpp",
+      "criticality": "critical",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "example-contracts"
+      ]
+    }
+  ]
+}

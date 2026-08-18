@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "stack": "vite-typescript",
+  "markers": [
+    "package.json",
+    "vite.config.ts"
+  ],
+  "required_capabilities": [
+    "locked-dependencies",
+    "lint",
+    "type-check",
+    "unit-tests",
+    "component-tests",
+    "production-build",
+    "end-to-end-user-journeys",
+    "visual-regression",
+    "accessibility",
+    "keyboard-and-focus",
+    "responsive-viewports",
+    "chromium-firefox-webkit",
+    "performance-budget",
+    "rollback"
+  ],
+  "notes": "The approved UI contract and reference screenshots are evidence. New or changed baselines require human approval; the agent cannot update snapshots to make a failing test pass."
+}

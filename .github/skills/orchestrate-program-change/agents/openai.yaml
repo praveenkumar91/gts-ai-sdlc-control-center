@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrate Program Change"
+  short_description: "Coordinate evidence-gated multi-repository delivery"
+  default_prompt: "Use $orchestrate-program-change to plan and coordinate this change across affected repositories."

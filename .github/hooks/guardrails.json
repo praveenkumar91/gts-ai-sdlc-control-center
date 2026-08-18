@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "matcher": "bash|powershell|edit|create|apply_patch",
+        "bash": "python3 .github/scripts/guard_tool.py",
+        "powershell": "python .github/scripts/guard_tool.py",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 .github/scripts/audit_event.py",
+        "powershell": "python .github/scripts/audit_event.py",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "errorOccurred": [
+      {
+        "type": "command",
+        "bash": "python3 .github/scripts/audit_event.py",
+        "powershell": "python .github/scripts/audit_event.py",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "sessionEnd": [
+      {
+        "type": "command",
+        "bash": "python3 .github/scripts/audit_event.py",
+        "powershell": "python .github/scripts/audit_event.py",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ]
+  }
+}

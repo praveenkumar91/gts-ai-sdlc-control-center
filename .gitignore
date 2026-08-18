@@ -1,0 +1,11 @@
+.github/sdlc/runs/*
+!.github/sdlc/runs/.gitkeep
+.github/sdlc/evidence/*
+!.github/sdlc/evidence/.gitkeep
+.github/sdlc/program-runs/*
+!.github/sdlc/program-runs/.gitkeep
+.github/sdlc/workspace/
+.github/sdlc/expert-cache/
+__pycache__/
+*.pyc
+*.log

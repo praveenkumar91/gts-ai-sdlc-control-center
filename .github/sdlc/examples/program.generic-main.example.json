@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "program_id": "YOUR_PROGRAM_ID",
+  "adoption_complete": true,
+  "workspace_root": "/absolute/path/to/parent/of/local/clones",
+  "worktree_root": ".github/sdlc/workspace/worktrees",
+  "runs_directory": ".github/sdlc/program-runs",
+  "branch_prefix": "change/",
+  "maximum_parallel_repositories": 8,
+  "default_quality_configs": {
+    "python": ".github/sdlc/project.json",
+    "cpp": ".github/sdlc/project.json",
+    "contracts": ".github/sdlc/project.json",
+    "vite-typescript": ".github/sdlc/project.json"
+  },
+  "agent_runtime_config": ".github/sdlc/agent-runtime.json",
+  "integration_quality_config": ".github/sdlc/integration-gates.json",
+  "controls": {
+    "human_plan_approval": true,
+    "human_pr_approval": true,
+    "human_production_approval": true,
+    "allow_agent_self_approval": false,
+    "maximum_remediation_cycles": 3
+  },
+  "repositories": [
+    {
+      "id": "project-a",
+      "enabled": true,
+      "system": "p7",
+      "url": "https://github.example/organisation/project-a.git",
+      "local_path": "project-a",
+      "default_branch": "main",
+      "stack": "python",
+      "criticality": "critical",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": []
+    },
+    {
+      "id": "project-b",
+      "enabled": true,
+      "system": "t7",
+      "url": "https://github.example/organisation/project-b.git",
+      "local_path": "project-b",
+      "default_branch": "main",
+      "stack": "cpp",
+      "criticality": "high",
+      "extensions_config": ".github/sdlc/extensions.json",
+      "extensions_required": false,
+      "depends_on": [
+        "project-a"
+      ]
+    }
+  ]
+}

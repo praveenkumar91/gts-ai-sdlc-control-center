@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "template_id": "agent-chain-scorecard-v1",
+  "description": "Two-agent SDLC scorecard for control-plane orchestration and gts.ai.sdlc implementation quality.",
+  "weights": {
+    "control_plane": {
+      "stage_correctness": 10,
+      "evidence_completeness": 10,
+      "traceability_integrity": 10,
+      "drift_detection_handling": 10,
+      "failure_recovery_behavior": 10
+    },
+    "gts_ai_sdlc": {
+      "requirement_coverage": 10,
+      "code_correctness": 15,
+      "test_adequacy": 10,
+      "regression_safety": 10,
+      "change_hygiene": 5
+    }
+  },
+  "hard_gates": [
+    {
+      "id": "trace-link-present",
+      "description": "Jira, PR, commit vector and run artifacts are linked and present when state reaches PR gate."
+    },
+    {
+      "id": "no-hidden-blocker",
+      "description": "No FAIL/INCONCLUSIVE/BLOCKED_SPEC evidence is masked by a PASS/approved run state."
+    },
+    {
+      "id": "runtime-e2e-evidence",
+      "description": "When requirement obligations request ui-test or end-to-end evidence, closure must include matching runtime evidence."
+    }
+  ],
+  "pipeline_stages": [
+    "user_request",
+    "control_plane_orchestration",
+    "ingest_sources",
+    "plan_and_human_gate_1",
+    "prepare_workspaces",
+    "load_repository_extensions",
+    "gts_ai_sdlc_skills_agents",
+    "implement_verify_integrate",
+    "plan_closure_and_pr_set",
+    "human_gate_2_and_release_evidence"
+  ]
+}

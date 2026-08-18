@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "stack": "node",
+  "markers": [
+    "package.json"
+  ],
+  "required_capabilities": [
+    "locked-dependencies",
+    "format",
+    "lint",
+    "type-check",
+    "unit-tests",
+    "integration-tests",
+    "production-build",
+    "dependency-audit",
+    "sbom",
+    "performance",
+    "rollback"
+  ],
+  "notes": "Pin Node and the package manager; configure only scripts that exist and are mandatory for the repository."
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operate SDLC Run"
+  short_description: "Run the durable evidence-gated financial SDLC state machine"
+  default_prompt: "Operate this change through the durable SDLC engine, preserve evidence, and stop safely on ambiguity or failed gates."

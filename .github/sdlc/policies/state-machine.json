@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.0",
+  "initial_state": "INTAKE",
+  "terminal_states": [
+    "PRODUCTION_VALIDATED",
+    "ROLLED_BACK",
+    "BLOCKED_SPEC",
+    "FAIL",
+    "INCONCLUSIVE"
+  ],
+  "transitions": [
+    {
+      "from": "INTAKE",
+      "to": "KNOWLEDGE_READY",
+      "owner": "spec-ingestion",
+      "required_artifacts": [
+        "source-snapshot.json",
+        "context-pack.json",
+        "ingestion-diagnostics.json"
+      ]
+    },
+    {
+      "from": "KNOWLEDGE_READY",
+      "to": "REQUIREMENTS_READY",
+      "owner": "requirements-engineer",
+      "required_artifacts": [
+        "requirements.json",
+        "source-coverage.json",
+        "ambiguities.json"
+      ]
+    },
+    {
+      "from": "REQUIREMENTS_READY",
+      "to": "DESIGN_READY",
+      "owner": "solution-architect",
+      "required_artifacts": [
+        "design.json",
+        "threat-model.json",
+        "rollback-plan.json"
+      ]
+    },
+    {
+      "from": "DESIGN_READY",
+      "to": "IMPLEMENTED",
+      "owner": "implementation",
+      "required_artifacts": [
+        "implementation-summary.json",
+        "traceability.json"
+      ]
+    },
+    {
+      "from": "IMPLEMENTED",
+      "to": "VERIFIED",
+      "owner": "verification",
+      "required_artifacts": [
+        "verification-report.json",
+        "quality-gates.json"
+      ]
+    },
+    {
+      "from": "VERIFIED",
+      "to": "SECURITY_REVIEWED",
+      "owner": "security-reviewer",
+      "required_artifacts": [
+        "security-report.json",
+        "adversarial-review.json"
+      ]
+    },
+    {
+      "from": "SECURITY_REVIEWED",
+      "to": "RELEASE_READY",
+      "owner": "release-controller",
+      "required_artifacts": [
+        "evidence-manifest.json",
+        "release-decision.json"
+      ]
+    },
+    {
+      "from": "RELEASE_READY",
+      "to": "PRE_PROD_VALIDATED",
+      "owner": "verification",
+      "required_artifacts": [
+        "preproduction-report.json",
+        "migration-rehearsal.json",
+        "disaster-recovery-test.json"
+      ]
+    },
+    {
+      "from": "PRE_PROD_VALIDATED",
+      "to": "BUSINESS_VALIDATED",
+      "owner": "business-invariant-validator",
+      "required_artifacts": [
+        "business-invariant-report.json",
+        "reconciliation-baseline.json"
+      ]
+    },
+    {
+      "from": "BUSINESS_VALIDATED",
+      "to": "PRODUCTION_APPROVED",
+      "owner": "release-controller",
+      "required_artifacts": [
+        "human-approval-attestation.json",
+        "change-window.json"
+      ]
+    },
+    {
+      "from": "PRODUCTION_APPROVED",
+      "to": "PRODUCTION_DEPLOYED",
+      "owner": "deployment-controller",
+      "required_artifacts": [
+        "deployment-record.json",
+        "canary-observations.json"
+      ]
+    },
+    {
+      "from": "PRODUCTION_DEPLOYED",
+      "to": "PRODUCTION_VALIDATED",
+      "owner": "operations-validator",
+      "required_artifacts": [
+        "monitoring-report.json",
+        "reconciliation-report.json",
+        "rollback-decision.json"
+      ]
+    }
+  ],
+  "artifact_producers": {
+    "source-snapshot.json": "spec-ingestion",
+    "context-pack.json": "spec-ingestion",
+    "ingestion-diagnostics.json": "spec-ingestion",
+    "requirements.json": "requirements-engineer",
+    "source-coverage.json": "requirements-engineer",
+    "ambiguities.json": "requirements-engineer",
+    "design.json": "solution-architect",
+    "threat-model.json": "solution-architect",
+    "rollback-plan.json": "solution-architect",
+    "implementation-summary.json": "implementation",
+    "traceability.json": "implementation",
+    "verification-report.json": "verification",
+    "quality-gates.json": "verification",
+    "security-report.json": "security-reviewer",
+    "adversarial-review.json": "adversarial-reviewer",
+    "evidence-manifest.json": "release-controller",
+    "release-decision.json": "release-controller",
+    "preproduction-report.json": "verification",
+    "migration-rehearsal.json": "verification",
+    "disaster-recovery-test.json": "verification",
+    "business-invariant-report.json": "business-invariant-validator",
+    "reconciliation-baseline.json": "business-invariant-validator",
+    "human-approval-attestation.json": "external-human-approval",
+    "change-window.json": "release-controller",
+    "deployment-record.json": "deployment-controller",
+    "canary-observations.json": "deployment-controller",
+    "monitoring-report.json": "operations-validator",
+    "reconciliation-report.json": "operations-validator",
+    "rollback-decision.json": "operations-validator",
+    "rollback-execution.json": "deployment-controller"
+  },
+  "implementation_and_later_artifacts": [
+    "implementation-summary.json",
+    "traceability.json",
+    "verification-report.json",
+    "quality-gates.json",
+    "security-report.json",
+    "adversarial-review.json",
+    "evidence-manifest.json",
+    "release-decision.json",
+    "preproduction-report.json",
+    "migration-rehearsal.json",
+    "disaster-recovery-test.json",
+    "business-invariant-report.json",
+    "reconciliation-baseline.json",
+    "human-approval-attestation.json",
+    "change-window.json",
+    "deployment-record.json",
+    "canary-observations.json",
+    "monitoring-report.json",
+    "reconciliation-report.json",
+    "rollback-decision.json",
+    "rollback-execution.json"
+  ],
+  "rules": {
+    "missing_required_artifact": "INCONCLUSIVE",
+    "unresolved_normative_ambiguity": "BLOCKED_SPEC",
+    "failed_required_gate": "FAIL",
+    "stale_or_wrong_commit_evidence": "INCONCLUSIVE",
+    "maximum_remediation_cycles": 3
+  },
+  "termination_actors": {
+    "BLOCKED_SPEC": [
+      "spec-ingestion",
+      "requirements-engineer"
+    ],
+    "FAIL": [
+      "verification",
+      "security-reviewer",
+      "adversarial-reviewer",
+      "business-invariant-validator",
+      "deployment-controller",
+      "operations-validator",
+      "release-controller"
+    ],
+    "INCONCLUSIVE": [
+      "sdlc-orchestrator",
+      "spec-ingestion",
+      "requirements-engineer",
+      "solution-architect",
+      "implementation",
+      "verification",
+      "security-reviewer",
+      "adversarial-reviewer",
+      "release-controller",
+      "business-invariant-validator",
+      "deployment-controller",
+      "operations-validator"
+    ]
+  }
+}

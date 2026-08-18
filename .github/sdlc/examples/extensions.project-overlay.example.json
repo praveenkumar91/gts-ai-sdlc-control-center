@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "repository_id": "project-a",
+  "quality_config": ".github/sdlc/project.json",
+  "instructions": [
+    {
+      "id": "domain-rules",
+      "path": ".github/instructions/domain-rules.instructions.md",
+      "required": true,
+      "activate_when": {
+        "request_terms": [
+          "domain",
+          "pricing",
+          "settlement"
+        ]
+      }
+    }
+  ],
+  "skills": [
+    {
+      "id": "domain-validation",
+      "path": ".github/skills/domain-validation/SKILL.md",
+      "required": true,
+      "activate_when": {
+        "modes": [
+          "implementation",
+          "verification"
+        ],
+        "risk_tiers": [
+          "high",
+          "critical"
+        ]
+      }
+    }
+  ],
+  "agents": [
+    {
+      "id": "domain-reviewer",
+      "path": ".github/agents/domain-reviewer.agent.md",
+      "role": "independent-domain-review",
+      "required": false,
+      "activate_when": {
+        "risk_tiers": [
+          "critical"
+        ]
+      }
+    }
+  ]
+}

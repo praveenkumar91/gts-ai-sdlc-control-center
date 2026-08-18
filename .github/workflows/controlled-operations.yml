@@ -1,0 +1,129 @@
+name: Controlled SDLC Operation
+
+on:
+  workflow_dispatch:
+    inputs:
+      change_id:
+        description: Durable SDLC change ID
+        required: true
+        type: string
+      expected_commit:
+        description: Exact 40-character approved commit SHA
+        required: true
+        type: string
+      operation:
+        description: Pre-production, rollout, validation, or rollback operation
+        required: true
+        type: choice
+        options:
+          - preproduction-validation
+          - business-invariant-tests
+          - production-approval-evidence
+          - deploy-canary
+          - canary-health
+          - production-reconciliation
+          - rollback
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdlc-${{ inputs.change_id }}-${{ inputs.operation }}
+  cancel-in-progress: false
+
+jobs:
+  preproduction:
+    if: inputs.operation == 'preproduction-validation' || inputs.operation == 'business-invariant-tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: preproduction
+    steps:
+      - name: Checkout exact approved commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_commit }}
+          persist-credentials: false
+
+      - name: Execute configured operation without a shell
+        env:
+          SDLC_OPERATION: ${{ inputs.operation }}
+          SDLC_CHANGE_ID: ${{ inputs.change_id }}
+          SDLC_EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          python3 .github/scripts/run_operation.py \
+            --operation "$SDLC_OPERATION" \
+            --change-id "$SDLC_CHANGE_ID" \
+            --expected-commit "$SDLC_EXPECTED_COMMIT"
+
+      - name: Preserve operation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: sdlc-operation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .github/sdlc/evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
+  production:
+    if: inputs.operation != 'preproduction-validation' && inputs.operation != 'business-invariant-tests' && inputs.operation != 'production-approval-evidence'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production
+    steps:
+      - name: Checkout exact approved commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_commit }}
+          persist-credentials: false
+
+      - name: Execute configured operation without a shell
+        env:
+          SDLC_OPERATION: ${{ inputs.operation }}
+          SDLC_CHANGE_ID: ${{ inputs.change_id }}
+          SDLC_EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          python3 .github/scripts/run_operation.py \
+            --operation "$SDLC_OPERATION" \
+            --change-id "$SDLC_CHANGE_ID" \
+            --expected-commit "$SDLC_EXPECTED_COMMIT"
+
+      - name: Preserve operation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: sdlc-operation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .github/sdlc/evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90
+
+  production-approval:
+    if: inputs.operation == 'production-approval-evidence'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - name: Checkout exact commit awaiting approval
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.expected_commit }}
+          persist-credentials: false
+
+      - name: Emit protected-environment release evidence
+        env:
+          SDLC_CHANGE_ID: ${{ inputs.change_id }}
+          SDLC_EXPECTED_COMMIT: ${{ inputs.expected_commit }}
+        run: |
+          python3 .github/scripts/emit_approval_evidence.py \
+            --change-id "$SDLC_CHANGE_ID" \
+            --expected-commit "$SDLC_EXPECTED_COMMIT"
+
+      - name: Preserve approval evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: sdlc-approval-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .github/sdlc/evidence/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90

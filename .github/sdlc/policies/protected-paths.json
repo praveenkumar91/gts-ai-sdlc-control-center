@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "deny_agent_edits": [
+    ".github/CODEOWNERS",
+    ".github/hooks/",
+    ".github/sdlc/policies/",
+    ".github/workflows/",
+    ".git/",
+    "production/",
+    "secrets/"
+  ],
+  "deny_command_patterns": [
+    "(?i)git\\s+push\\s+.*--force",
+    "(?i)git\\s+reset\\s+--hard",
+    "(?i)git\\s+clean\\s+-[a-z]*f",
+    "(?i)(rm|rmdir|remove-item)\\s+.*(-rf|-recurse)",
+    "(?i)(kubectl|helm)\\s+.*\\b(prod|production)\\b",
+    "(?i)(terraform|tofu)\\s+(apply|destroy)\\b",
+    "(?i)(drop\\s+(table|database)|truncate\\s+table)\\b",
+    "(?i)(gh|git)\\s+.*(branch-protection|ruleset)"
+  ],
+  "deny_content_patterns": [
+    "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----",
+    "(?i)(api[_-]?key|client[_-]?secret|access[_-]?token)\\s*[:=]\\s*['\\\"][^'\\\"]{12,}",
+    "gh[pousr]_[A-Za-z0-9_]{20,}"
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "schema_version": "1.0",
+  "contracts": {
+    "preproduction-report.json": {
+      "required": [
+        "all_tests_passed",
+        "evidence_refs"
+      ],
+      "equals": {
+        "all_tests_passed": true
+      },
+      "non_empty": [
+        "evidence_refs"
+      ]
+    },
+    "migration-rehearsal.json": {
+      "required": [
+        "rehearsal_passed",
+        "rollback_tested"
+      ],
+      "equals": {
+        "rehearsal_passed": true,
+        "rollback_tested": true
+      }
+    },
+    "disaster-recovery-test.json": {
+      "required": [
+        "recovery_objectives_met",
+        "failover_and_restore_tested"
+      ],
+      "equals": {
+        "recovery_objectives_met": true,
+        "failover_and_restore_tested": true
+      }
+    },
+    "business-invariant-report.json": {
+      "required": [
+        "all_invariants_passed",
+        "requirement_ids",
+        "checks"
+      ],
+      "equals": {
+        "all_invariants_passed": true
+      },
+      "non_empty": [
+        "requirement_ids",
+        "checks"
+      ]
+    },
+    "reconciliation-baseline.json": {
+      "required": [
+        "baseline_id",
+        "captured_at",
+        "tolerances"
+      ],
+      "non_empty": [
+        "baseline_id",
+        "captured_at",
+        "tolerances"
+      ]
+    },
+    "human-approval-attestation.json": {
+      "required": [
+        "source",
+        "approval_id",
+        "approver",
+        "approved_at",
+        "environment",
+        "approved_commit",
+        "workflow_run_url"
+      ],
+      "equals": {
+        "source": "github-environment"
+      },
+      "non_empty": [
+        "approval_id",
+        "approver",
+        "approved_at"
+      ],
+      "matches_context": {
+        "environment": "production_environment",
+        "approved_commit": "target_commit"
+      },
+      "patterns": {
+        "workflow_run_url": "^https://github\\.com/[^/]+/[^/]+/actions/runs/[0-9]+(?:/attempts/[0-9]+)?$"
+      }
+    },
+    "change-window.json": {
+      "required": [
+        "window_id",
+        "starts_at",
+        "ends_at",
+        "runbook_url"
+      ],
+      "non_empty": [
+        "window_id",
+        "starts_at",
+        "ends_at",
+        "runbook_url"
+      ]
+    },
+    "deployment-record.json": {
+      "required": [
+        "deployed_commit",
+        "artifact_digest",
+        "environment",
+        "strategy",
+        "workflow_run_url"
+      ],
+      "matches_context": {
+        "deployed_commit": "target_commit",
+        "environment": "production_environment"
+      },
+      "patterns": {
+        "artifact_digest": "^[0-9a-f]{64}$",
+        "workflow_run_url": "^https://github\\.com/[^/]+/[^/]+/actions/runs/[0-9]+(?:/attempts/[0-9]+)?$"
+      },
+      "allowed": {
+        "strategy": [
+          "canary",
+          "blue-green"
+        ]
+      }
+    },
+    "canary-observations.json": {
+      "required": [
+        "guardrails_passed",
+        "observations"
+      ],
+      "equals": {
+        "guardrails_passed": true
+      },
+      "non_empty": [
+        "observations"
+      ]
+    },
+    "monitoring-report.json": {
+      "required": [
+        "guardrails_passed",
+        "signals"
+      ],
+      "equals": {
+        "guardrails_passed": true
+      },
+      "non_empty": [
+        "signals"
+      ]
+    },
+    "reconciliation-report.json": {
+      "required": [
+        "balanced",
+        "unexplained_breaks",
+        "records_checked"
+      ],
+      "equals": {
+        "balanced": true,
+        "unexplained_breaks": 0
+      },
+      "minimum": {
+        "records_checked": 1
+      }
+    },
+    "rollback-decision.json": {
+      "required": [
+        "action",
+        "reason"
+      ],
+      "allowed": {
+        "action": [
+          "KEEP"
+        ]
+      },
+      "non_empty": [
+        "reason"
+      ]
+    },
+    "rollback-execution.json": {
+      "required": [
+        "restored",
+        "reconciliation_passed",
+        "restored_version"
+      ],
+      "equals": {
+        "restored": true,
+        "reconciliation_passed": true
+      },
+      "non_empty": [
+        "restored_version"
+      ]
+    }
+  }
+}

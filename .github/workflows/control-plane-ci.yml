@@ -1,0 +1,102 @@
+name: GTS SDLC Control Centre CI
+
+on:
+  pull_request:
+    paths:
+      - ".agents/**"
+      - ".github/**"
+      - "docs/**"
+      - "CODEOWNERS"
+      - "LICENSE.md"
+      - "README.md"
+  push:
+    branches:
+      - main
+    paths:
+      - ".agents/**"
+      - ".github/**"
+      - "docs/**"
+      - "CODEOWNERS"
+      - "LICENSE.md"
+      - "README.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gts-sdlc-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout reviewed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Compile deterministic runtime
+        run: python3 -m compileall -q .github/scripts
+
+      - name: Validate integrated GTS control centre
+        run: python3 .github/scripts/validate_control_plane.py
+
+      - name: Validate program manifest
+        run: python3 .github/scripts/program_orchestrator.py validate
+
+      - name: Verify generated README
+        run: python3 .github/scripts/generate_readme.py --check
+
+  deterministic-tests:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        test-module:
+          - test_control_plane.py
+          - test_copilot_runtime.py
+          - test_sdlc_engine.py
+    steps:
+      - name: Checkout reviewed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Run ${{ matrix.test-module }}
+        run: >-
+          python3 -m unittest discover
+          -s .github/scripts/tests
+          -p "${{ matrix.test-module }}"
+          -v
+
+  git-integration-tests:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        test-module:
+          - test_program_orchestrator.py
+          - test_agent_supervisor.py
+    steps:
+      - name: Checkout reviewed commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Configure isolated Git identity
+        run: |
+          git config --global user.name "GTS SDLC CI"
+          git config --global user.email "gts-sdlc-ci@example.invalid"
+
+      - name: Run ${{ matrix.test-module }}
+        run: >-
+          python3 -m unittest discover
+          -s .github/scripts/tests
+          -p "${{ matrix.test-module }}"
+          -v

@@ -1,0 +1,212 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-28T22:50:15.379342+00:00",
+  "control_plane_revision": "e2fe7cb2f74dd87c25027c9e0314d9872ce9e2da",
+  "fixture_kind": "synthetic-local-git",
+  "repository_count": 10,
+  "scenario_count": 15,
+  "public_sources": [
+    {
+      "title": "T7 Release 13.0 system documentation",
+      "url": "https://www.eurex.com/ex-en/support/initiatives/t7-release13",
+      "used_for": "ETI, EOBI, market/reference data, GUI and traceability boundaries"
+    },
+    {
+      "title": "T7 system overview",
+      "url": "https://www.eurex.com/ex-en/support/technology/t7",
+      "used_for": "high-throughput trading-platform context"
+    },
+    {
+      "title": "Eurex Clearing risk",
+      "url": "https://www.eurex.com/ec-en/support/risk",
+      "used_for": "clearing-risk and intraday-margin context"
+    }
+  ],
+  "results": [
+    {
+      "scenario": "E01",
+      "change_type": "Full feature",
+      "repositories": "10/10",
+      "stages": "INTAKE -> plan gate -> build/test -> integration -> PR gate",
+      "expected": "PR_APPROVED with exact-SHA evidence for ten changed repositories",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "10 repository gate packets, integration vector and 10-PR approval set",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E02",
+      "change_type": "Bug fix",
+      "repositories": "1 changed / 8 validated",
+      "stages": "impact graph -> repository gates -> integration -> PR gate",
+      "expected": "PR_APPROVED; downstream consumers validated",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Dependency closure and single changed-repository PR",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E03",
+      "change_type": "Bug remediation loop",
+      "repositories": "margin-risk plus downstream UI/ops",
+      "stages": "FAIL -> remediation -> PASS -> integration -> PR gate",
+      "expected": "One bounded remediation cycle then PR_APPROVED",
+      "observed": "PR_APPROVED; cycles=1",
+      "status": "PASS",
+      "evidence": "Failed property gate retained before corrected exact-SHA evidence",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E04",
+      "change_type": "Adversarial evidence",
+      "repositories": "trade-capture",
+      "stages": "repository verification",
+      "expected": "Reject PASS envelope containing a failed required gate",
+      "observed": "unsafe input was accepted",
+      "status": "FAIL",
+      "evidence": "Top-level PASS with required idempotency-tests=FAIL",
+      "deficiency": "Repository PASS envelope could conceal failed gates",
+      "correction": "Validate repository ID and every required gate before accepting PASS"
+    },
+    {
+      "scenario": "E05",
+      "change_type": "Breaking-contract negative control",
+      "repositories": "10 validation repositories",
+      "stages": "cross-repository integration",
+      "expected": "Reject PASS envelope containing a failed integration gate",
+      "observed": "unsafe input was accepted",
+      "status": "FAIL",
+      "evidence": "Exact commit vector with consumer-contracts=FAIL",
+      "deficiency": "Integration PASS envelope could conceal a failed cross-repository gate",
+      "correction": "Require all cross-repository gates to report PASS"
+    },
+    {
+      "scenario": "E06",
+      "change_type": "Resilience bug",
+      "repositories": "market-data-publisher plus member-portal-ui",
+      "stages": "FAIL -> remediation -> recovery integration -> PR gate",
+      "expected": "Recovery and convergence evidence reaches PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Sequence-continuity and snapshot-replay-convergence gates",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E07",
+      "change_type": "Reconciliation negative control",
+      "repositories": "trade capture, clearing, margin, UI and operations",
+      "stages": "cross-repository integration",
+      "expected": "Reject INCONCLUSIVE reconciliation inside PASS envelope",
+      "observed": "unsafe input was accepted",
+      "status": "FAIL",
+      "evidence": "Exact commit vector with reconciliation=INCONCLUSIVE",
+      "deficiency": "Integration PASS envelope could conceal an inconclusive reconciliation",
+      "correction": "Require all cross-repository gates to report PASS"
+    },
+    {
+      "scenario": "E08",
+      "change_type": "GUI feature with missing design",
+      "repositories": "member-portal-ui",
+      "stages": "requirements/GUI evidence",
+      "expected": "BLOCKED_SPEC before implementation or snapshot invention",
+      "observed": "decision must be one of ['FAIL', 'INCONCLUSIVE', 'PASS']",
+      "status": "FAIL",
+      "evidence": "Prose requirement; no approved design or reference image",
+      "deficiency": "Program-level state machine did not support BLOCKED_SPEC",
+      "correction": "Add terminal BLOCKED_SPEC program decision/state"
+    },
+    {
+      "scenario": "E09",
+      "change_type": "Workspace safety",
+      "repositories": "pre-trade-risk checkout",
+      "stages": "workspace preparation",
+      "expected": "Dirty checkout blocks before execution",
+      "observed": "workspace inventory contains blockers: pre-trade-risk=DIRTY",
+      "status": "PASS",
+      "evidence": "Untracked file in managed clone",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E10",
+      "change_type": "Supply-chain/workspace safety",
+      "repositories": "trade-entry-gateway checkout",
+      "stages": "workspace preparation",
+      "expected": "Wrong Git remote blocks checkout use",
+      "observed": "workspace inventory contains blockers: trade-entry-gateway=REMOTE_MISMATCH",
+      "status": "PASS",
+      "evidence": "Origin URL differs from program manifest",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E11",
+      "change_type": "Repository governance",
+      "repositories": "clearing-adapter",
+      "stages": "extension resolution",
+      "expected": "Missing required local policy blocks execution",
+      "observed": "clearing-adapter: required extension manifest is missing: .github/sdlc/required-but-missing.json",
+      "status": "PASS",
+      "evidence": "extensions_required=true with absent manifest",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E12",
+      "change_type": "Extension supply-chain safety",
+      "repositories": "matching-engine",
+      "stages": "extension resolution",
+      "expected": "Path traversal is rejected",
+      "observed": "matching-engine: invalid repository extension manifest:\n- skills[0].path must be a safe relative path",
+      "status": "PASS",
+      "evidence": "Local skill path ../outside/SKILL.md",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E13",
+      "change_type": "Evidence freshness",
+      "repositories": "pre-trade-risk",
+      "stages": "repository evidence ingestion",
+      "expected": "Stale/wrong extension digest rejected",
+      "observed": "repository evidence is not bound to the selected extension packet",
+      "status": "PASS",
+      "evidence": "Expected digest 74ef22d74099...",
+      "deficiency": "",
+      "correction": ""
+    },
+    {
+      "scenario": "E14",
+      "change_type": "Scope-integrity negative control",
+      "repositories": "matching-engine (validation-only)",
+      "stages": "repository evidence -> PR planning",
+      "expected": "Reject changed validation-only repo; require replanning and new human approval",
+      "observed": "unsafe input was accepted",
+      "status": "FAIL",
+      "evidence": "base=53c10a9660e8..., HEAD changed",
+      "deficiency": "Changed validation-only repository could be omitted from the PR set",
+      "correction": "Reject unplanned implementation changes before accepting evidence"
+    },
+    {
+      "scenario": "E15",
+      "change_type": "PR integrity",
+      "repositories": "reconciliation-ops",
+      "stages": "PR set -> human gate 2",
+      "expected": "Reject stale PR head and requester self-approval",
+      "observed": "stale: PR head SHA does not match the tested commit vector; approval: approval must be independent from the change requester",
+      "status": "PASS",
+      "evidence": "Exact tested head and independent approval policy",
+      "deficiency": "",
+      "correction": ""
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "passed": 10,
+    "failed": 5
+  }
+}

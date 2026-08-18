@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sdlc/plan-review.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "change_id",
+    "gate",
+    "decision",
+    "reviewer",
+    "independent",
+    "review_type",
+    "reviewed_digest",
+    "findings",
+    "source_url"
+  ],
+  "properties": {
+    "change_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "gate": {
+      "const": "plan-review"
+    },
+    "decision": {
+      "enum": [
+        "PASS",
+        "CHANGES_REQUIRED"
+      ]
+    },
+    "reviewer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "independent": {
+      "const": true
+    },
+    "review_type": {
+      "enum": [
+        "requirements",
+        "architecture",
+        "testing",
+        "security",
+        "adversarial"
+      ]
+    },
+    "reviewed_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_url": {
+      "type": "string",
+      "pattern": "^https://"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "CHANGES_REQUIRED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

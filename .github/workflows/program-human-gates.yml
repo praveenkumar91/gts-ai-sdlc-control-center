@@ -1,0 +1,103 @@
+name: Program Human Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      gate:
+        description: Human gate to evaluate
+        required: true
+        type: choice
+        options:
+          - plan-approval
+          - pr-approval
+      change_id:
+        description: Stable program change ID
+        required: true
+        type: string
+      reviewed_digest:
+        description: Exact plan or PR-set digest being approved
+        required: true
+        type: string
+      reviewed_artifact_url:
+        description: Immutable plan or PR-set evidence URL reviewed by the human
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: program-gate-${{ inputs.gate }}-${{ inputs.change_id }}
+  cancel-in-progress: false
+
+jobs:
+  plan-approval:
+    if: inputs.gate == 'plan-approval'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: sdlc-plan-approval
+    steps:
+      - name: Checkout reviewed control-plane commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Emit verified environment approval evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CHANGE_ID: ${{ inputs.change_id }}
+          REVIEWED_DIGEST: ${{ inputs.reviewed_digest }}
+          REVIEWED_ARTIFACT_URL: ${{ inputs.reviewed_artifact_url }}
+        run: >-
+          python3 .github/scripts/emit_program_approval.py
+          --change-id "$CHANGE_ID"
+          --gate plan-approval
+          --reviewed-digest "$REVIEWED_DIGEST"
+          --reviewed-artifact-url "$REVIEWED_ARTIFACT_URL"
+          --environment sdlc-plan-approval
+          --output plan-approval.json
+
+      - name: Upload approval evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: plan-approval-${{ inputs.change_id }}
+          path: plan-approval.json
+          if-no-files-found: error
+          retention-days: 90
+
+  pr-approval:
+    if: inputs.gate == 'pr-approval'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: sdlc-pr-approval
+    steps:
+      - name: Checkout reviewed control-plane commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Emit verified environment approval evidence
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CHANGE_ID: ${{ inputs.change_id }}
+          REVIEWED_DIGEST: ${{ inputs.reviewed_digest }}
+          REVIEWED_ARTIFACT_URL: ${{ inputs.reviewed_artifact_url }}
+        run: >-
+          python3 .github/scripts/emit_program_approval.py
+          --change-id "$CHANGE_ID"
+          --gate pr-approval
+          --reviewed-digest "$REVIEWED_DIGEST"
+          --reviewed-artifact-url "$REVIEWED_ARTIFACT_URL"
+          --environment sdlc-pr-approval
+          --output pr-gate-approval.json
+
+      - name: Upload approval evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: pr-gate-approval-${{ inputs.change_id }}
+          path: pr-gate-approval.json
+          if-no-files-found: error
+          retention-days: 90

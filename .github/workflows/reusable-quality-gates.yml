@@ -1,0 +1,49 @@
+name: Reusable SDLC Quality Gates
+
+on:
+  workflow_call:
+    inputs:
+      change_id:
+        description: Stable change identifier used for evidence output
+        required: true
+        type: string
+    outputs:
+      evidence-name:
+        description: Uploaded evidence artifact name
+        value: ${{ jobs.quality.outputs.evidence-name }}
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      evidence-name: ${{ steps.name.outputs.value }}
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Run configured fail-closed gates
+        run: >-
+          python3 .github/scripts/run_quality_gates.py
+          --config .github/sdlc/project.json
+          --change-id "${{ inputs.change_id }}"
+
+      - name: Define evidence artifact
+        id: name
+        shell: bash
+        run: echo "value=sdlc-evidence-${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: sdlc-evidence-${{ github.sha }}
+          path: .github/sdlc/evidence/${{ inputs.change_id }}/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 90

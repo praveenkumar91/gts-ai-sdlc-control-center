@@ -1,0 +1,83 @@
+{
+  "change_id": "CHG-12345",
+  "source_set_digest": "sha256:37722405eebc7883a2c52aca389705fcc77a1fcd0257948b45d56ca90b6ee1cf",
+  "source_set": [
+    {
+      "source_id": "dfs-order-api",
+      "version": "4.7",
+      "content_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "locator": "https://github.example/specs/dfs-order-api/4.7"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "ORD-142",
+      "statement": "A rejected order preserves the originating correlation identifier in the response and audit event.",
+      "type": "functional",
+      "criticality": "high",
+      "sources": [
+        {
+          "source_id": "dfs-order-api",
+          "version": "4.7",
+          "section": "8.4.2"
+        }
+      ],
+      "repositories": [
+        "risk-api"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ORD-142-AC-001",
+          "statement": "The rejection response contains the originating correlation identifier."
+        },
+        {
+          "id": "ORD-142-AC-002",
+          "statement": "The audit event contains the same correlation identifier."
+        },
+        {
+          "id": "ORD-142-AC-003",
+          "statement": "Retrying the request does not create an order."
+        }
+      ],
+      "invariants": [
+        "A rejected order never changes a position."
+      ],
+      "required_evidence": [
+        "contract-test",
+        "integration-test",
+        "audit-test"
+      ],
+      "verification": [
+        {
+          "scope": "repository",
+          "repository": "risk-api",
+          "gate_ids": [
+            "unit-tests",
+            "audit-tests"
+          ],
+          "acceptance_criteria_ids": [
+            "ORD-142-AC-002",
+            "ORD-142-AC-003"
+          ],
+          "evidence_types": [
+            "audit-test"
+          ]
+        },
+        {
+          "scope": "integration",
+          "gate_ids": [
+            "contract-compatibility",
+            "end-to-end-trade-lifecycle"
+          ],
+          "acceptance_criteria_ids": [
+            "ORD-142-AC-001"
+          ],
+          "evidence_types": [
+            "contract-test",
+            "integration-test"
+          ]
+        }
+      ]
+    }
+  ]
+}

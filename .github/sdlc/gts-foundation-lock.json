@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "foundation": "gts.ai.sdlc",
+  "source_repository": "https://github.com/praveenkumar91/sdlc.git",
+  "source_commit": "6738c21391419b20bb7fc99fe755bbf9cc042b80",
+  "source_archive": "sdlc-master.zip",
+  "source_archive_sha256": "56b8e63fe71d603445548cfd3b496468b70c8b5054197fd1d29c0f7adcf1dbe3",
+  "archive_root": "gts.ai.sdlc-master",
+  "imported_at": "2026-08-18",
+  "classification": "DBAG internal use"
+}

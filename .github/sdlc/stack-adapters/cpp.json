@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "stack": "cpp",
+  "markers": [
+    "CMakeLists.txt"
+  ],
+  "required_capabilities": [
+    "configure",
+    "compile",
+    "unit-tests",
+    "integration-tests",
+    "static-analysis",
+    "compiler-warnings-as-errors",
+    "address-sanitizer",
+    "undefined-behavior-sanitizer",
+    "thread-sanitizer",
+    "abi-compatibility",
+    "dependency-inventory",
+    "performance",
+    "rollback"
+  ],
+  "notes": "Configure exact compiler, CMake preset, platform matrix, ABI policy and test commands in the repository quality config."
+}

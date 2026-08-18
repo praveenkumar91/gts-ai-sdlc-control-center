@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "stack": "contracts",
+  "markers": [
+    "openapi.yaml",
+    "openapi.json",
+    "buf.yaml",
+    "schema"
+  ],
+  "required_capabilities": [
+    "format-and-lint",
+    "schema-validation",
+    "backward-compatibility",
+    "consumer-contract-tests",
+    "breaking-change-detection",
+    "generated-code-consistency",
+    "migration-and-rollback"
+  ],
+  "notes": "Configure commands for the actual contract technology. Breaking changes require an approved migration, compatibility window and consumer rollout order."
+}

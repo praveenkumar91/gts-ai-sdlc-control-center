@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sdlc/intake-assessment.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "change_id",
+    "decision",
+    "assessor",
+    "source_facts",
+    "open_questions",
+    "inaccessible_sources",
+    "unverified_assumptions",
+    "user_answers",
+    "evidence_refs"
+  ],
+  "properties": {
+    "change_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "decision": {
+      "enum": [
+        "READY",
+        "NEEDS_CLARIFICATION"
+      ]
+    },
+    "assessor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "fact",
+          "citation"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fact": {
+            "type": "string",
+            "minLength": 1
+          },
+          "citation": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "inaccessible_sources": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "unverified_assumptions": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "evidence_refs": {
+      "$ref": "#/$defs/stringArray"
+    },
+    "user_answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "question",
+          "answer",
+          "answered_by"
+        ],
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "answer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "answered_by": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

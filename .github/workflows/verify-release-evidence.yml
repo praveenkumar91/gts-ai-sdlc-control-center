@@ -1,0 +1,33 @@
+name: Verify Release Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: Repository-relative evidence manifest path
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      manifest:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Validate release evidence
+        run: >-
+          python3 .github/scripts/validate_evidence.py
+          "${{ inputs.manifest }}"
+          --expected-commit "${{ github.sha }}"

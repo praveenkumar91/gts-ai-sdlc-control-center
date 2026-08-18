@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sdlc/repository-extension.schema.json",
+  "title": "Managed repository SDLC extension manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "repository_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{1,62}$"
+    },
+    "quality_config": {
+      "type": "string",
+      "minLength": 1
+    },
+    "instructions": {
+      "$ref": "#/$defs/extensions"
+    },
+    "skills": {
+      "$ref": "#/$defs/extensions"
+    },
+    "agents": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/extension"
+          },
+          {
+            "type": "object",
+            "required": [
+              "role"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "extensions": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/extension"
+      }
+    },
+    "extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "path"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{1,62}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "activate_when": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "modes": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "implementation",
+                  "validation"
+                ]
+              }
+            },
+            "risk_tiers": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "low",
+                  "medium",
+                  "high",
+                  "critical"
+                ]
+              }
+            },
+            "request_terms": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

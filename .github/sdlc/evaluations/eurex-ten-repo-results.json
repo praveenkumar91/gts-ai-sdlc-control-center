@@ -1,0 +1,399 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-05T21:20:16.192129+00:00",
+  "control_plane_revision": "b46fc41a57017ff5deba05fefbde4f603294370d",
+  "evaluated_control_sha256": "4224e42ec21e9bcb67c9a222b2035861f7df715350a476561bc9f810a268e007",
+  "evaluation_harness_sha256": "a3cf722c6aedf519c414cfb0ccae0987129a5860444de9eea105eb68b380839f",
+  "fixture_kind": "synthetic-local-git",
+  "repository_count": 10,
+  "scenario_count": 25,
+  "public_sources": [
+    {
+      "title": "T7 Release 13.0 system documentation",
+      "url": "https://www.eurex.com/ex-en/support/initiatives/t7-release13",
+      "used_for": "ETI, EOBI, market/reference data, GUI and traceability boundaries"
+    },
+    {
+      "title": "T7 system overview",
+      "url": "https://www.eurex.com/ex-en/support/technology/t7",
+      "used_for": "high-throughput trading-platform context"
+    },
+    {
+      "title": "Eurex Clearing risk",
+      "url": "https://www.eurex.com/ec-en/support/risk",
+      "used_for": "clearing-risk and intraday-margin context"
+    },
+    {
+      "title": "T7 Release 14.1 ETI manual",
+      "url": "https://www.eurex.com/resource/blob/5032534/b34946612a479b4b9018590fc584a49a/data/T7_R.14.1_Enhanced_Trading_Interface_-_Manual_Version_2.pdf",
+      "used_for": "session heartbeat, recovery and retransmission behavior"
+    },
+    {
+      "title": "T7 Release 14.1 market and reference data manual",
+      "url": "https://www.eurex.com/resource/blob/5055560/c138bd262600e59a7c1018112fdeb252/data/T7_R.14.1_%20EMDI_MDI_RDI_Manual_Version_2.pdf",
+      "used_for": "snapshot recovery, sequence handling and RDI/RDF cutover"
+    },
+    {
+      "title": "T7 Release 14.1 EDCI manual",
+      "url": "https://www.eurex.com/resource/blob/4978238/9b1a5723d93fd8bb2a4d319eaaf1a9e6/data/T7_R.14.1_Enhanced_Drop_Copy_Interface_-_Manual_Version_1.pdf",
+      "used_for": "lean-order coverage and absence of historical catch-up"
+    },
+    {
+      "title": "T7 Release 14.1 functional reference",
+      "url": "https://www.eurex.com/resource/blob/5000130/73b31cf8fa62eeb7d9f0421d5ed07ea9/data/T7_Release_14.1_-_Functional_Reference_Version_1.pdf",
+      "used_for": "self-match prevention and synthetic matching constraints"
+    },
+    {
+      "title": "T7 Release 14.1 production-start circular",
+      "url": "https://www.eurex.com/ex-en/find/circulars/circular-5098798",
+      "used_for": "interface migration, key rotation and reference-data restart"
+    },
+    {
+      "title": "T7 matcher and gateway failover guidance",
+      "url": "https://www.eurex.com/ex-en/find/circulars/Eurex-Readiness-Newsflash-Incident-Handling-Matching-Engine-and-Gateway-Failover-Failure--5005792",
+      "used_for": "market reset and persistent versus non-persistent recovery"
+    },
+    {
+      "title": "T7 Disaster Recovery Concept 2026",
+      "url": "https://www.eurex.com/resource/blob/5112638/81542953c69a9f450c08ba44cd0b2c0a/data/T7_Disaster_Recovery_Concept_2026_v_1.1.pdf",
+      "used_for": "DR endpoint changes, stream availability and isolation"
+    },
+    {
+      "title": "T7 derivatives participant and user maintenance manual",
+      "url": "https://www.eurex.com/resource/blob/5000084/9af4d0c2c09a4de82607115b1f146889/data/T7_R.14.1_Derivatives_Market_-_Participant_and_User_Maintenance_Manual_Version_1.pdf",
+      "used_for": "entitlements, transaction limits and re-login semantics"
+    }
+  ],
+  "results": [
+    {
+      "scenario": "E01",
+      "change_type": "Full feature",
+      "repositories": "10/10",
+      "stages": "INTAKE -> plan gate -> build/test -> integration -> plan closure -> PR gate",
+      "expected": "PR_APPROVED with exact-SHA evidence for ten changed repositories",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "10 unmodified runner-generated gate packets, integration vector, plan closure and 10-PR approval set",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E02",
+      "change_type": "Bug fix",
+      "repositories": "1 changed / 8 validated",
+      "stages": "impact graph -> repository gates -> integration -> PR gate",
+      "expected": "PR_APPROVED; downstream consumers validated",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Dependency closure and single changed-repository PR",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E03",
+      "change_type": "Bug remediation loop",
+      "repositories": "margin-risk plus downstream UI/ops",
+      "stages": "FAIL -> remediation -> PASS -> integration -> PR gate",
+      "expected": "One bounded remediation cycle then PR_APPROVED",
+      "observed": "PR_APPROVED; cycles=1",
+      "status": "PASS",
+      "evidence": "Failed property gate retained before corrected exact-SHA evidence",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E04",
+      "change_type": "Adversarial evidence",
+      "repositories": "trade-capture",
+      "stages": "repository verification",
+      "expected": "Reject PASS envelope containing a failed required gate",
+      "observed": "required repository gate did not PASS: idempotency-tests='FAIL'",
+      "status": "PASS",
+      "evidence": "Top-level PASS with required idempotency-tests=FAIL",
+      "deficiency": "",
+      "correction": "Validate repository ID and every required gate before accepting PASS",
+      "specification": ""
+    },
+    {
+      "scenario": "E05",
+      "change_type": "Breaking-contract negative control",
+      "repositories": "10 validation repositories",
+      "stages": "cross-repository integration",
+      "expected": "Reject PASS envelope containing a failed integration gate",
+      "observed": "required cross-repository gate did not PASS: consumer-contracts='FAIL'",
+      "status": "PASS",
+      "evidence": "Exact commit vector with consumer-contracts=FAIL",
+      "deficiency": "",
+      "correction": "Require all cross-repository gates to report PASS",
+      "specification": ""
+    },
+    {
+      "scenario": "E06",
+      "change_type": "Resilience bug",
+      "repositories": "market-data-publisher plus member-portal-ui",
+      "stages": "FAIL -> remediation -> recovery integration -> PR gate",
+      "expected": "Recovery and convergence evidence reaches PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Sequence-continuity and snapshot-replay-convergence gates",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E07",
+      "change_type": "Reconciliation negative control",
+      "repositories": "trade capture, clearing, margin, UI and operations",
+      "stages": "cross-repository integration",
+      "expected": "Reject INCONCLUSIVE reconciliation inside PASS envelope",
+      "observed": "required cross-repository gate did not PASS: trade-clearing-reconciliation='INCONCLUSIVE'",
+      "status": "PASS",
+      "evidence": "Exact commit vector with reconciliation=INCONCLUSIVE",
+      "deficiency": "",
+      "correction": "Require all cross-repository gates to report PASS",
+      "specification": ""
+    },
+    {
+      "scenario": "E08",
+      "change_type": "GUI feature with missing design",
+      "repositories": "member-portal-ui",
+      "stages": "requirements/GUI evidence",
+      "expected": "BLOCKED_SPEC before implementation or snapshot invention",
+      "observed": "BLOCKED_SPEC",
+      "status": "PASS",
+      "evidence": "Prose requirement; no approved design or reference image",
+      "deficiency": "",
+      "correction": "Add terminal BLOCKED_SPEC program decision/state",
+      "specification": ""
+    },
+    {
+      "scenario": "E09",
+      "change_type": "Workspace safety",
+      "repositories": "pre-trade-risk checkout",
+      "stages": "workspace preparation",
+      "expected": "Dirty checkout blocks before execution",
+      "observed": "workspace inventory contains blockers: pre-trade-risk=DIRTY",
+      "status": "PASS",
+      "evidence": "Untracked file in managed clone",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E10",
+      "change_type": "Supply-chain/workspace safety",
+      "repositories": "trade-entry-gateway checkout",
+      "stages": "workspace preparation",
+      "expected": "Wrong Git remote blocks checkout use",
+      "observed": "workspace inventory contains blockers: trade-entry-gateway=REMOTE_MISMATCH",
+      "status": "PASS",
+      "evidence": "Origin URL differs from program manifest",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E11",
+      "change_type": "Repository governance",
+      "repositories": "clearing-adapter",
+      "stages": "extension resolution",
+      "expected": "Missing required local policy blocks execution",
+      "observed": "clearing-adapter: required extension manifest is missing: .github/sdlc/required-but-missing.json",
+      "status": "PASS",
+      "evidence": "extensions_required=true with absent manifest",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E12",
+      "change_type": "Extension supply-chain safety",
+      "repositories": "matching-engine",
+      "stages": "extension resolution",
+      "expected": "Path traversal is rejected",
+      "observed": "matching-engine: invalid repository extension manifest:\n- skills[0].path must be a safe relative path",
+      "status": "PASS",
+      "evidence": "Local skill path ../outside/SKILL.md",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E13",
+      "change_type": "Evidence freshness",
+      "repositories": "pre-trade-risk",
+      "stages": "repository evidence ingestion",
+      "expected": "Stale/wrong extension digest rejected",
+      "observed": "repository evidence is not bound to the selected extension packet",
+      "status": "PASS",
+      "evidence": "Expected digest 830abb765ffb...",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E14",
+      "change_type": "Scope-integrity negative control",
+      "repositories": "matching-engine (validation-only)",
+      "stages": "repository evidence -> PR planning",
+      "expected": "Reject changed validation-only repo; require replanning and new human approval",
+      "observed": "matching-engine: unplanned implementation change in a validation-only repository; prepare a new plan and obtain new human approval",
+      "status": "PASS",
+      "evidence": "base=f69a539ebe3c..., HEAD changed",
+      "deficiency": "",
+      "correction": "Reject unplanned implementation changes before accepting evidence",
+      "specification": ""
+    },
+    {
+      "scenario": "E15",
+      "change_type": "PR integrity",
+      "repositories": "reconciliation-ops",
+      "stages": "PR set -> human gate 2",
+      "expected": "Reject stale PR head and requester self-approval",
+      "observed": "stale: PR head SHA does not match the tested commit vector; approval: approval must be independent from the change requester",
+      "status": "PASS",
+      "evidence": "Exact tested head and independent approval policy",
+      "deficiency": "",
+      "correction": "",
+      "specification": ""
+    },
+    {
+      "scenario": "E16",
+      "change_type": "ETI session resilience",
+      "repositories": "trade-entry gateway and downstream lifecycle",
+      "stages": "FAIL -> remediation -> reconnect/retransmission -> PR gate",
+      "expected": "Missed-heartbeat recovery reaches PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Heartbeat watchdog, disconnect, reconnect and recovery gates",
+      "deficiency": "",
+      "correction": "",
+      "specification": "[ETI 14.1 sections 6.4 and 6.10](https://www.eurex.com/resource/blob/5032534/b34946612a479b4b9018590fc584a49a/data/T7_R.14.1_Enhanced_Trading_Interface_-_Manual_Version_2.pdf)"
+    },
+    {
+      "scenario": "E17",
+      "change_type": "Adversarial integration evidence",
+      "repositories": "ETI gateway plus downstream consumers",
+      "stages": "cross-repository evidence ingestion",
+      "expected": "Reject integration evidence not bound to the persisted commit-vector digest",
+      "observed": "integration evidence commit-vector digest is missing or stale",
+      "status": "PASS",
+      "evidence": "Exact SHAs were present but the immutable vector artifact digest was omitted",
+      "deficiency": "",
+      "correction": "Require the exact commit_vector_digest in integration evidence and gates",
+      "specification": "[ETI retransmission ranges](https://www.eurex.com/resource/blob/5032534/b34946612a479b4b9018590fc584a49a/data/T7_R.14.1_Enhanced_Trading_Interface_-_Manual_Version_2.pdf)"
+    },
+    {
+      "scenario": "E18",
+      "change_type": "Market-data recovery",
+      "repositories": "market-data publisher and member UI",
+      "stages": "sequence gap -> snapshot recovery -> integration -> PR gate",
+      "expected": "Recovered order book converges and reaches PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Snapshot completeness, sender change and stale-message gates",
+      "deficiency": "",
+      "correction": "",
+      "specification": "[Market and Reference Data Manual section 7.4.2](https://www.eurex.com/resource/blob/5055560/c138bd262600e59a7c1018112fdeb252/data/T7_R.14.1_%20EMDI_MDI_RDI_Manual_Version_2.pdf)"
+    },
+    {
+      "scenario": "E19",
+      "change_type": "Post-acceptance evidence tampering",
+      "repositories": "reference contracts within the 10-repository vector",
+      "stages": "durable-run verification",
+      "expected": "Verify detects changed repository evidence after it was accepted",
+      "observed": "product-reference-contracts: repository evidence digest mismatch",
+      "status": "PASS",
+      "evidence": "Accepted gate result was changed from PASS to FAIL on disk",
+      "deficiency": "",
+      "correction": "Persist evidence paths and verify every stored evidence digest",
+      "specification": "[Reference-data start-up and intraday files](https://www.eurex.com/resource/blob/5055560/c138bd262600e59a7c1018112fdeb252/data/T7_R.14.1_%20EMDI_MDI_RDI_Manual_Version_2.pdf)"
+    },
+    {
+      "scenario": "E20",
+      "change_type": "Release migration traceability",
+      "repositories": "contracts, ETI gateway and all market-data consumers",
+      "stages": "cross-repository evidence ingestion",
+      "expected": "Reject a migration PASS gate without requirement IDs and source references",
+      "observed": "cross-repository gate traceability requires non-empty requirement_ids and source_refs",
+      "status": "PASS",
+      "evidence": "Gate had exact commit-vector binding but no normative source linkage",
+      "deficiency": "",
+      "correction": "Require requirement_ids and source_refs on every integration gate",
+      "specification": "[T7 14.1 production-start requirements](https://www.eurex.com/ex-en/find/circulars/circular-5098798)"
+    },
+    {
+      "scenario": "E21",
+      "change_type": "Unresolved EDCI completeness requirement",
+      "repositories": "trade capture and reconciliation operations",
+      "stages": "repository decision ingestion",
+      "expected": "Reject BLOCKED_SPEC evidence that does not explain the normative blocker",
+      "observed": "BLOCKED_SPEC repository evidence requires a non-empty reason",
+      "status": "PASS",
+      "evidence": "EDCI includes lean orders but provides no history from before connection",
+      "deficiency": "",
+      "correction": "Require a non-empty reason for BLOCKED_SPEC",
+      "specification": "[EDCI 14.1 purpose and history boundary](https://www.eurex.com/resource/blob/4978238/9b1a5723d93fd8bb2a4d319eaaf1a9e6/data/T7_R.14.1_Enhanced_Drop_Copy_Interface_-_Manual_Version_1.pdf)"
+    },
+    {
+      "scenario": "E22",
+      "change_type": "Matching/risk feature",
+      "repositories": "matching engine, pre-trade risk and downstream lifecycle",
+      "stages": "implementation -> business invariants -> integration -> PR gate",
+      "expected": "SMP boundary and synthetic exception reach PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Same-owner, auction and synthetic cross-instrument behavior",
+      "deficiency": "",
+      "correction": "",
+      "specification": "[Functional Reference section 7.6](https://www.eurex.com/resource/blob/5000130/73b31cf8fa62eeb7d9f0421d5ed07ea9/data/T7_Release_14.1_-_Functional_Reference_Version_1.pdf)"
+    },
+    {
+      "scenario": "E23",
+      "change_type": "Matcher/gateway failover",
+      "repositories": "gateway, matcher and all downstream trade consumers",
+      "stages": "failure -> bounded remediation -> recovery integration -> PR gate",
+      "expected": "Market Reset semantics reach PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "Persistent restore, transient purge and ordered reconnect gates",
+      "deficiency": "",
+      "correction": "",
+      "specification": "[Eurex matcher/gateway failover guidance](https://www.eurex.com/ex-en/find/circulars/Eurex-Readiness-Newsflash-Incident-Handling-Matching-Engine-and-Gateway-Failover-Failure--5005792)"
+    },
+    {
+      "scenario": "E24",
+      "change_type": "Disaster recovery",
+      "repositories": "gateway, market data, operations and affected consumers",
+      "stages": "DR topology -> isolation -> reconnect -> PR gate",
+      "expected": "DR single-stream and environment-fencing flow reaches PR_APPROVED",
+      "observed": "PR_APPROVED",
+      "status": "PASS",
+      "evidence": "DR endpoints, absent EOBI Stream B, data fence and reconnect gates",
+      "deficiency": "",
+      "correction": "",
+      "specification": "[T7 Disaster Recovery Concept 2026](https://www.eurex.com/resource/blob/5112638/81542953c69a9f450c08ba44cd0b2c0a/data/T7_Disaster_Recovery_Concept_2026_v_1.1.pdf)"
+    },
+    {
+      "scenario": "E25",
+      "change_type": "Case-variant self-approval",
+      "repositories": "member portal UI",
+      "stages": "Human Gate 2",
+      "expected": "Reject requester identity even when reviewer casing differs",
+      "observed": "member-portal-ui: missing independent approval and checks for exact PR head",
+      "status": "PASS",
+      "evidence": "requested_by=feature-requester; approved_by=Feature-Requester",
+      "deficiency": "",
+      "correction": "Compare requester and every reviewer using casefolded identities",
+      "specification": "[T7 participant and user maintenance](https://www.eurex.com/resource/blob/5000084/9af4d0c2c09a4de82607115b1f146889/data/T7_R.14.1_Derivatives_Market_-_Participant_and_User_Maintenance_Manual_Version_1.pdf)"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0
+  }
+}

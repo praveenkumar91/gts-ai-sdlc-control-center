@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "id": "replace-with-normative-spec",
+      "type": "repository",
+      "location": "REPLACE_WITH_PATH_OR_APPROVED_URI",
+      "authority": "normative",
+      "version": "REPLACE_WITH_VERSION",
+      "owner": "REPLACE_WITH_OWNER",
+      "data_classification": "confidential",
+      "required": true
+    },
+    {
+      "id": "repository-code",
+      "type": "repository",
+      "location": ".",
+      "authority": "supporting",
+      "version": "git-commit",
+      "owner": "engineering",
+      "data_classification": "internal",
+      "required": true
+    }
+  ]
+}

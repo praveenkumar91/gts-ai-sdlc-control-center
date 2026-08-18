@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/sdlc/program.schema.json",
+  "title": "Multi-repository SDLC program manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "program_id",
+    "adoption_complete",
+    "workspace_root",
+    "worktree_root",
+    "runs_directory",
+    "branch_prefix",
+    "maximum_parallel_repositories",
+    "controls",
+    "repositories"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "program_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adoption_complete": {
+      "type": "boolean"
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "worktree_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runs_directory": {
+      "type": "string",
+      "minLength": 1
+    },
+    "branch_prefix": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,79}$"
+    },
+    "maximum_parallel_repositories": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_plan_approval",
+        "human_pr_approval",
+        "human_production_approval",
+        "allow_agent_self_approval",
+        "maximum_remediation_cycles"
+      ],
+      "properties": {
+        "human_plan_approval": {
+          "const": true
+        },
+        "human_pr_approval": {
+          "const": true
+        },
+        "human_production_approval": {
+          "const": true
+        },
+        "allow_agent_self_approval": {
+          "const": false
+        },
+        "maximum_remediation_cycles": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
+    },
+    "default_quality_configs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "integration_quality_config": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent_runtime_config": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repositories": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "enabled",
+          "url",
+          "local_path",
+          "default_branch",
+          "stack",
+          "criticality",
+          "depends_on"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{1,62}$"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "system": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,31}$"
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "local_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default_branch": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stack": {
+            "type": "string",
+            "enum": [
+              "contracts",
+              "cpp",
+              "python",
+              "node",
+              "typescript",
+              "vite-typescript",
+              "infrastructure",
+              "custom"
+            ]
+          },
+          "criticality": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "quality_config": {
+            "type": "string",
+            "minLength": 1
+          },
+          "extensions_config": {
+            "type": "string",
+            "minLength": 1
+          },
+          "extensions_required": {
+            "type": "boolean"
+          },
+          "depends_on": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

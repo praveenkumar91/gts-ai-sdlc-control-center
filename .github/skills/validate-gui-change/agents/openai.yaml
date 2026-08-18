@@ -1,0 +1,4 @@
+interface:
+  display_name: "Validate GUI Change"
+  short_description: "Validate GUI behavior, visuals, and accessibility"
+  default_prompt: "Use $validate-gui-change to derive and verify the GUI acceptance contract for this change."

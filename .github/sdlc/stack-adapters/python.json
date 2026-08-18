@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "stack": "python",
+  "markers": [
+    "pyproject.toml",
+    "requirements.txt"
+  ],
+  "required_capabilities": [
+    "locked-dependencies",
+    "format",
+    "lint",
+    "type-check",
+    "unit-tests",
+    "integration-tests",
+    "property-tests",
+    "package-build",
+    "dependency-audit",
+    "performance",
+    "rollback"
+  ],
+  "notes": "Configure the repository's approved package manager, lock file, Python matrix and deterministic commands in its quality config."
+}

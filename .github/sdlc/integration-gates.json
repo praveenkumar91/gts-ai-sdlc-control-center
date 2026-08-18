@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "adoption_complete": false,
+  "commands": [
+    {
+      "id": "contract-compatibility",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 1800,
+      "args": [
+        "REPLACE_WITH_CONTRACT_HARNESS"
+      ]
+    },
+    {
+      "id": "end-to-end-trade-lifecycle",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_END_TO_END_HARNESS"
+      ]
+    },
+    {
+      "id": "reconciliation",
+      "enabled": false,
+      "required": true,
+      "timeout_seconds": 3600,
+      "args": [
+        "REPLACE_WITH_RECONCILIATION_HARNESS"
+      ]
+    }
+  ]
+}

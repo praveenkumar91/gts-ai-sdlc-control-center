@@ -1,0 +1,10 @@
+# Replace placeholders before production adoption.
+/.github/agents/              @YOUR-ORG/platform-engineering @YOUR-ORG/application-security
+/.github/skills/              @YOUR-ORG/platform-engineering @YOUR-ORG/application-security
+/.github/hooks/               @YOUR-ORG/application-security
+/.github/scripts/             @YOUR-ORG/platform-engineering @YOUR-ORG/application-security
+/.github/sdlc/policies/       @YOUR-ORG/architecture @YOUR-ORG/application-security @YOUR-ORG/risk
+/.github/sdlc/program.json    @YOUR-ORG/architecture @YOUR-ORG/platform-engineering @YOUR-ORG/risk
+/.github/sdlc/stack-adapters/ @YOUR-ORG/platform-engineering @YOUR-ORG/application-security
+/.github/sdlc/schemas/        @YOUR-ORG/architecture @YOUR-ORG/application-security
+/.github/workflows/           @YOUR-ORG/platform-engineering @YOUR-ORG/application-security

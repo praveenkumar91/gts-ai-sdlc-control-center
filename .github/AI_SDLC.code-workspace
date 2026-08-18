@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "name": "gts-ai-sdlc-control-center",
+      "path": ".."
+    },
+    {
+      "name": "managed-repositories",
+      "path": "sdlc/workspace/repositories"
+    }
+  ],
+  "settings": {
+    "chat.agentFilesLocations": {
+      ".github/agents": true
+    },
+    "chat.promptFilesLocations": {
+      ".github/prompts": true
+    },
+    "chat.agentSkillsLocations": {
+      ".github/skills": true,
+      ".agents/skills": true
+    }
+  }
+}

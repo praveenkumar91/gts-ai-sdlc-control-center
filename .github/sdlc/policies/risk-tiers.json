@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0",
+  "tiers": {
+    "low": {
+      "examples": [
+        "documentation-only",
+        "non-functional internal tooling"
+      ],
+      "required_gates": [
+        "control-plane",
+        "build",
+        "unit-tests",
+        "static-analysis"
+      ],
+      "independent_reviewers": 1
+    },
+    "medium": {
+      "examples": [
+        "non-critical application behavior",
+        "backward-compatible API addition"
+      ],
+      "required_gates": [
+        "control-plane",
+        "build",
+        "unit-tests",
+        "integration-tests",
+        "static-analysis",
+        "dependency-review"
+      ],
+      "independent_reviewers": 1
+    },
+    "high": {
+      "examples": [
+        "customer-visible financial behavior",
+        "authentication or authorization",
+        "persistent data or message schema",
+        "workflow or build-chain change"
+      ],
+      "required_gates": [
+        "control-plane",
+        "build",
+        "unit-tests",
+        "integration-tests",
+        "contract-tests",
+        "static-analysis",
+        "dependency-review",
+        "security-tests",
+        "migration-tests",
+        "performance-tests",
+        "rollback-tests"
+      ],
+      "independent_reviewers": 2
+    },
+    "critical": {
+      "examples": [
+        "trading, clearing, settlement, custody, risk or market-data logic",
+        "money movement or ledger behavior",
+        "production infrastructure or secrets",
+        "irreversible migration"
+      ],
+      "required_gates": [
+        "control-plane",
+        "build",
+        "unit-tests",
+        "integration-tests",
+        "contract-tests",
+        "end-to-end-tests",
+        "static-analysis",
+        "dependency-review",
+        "security-tests",
+        "property-tests",
+        "mutation-tests",
+        "concurrency-tests",
+        "replay-tests",
+        "migration-tests",
+        "performance-tests",
+        "resilience-tests",
+        "rollback-tests",
+        "sbom",
+        "provenance"
+      ],
+      "independent_reviewers": 3
+    }
+  }
+}

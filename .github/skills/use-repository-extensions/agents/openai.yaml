@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use Repository Extensions"
+  short_description: "Apply governed repository-local agents and skills"
+  default_prompt: "Use $use-repository-extensions to resolve and apply local repository extensions for this program change."
