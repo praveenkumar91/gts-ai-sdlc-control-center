@@ -1,0 +1,261 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 900" width="1500" height="900" role="img" aria-label="CodeReviewer Lens architecture. Eight specialist agents — Security (Fortify SAST, SonarQube vulnerability and hotspot rules, GitHub code and secret scanning), Quality (SonarQube rule-violation checks), Performance (SonarQube performance rules and LLM complexity reasoning), Guideline (Agentic RAG over Derivatives-IT C++/Java/Python coding guidelines), Dependency (Dependabot advisories and GitHub Dependency Review), Semantic (logic correctness and intent-vs-implementation, deterministic checks first then LLM), Architecture (import and AST boundary rules, a deterministic then LLM then verifier concurrency pipeline, and cross-component impact) and Conformance (evidence-gated requirement conformance — does the change deliver the authoritative Jira, Git or spec requirement, with an honest N of M covered matrix) — feed a synthesis lens that deduplicates, correlates and ranks findings into one verdict: PASS, WARN or BLOCK. Every LLM and embeddings call is held inside a fail-closed data-sovereignty boundary. The engine runs at pre-commit, commit, pull request, on-demand in VS Code, and via CI webhook.">
+  <title>CodeReviewer Lens — eight specialist agents, one verdict, many entry points</title>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#C2C7CE"/>
+    </marker>
+    <marker id="arrowDark" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#9AA1AB"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="900" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- ================= HEADER ================= -->
+    <circle cx="54" cy="58" r="13" fill="none" stroke="#1A1A2E" stroke-width="3"/>
+    <line x1="63.5" y1="67.5" x2="74" y2="78" stroke="#1A1A2E" stroke-width="3" stroke-linecap="round"/>
+    <text x="88" y="62" font-size="38" font-weight="700" fill="#1A1A2E" letter-spacing="-0.5">CodeReviewer Lens</text>
+    <text x="90" y="92" font-size="17" font-weight="500" fill="#5B6472">Multi-Agent AI Code Review Assistant — eight specialists, one verdict, many entry points</text>
+    <line x1="40" y1="118" x2="1460" y2="118" stroke="#ECECEC" stroke-width="1"/>
+
+    <!-- ================= COLUMN A — AGENTS ================= -->
+    <text x="44" y="152" font-size="14" font-weight="700" fill="#8A92A0" letter-spacing="1.5">EIGHT SPECIALIST AGENTS</text>
+    <text x="44" y="173" font-size="12.5" fill="#A7AEB8">organised by concern — each implements specific tools, rules and standards</text>
+
+    <!-- Card 1: Security (coral) -->
+    <g>
+      <rect x="44" y="188" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="188" width="6" height="74" rx="3" fill="#E59A8C"/>
+      <circle cx="90" cy="225" r="20" fill="#FBE3DE" stroke="#E59A8C" stroke-width="1.5"/>
+      <g transform="translate(90,225)">
+        <path d="M0 -11 L9 -7 V-1 C9 5 5 9 0 11 C-5 9 -9 5 -9 -1 V-7 Z" fill="none" stroke="#C65B45" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M-3.8 -0.5 L-1 2.4 L4.2 -3.4" fill="none" stroke="#C65B45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="124" y="218" font-size="19" font-weight="700" fill="#2B3242">Security Agent</text>
+      <text x="124" y="238" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>Fortify SAST · Sonar vulnerability + hotspot rules · GitHub code and secret scan</text>
+      <text x="124" y="255" font-size="11" fill="#A7AEB8">Catches  injection · auth · crypto · secrets · deserialization · memory safety</text>
+    </g>
+
+    <!-- Card 2: Quality (blue) -->
+    <g>
+      <rect x="44" y="273" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="273" width="6" height="74" rx="3" fill="#8FB0E4"/>
+      <circle cx="90" cy="310" r="20" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.5"/>
+      <g transform="translate(90,310)">
+        <path d="M0 -11 C0.9 -4 4 -0.9 11 0 C4 0.9 0.9 4 0 11 C-0.9 4 -4 0.9 -11 0 C-4 -0.9 -0.9 -4 0 -11 Z" fill="none" stroke="#3F6FB5" stroke-width="2" stroke-linejoin="round"/>
+      </g>
+      <text x="124" y="303" font-size="19" font-weight="700" fill="#2B3242">Quality Agent</text>
+      <text x="124" y="323" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>SonarQube rule-violation checks — bugs, code smells, maintainability</text>
+      <text x="124" y="340" font-size="11" fill="#A7AEB8">Catches  naming · complexity · dead code · documentation · duplication</text>
+    </g>
+
+    <!-- Card 3: Performance (amber) -->
+    <g>
+      <rect x="44" y="358" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="358" width="6" height="74" rx="3" fill="#E7BD6E"/>
+      <circle cx="90" cy="395" r="20" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.5"/>
+      <g transform="translate(90,395)">
+        <path d="M2 -12 L-7 1.5 H-1 L-2.5 12 L7.5 -2 H1 L2 -12 Z" fill="#C2862B"/>
+      </g>
+      <text x="124" y="388" font-size="19" font-weight="700" fill="#2B3242">Performance Agent</text>
+      <text x="124" y="408" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>SonarQube performance rules · LLM algorithmic-complexity reasoning</text>
+      <text x="124" y="425" font-size="11" fill="#A7AEB8">Catches  allocations · leaks · concurrency · latency · hot paths</text>
+    </g>
+
+    <!-- Card 4: Guideline (lavender) -->
+    <g>
+      <rect x="44" y="443" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="443" width="6" height="74" rx="3" fill="#A99BE0"/>
+      <circle cx="90" cy="480" r="20" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.5"/>
+      <g transform="translate(90,480)">
+        <path d="M0 -8.5 C-2 -10 -5.5 -10.5 -9 -9.5 V8 C-5.5 7 -2 7.5 0 9 C2 7.5 5.5 7 9 8 V-9.5 C5.5 -10.5 2 -10 0 -8.5 Z" fill="none" stroke="#6E5BB8" stroke-width="2" stroke-linejoin="round"/>
+        <line x1="0" y1="-8.5" x2="0" y2="9" stroke="#6E5BB8" stroke-width="2"/>
+      </g>
+      <text x="124" y="473" font-size="19" font-weight="700" fill="#2B3242">Guideline Agent <tspan font-size="12" font-weight="600" fill="#6E5BB8">· Agentic RAG</tspan></text>
+      <text x="124" y="493" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>RAG over Derivatives-IT C++ / Java / Python written coding guidelines</text>
+      <text x="124" y="510" font-size="11" fill="#A7AEB8">Tiers  standard guides · T7 overlay · repo-local — every finding cites file and section</text>
+    </g>
+
+    <!-- Card 5: Dependency (green) -->
+    <g>
+      <rect x="44" y="528" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="528" width="6" height="74" rx="3" fill="#8CCB9F"/>
+      <circle cx="90" cy="565" r="20" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.5"/>
+      <g transform="translate(90,565)">
+        <path d="M0 -11 L9.5 -5.5 V5.5 L0 11 L-9.5 5.5 V-5.5 Z" fill="none" stroke="#3E9460" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M-9.5 -5.5 L0 0 L9.5 -5.5" fill="none" stroke="#3E9460" stroke-width="2" stroke-linejoin="round"/>
+        <line x1="0" y1="0" x2="0" y2="11" stroke="#3E9460" stroke-width="2"/>
+      </g>
+      <text x="124" y="558" font-size="19" font-weight="700" fill="#2B3242">Dependency Agent</text>
+      <text x="124" y="578" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>Dependabot advisories · GitHub Dependency Review (diff-scoped SCA)</text>
+      <text x="124" y="595" font-size="11" fill="#A7AEB8">Catches  vulnerable / outdated packages · license posture</text>
+    </g>
+
+    <!-- Card 6: Semantic (teal) — ADR-002 -->
+    <g>
+      <rect x="44" y="613" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="613" width="6" height="74" rx="3" fill="#57B5AD"/>
+      <circle cx="90" cy="650" r="20" fill="#DBF0EE" stroke="#57B5AD" stroke-width="1.5"/>
+      <g transform="translate(90,650)">
+        <circle cx="0" cy="0" r="9.5" fill="none" stroke="#2E8E84" stroke-width="2"/>
+        <circle cx="0" cy="0" r="2.6" fill="#2E8E84"/>
+        <path d="M0 -13 V-9 M0 9 V13 M-13 0 H-9 M9 0 H13" fill="none" stroke="#2E8E84" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <text x="124" y="643" font-size="19" font-weight="700" fill="#2B3242">Semantic Agent <tspan font-size="12" font-weight="600" fill="#2E8E84">· Semantic review</tspan></text>
+      <text x="124" y="663" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>Deterministic logic checks (offline) · LLM intent-vs-implementation</text>
+      <text x="124" y="680" font-size="11" fill="#A7AEB8">Catches  off-by-one · wrong comparator · intent mismatch · error-handling gaps</text>
+    </g>
+
+    <!-- Card 7: Architecture (rose) — ADR-002 -->
+    <g>
+      <rect x="44" y="698" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="698" width="6" height="74" rx="3" fill="#C98BB9"/>
+      <circle cx="90" cy="735" r="20" fill="#F6E5F1" stroke="#C98BB9" stroke-width="1.5"/>
+      <g transform="translate(90,735)">
+        <rect x="-10" y="-9" width="20" height="5" rx="1.6" fill="none" stroke="#A1568F" stroke-width="1.8"/>
+        <rect x="-10" y="-2.5" width="20" height="5" rx="1.6" fill="none" stroke="#A1568F" stroke-width="1.8"/>
+        <rect x="-10" y="4" width="20" height="5" rx="1.6" fill="none" stroke="#A1568F" stroke-width="1.8"/>
+      </g>
+      <text x="124" y="728" font-size="19" font-weight="700" fill="#2B3242">Architecture Agent <tspan font-size="12" font-weight="600" fill="#A1568F">· Semantic review</tspan></text>
+      <text x="124" y="748" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>Import / AST boundary rules · concurrency (extract → LLM → verify) · impact</text>
+      <text x="124" y="765" font-size="11" fill="#A7AEB8">Catches  boundary violations · races / deadlocks · risky cross-component ripples</text>
+    </g>
+
+    <!-- Card 8: Conformance (orange) — ADR-003, evidence-gated -->
+    <g>
+      <rect x="44" y="783" width="648" height="74" rx="14" fill="#FFFFFF" stroke="#E8EAED" stroke-width="1"/>
+      <rect x="44" y="783" width="6" height="74" rx="3" fill="#E1A06A"/>
+      <circle cx="90" cy="820" r="20" fill="#FBEEDF" stroke="#E1A06A" stroke-width="1.5"/>
+      <g transform="translate(90,820)">
+        <rect x="-8" y="-10" width="16" height="20" rx="2.5" fill="none" stroke="#C56A1E" stroke-width="2"/>
+        <rect x="-4.5" y="-13" width="9" height="5" rx="1.5" fill="#FBEEDF" stroke="#C56A1E" stroke-width="1.8"/>
+        <path d="M-4.5 -1.5 L-1.5 1.5 L4.5 -4.5" fill="none" stroke="#C56A1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="-4" y1="5.5" x2="2.5" y2="5.5" stroke="#C56A1E" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      <text x="124" y="813" font-size="19" font-weight="700" fill="#2B3242">Conformance Agent <tspan font-size="12" font-weight="600" fill="#C56A1E">· Evidence-gated</tspan></text>
+      <text x="124" y="833" font-size="12.5" fill="#5B6472"><tspan fill="#939AA6" font-weight="600">Implements&#160;</tspan>Jira / Git / spec requirement recovery · MECE obligations · verified coverage</text>
+      <text x="124" y="850" font-size="11" fill="#A7AEB8">Catches  PARTIAL · MISSING · CONTRADICTED obligations — an honest N of M matrix</text>
+    </g>
+
+    <!-- ================= CONVERGENCE A -> B ================= -->
+    <g stroke="#DDE1E6" stroke-width="1.5" fill="none">
+      <path d="M692 225 C745 225 760 522 808 522" marker-end="url(#arrow)"/>
+      <path d="M692 310 C745 310 772 522 808 522"/>
+      <path d="M692 395 C745 395 786 522 808 522"/>
+      <path d="M692 480 C745 480 796 522 808 522"/>
+      <path d="M692 565 C745 565 796 522 808 522"/>
+      <path d="M692 650 C745 650 786 522 808 522"/>
+      <path d="M692 735 C745 735 772 522 808 522"/>
+      <path d="M692 820 C745 820 760 522 808 522" marker-end="url(#arrow)"/>
+    </g>
+
+    <!-- ================= COLUMN B — SYNTHESIS -> VERDICT ================= -->
+    <text x="812" y="152" font-size="14" font-weight="700" fill="#8A92A0" letter-spacing="1.5">SYNTHESIS</text>
+    <text x="812" y="173" font-size="12.5" fill="#A7AEB8">dedupe · correlate · rank</text>
+
+    <!-- never-silently-incomplete note above lens -->
+    <text x="872" y="372" text-anchor="middle" font-size="11.5" fill="#9AA1AB">never silently</text>
+    <text x="872" y="389" text-anchor="middle" font-size="11.5" fill="#9AA1AB">incomplete —</text>
+    <text x="872" y="406" text-anchor="middle" font-size="11.5" fill="#9AA1AB">gaps logged as</text>
+    <text x="872" y="423" text-anchor="middle" font-size="11.5" font-weight="600" fill="#7E8694">Degradations</text>
+
+    <!-- central lens -->
+    <circle cx="872" cy="522" r="60" fill="#FFFFFF" stroke="#2D2D44" stroke-width="2.5"/>
+    <circle cx="867" cy="517" r="15" fill="none" stroke="#2D2D44" stroke-width="3.5"/>
+    <line x1="878" y1="528" x2="889" y2="539" stroke="#2D2D44" stroke-width="3.5" stroke-linecap="round"/>
+    <text x="872" y="605" text-anchor="middle" font-size="13" font-weight="700" fill="#434A59" letter-spacing="0.3">Synthesis engine</text>
+    <text x="872" y="623" text-anchor="middle" font-size="11" fill="#A7AEB8">tool ↔ guideline correlation</text>
+
+    <!-- arrow down to verdicts -->
+    <line x1="872" y1="640" x2="872" y2="668" stroke="#9AA1AB" stroke-width="1.6" marker-end="url(#arrowDark)"/>
+
+    <!-- verdict pills -->
+    <g>
+      <rect x="784" y="676" width="176" height="40" rx="20" fill="#EAF5EE" stroke="#C5E4D0" stroke-width="1"/>
+      <circle cx="808" cy="696" r="5" fill="#3E9460"/>
+      <text x="822" y="701" font-size="15" font-weight="700" fill="#2F7A4F">PASS</text>
+      <text x="884" y="701" font-size="12" fill="#6E8C7B">— ship it</text>
+
+      <rect x="784" y="724" width="176" height="40" rx="20" fill="#FBF2DD" stroke="#EBD9AE" stroke-width="1"/>
+      <circle cx="808" cy="744" r="5" fill="#C2862B"/>
+      <text x="822" y="749" font-size="15" font-weight="700" fill="#9A6A1E">WARN</text>
+      <text x="888" y="749" font-size="12" fill="#A98C53">— review advised</text>
+
+      <rect x="784" y="772" width="176" height="40" rx="20" fill="#FBE6E1" stroke="#EBC3B9" stroke-width="1"/>
+      <circle cx="808" cy="792" r="5" fill="#C65B45"/>
+      <text x="822" y="797" font-size="15" font-weight="700" fill="#A8412C">BLOCK</text>
+      <text x="892" y="797" font-size="12" fill="#B07567">— must fix</text>
+    </g>
+
+    <!-- ================= COLUMN C — WHERE & WHEN (sidebar panel) ================= -->
+    <rect x="1012" y="140" width="452" height="716" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+
+    <text x="1040" y="178" font-size="14" font-weight="700" fill="#8A92A0" letter-spacing="1.5">WHERE &amp; WHEN YOU USE IT</text>
+    <text x="1040" y="199" font-size="12.5" fill="#A7AEB8">one engine · invoked at every stage of your workflow</text>
+
+    <!-- dashed connector: entry points invoke the engine -->
+    <line x1="1012" y1="522" x2="942" y2="522" stroke="#C9CED5" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+
+    <!-- touchpoint rows -->
+    <g transform="translate(1040,236)">
+      <circle cx="14" cy="0" r="15" fill="#FBE3DE" stroke="#E59A8C" stroke-width="1.3"/>
+      <path d="M8 0 H20 M14 -6 V6" stroke="#C65B45" stroke-width="2" stroke-linecap="round"/>
+      <text x="42" y="-2" font-size="15" font-weight="700" fill="#3A4150">Pre-commit hook</text>
+      <text x="42" y="16" font-size="11.5" fill="#9AA1AB" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace">check_compliance · review_snippet</text>
+    </g>
+    <g transform="translate(1040,300)">
+      <circle cx="14" cy="0" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.3"/>
+      <circle cx="14" cy="0" r="4.5" fill="none" stroke="#3F6FB5" stroke-width="2"/>
+      <text x="42" y="-2" font-size="15" font-weight="700" fill="#3A4150">Commit / pre-push</text>
+      <text x="42" y="16" font-size="11.5" fill="#9AA1AB" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace">review_commit</text>
+    </g>
+    <g transform="translate(1040,364)">
+      <circle cx="14" cy="0" r="15" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.3"/>
+      <path d="M9 5 V-3 A5 5 0 0 1 19 -3 M19 -5 V3 A5 5 0 0 1 9 3" fill="none" stroke="#3E9460" stroke-width="1.8"/>
+      <text x="42" y="-2" font-size="15" font-weight="700" fill="#3A4150">Pull request <tspan font-size="11.5" font-weight="500" fill="#9AA1AB">(CI)</tspan></text>
+      <text x="42" y="16" font-size="11.5" fill="#9AA1AB" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace">review_pr → PR comment + SARIF</text>
+    </g>
+    <g transform="translate(1040,428)">
+      <circle cx="14" cy="0" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.3"/>
+      <rect x="7" y="-6" width="14" height="12" rx="2" fill="none" stroke="#6E5BB8" stroke-width="1.8"/>
+      <text x="42" y="-2" font-size="15" font-weight="700" fill="#3A4150">VS Code · on-demand</text>
+      <text x="42" y="16" font-size="11.5" fill="#9AA1AB" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace">ask_guideline · explain_rule · review_snippet</text>
+    </g>
+    <g transform="translate(1040,492)">
+      <circle cx="14" cy="0" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.3"/>
+      <path d="M8 3 A6 6 0 0 1 20 3 M14 -6 V4 M14 4 L10 0 M14 4 L18 0" stroke="#C2862B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="42" y="-2" font-size="15" font-weight="700" fill="#3A4150">CI webhook</text>
+      <text x="42" y="16" font-size="11.5" fill="#9AA1AB" font-family="'SF Mono', ui-monospace, Menlo, Consolas, monospace">lens-webhook (streaming HTTP)</text>
+    </g>
+
+    <!-- context-specific callout -->
+    <rect x="1040" y="524" width="396" height="150" rx="14" fill="#F4F1FC" stroke="#DCD2F4" stroke-width="1"/>
+    <g transform="translate(1064,556)">
+      <circle cx="9" cy="-4" r="9" fill="none" stroke="#6E5BB8" stroke-width="2"/>
+      <line x1="15.5" y1="2.5" x2="22" y2="9" stroke="#6E5BB8" stroke-width="2" stroke-linecap="round"/>
+      <text x="34" y="1" font-size="15" font-weight="700" fill="#5B49A6">Context-specific, cited answers</text>
+    </g>
+    <text x="1064" y="584" font-size="12.5" fill="#5B6472">Grounded in your C++ / Java / Python coding</text>
+    <text x="1064" y="604" font-size="12.5" fill="#5B6472">standards — every claim traces to a guideline</text>
+    <text x="1064" y="624" font-size="12.5" fill="#5B6472">page and section, never a generic LLM guess.</text>
+    <text x="1064" y="652" font-size="11.5" font-style="italic" fill="#9AA1AB">Repo-aware: standard · T7 · repo-local tiers.</text>
+
+    <!-- data-sovereignty callout (ADR-002) -->
+    <rect x="1040" y="686" width="396" height="158" rx="14" fill="#F4F6F8" stroke="#DDE3EA" stroke-width="1"/>
+    <g transform="translate(1064,716)">
+      <path d="M9 -12 L16.5 -8.7 V-3.5 C16.5 1.6 13.2 5 9 6.8 C4.8 5 1.5 1.6 1.5 -3.5 V-8.7 Z" fill="none" stroke="#5B6472" stroke-width="1.8" stroke-linejoin="round"/>
+      <circle cx="9" cy="-4.5" r="1.7" fill="#5B6472"/>
+      <rect x="8.1" y="-4.5" width="1.8" height="4.2" rx="0.6" fill="#5B6472"/>
+      <text x="34" y="1" font-size="15" font-weight="700" fill="#3A4150">Data sovereignty</text>
+    </g>
+    <text x="1064" y="744" font-size="12.5" fill="#5B6472">Every LLM and embeddings call is checked</text>
+    <text x="1064" y="763" font-size="12.5" fill="#5B6472">against a fail-closed allowlist — an endpoint</text>
+    <text x="1064" y="782" font-size="12.5" fill="#5B6472">outside your trust boundary is refused outright.</text>
+    <text x="1064" y="801" font-size="12.5" fill="#5B6472">Secrets are redacted before any prompt leaves.</text>
+    <text x="1064" y="828" font-size="11.5" font-style="italic" fill="#9AA1AB">Air-gap capable · every verdict carries Containment.</text>
+
+  </g>
+</svg>

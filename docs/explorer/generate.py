@@ -5,7 +5,7 @@ from the real agent frontmatter in .github/agents/*.agent.md.
 Run:  python3 docs/explorer/generate.py
 No dependencies; output is a single static HTML file (works via file:// and GitHub Pages).
 """
-import glob, json, os, re
+import glob, json, os, re, textwrap
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -17,7 +17,8 @@ STATUS_STOP = {"DO", "NOT", "MUST", "ALWAYS", "NEVER", "AND", "OR", "THE", "DFS"
                "WIP", "URL", "API", "P7", "T7", "GTS", "VET", "QA", "CM", "HTTP", "YAML"}
 
 ROLE_ORDER = {"orchestrator": 0, "planner": 1, "architect": 2, "spec-author": 3, "tester": 4,
-              "developer": 5, "reviewer": 6, "builder": 7, "pr-author": 8, "knowledge": 9}
+              "developer": 5, "reviewer": 6, "builder": 7, "pr-author": 8, "knowledge": 9,
+              "analyst": 10, "delivery": 11, "feedback": 12}
 PIPELINE = ["Plan", "Architect", "Spec", "Test", "Develop", "Review", "Build", "PR"]
 ROLE_PHASE = {"planner": 0, "architect": 1, "spec-author": 2, "tester": 3,
               "developer": 4, "reviewer": 5, "builder": 6, "pr-author": 7}
@@ -49,6 +50,8 @@ OBJECTIVE = {
     "pr-author": "Package the change into a clean, ticket-linked pull request.",
     "knowledge": "Answer read-only questions about the codebase, specs, ownership and terminology.",
     "analyst": "Diagnose an engineering signal — a red build, a Sonar finding, a security alert, an issue or a SIR — to a grounded root-cause verdict; recommend the next step, never implement.",
+    "delivery": "Get a merged, reviewed change safely into an integration baseline — run the readiness gates, propose the exact delivery command for you to run, then watch the integration build.",
+    "feedback": "Turn a problem you hit with the agents into a filed ticket — conversation captured, secrets redacted, duplicates checked.",
 }
 
 # Real, grounded scenarios threaded through the invocation examples.
@@ -74,6 +77,337 @@ SCEN = {
 # prompt a user would type, and shows how /gts-orchestrator delegates. Grounded
 # in real SIRs from the T7 study corpus (crashes, defects, protocol/field fixes,
 # performance, security, spec work and ops incidents).
+# ---------------------------------------------------------------------------
+# Worked examples for "Prompting 101". One per KIND of task, alternating T7 and
+# P7, ordered as a lifecycle: analyse -> understand -> plan -> specify ->
+# implement -> review -> deliver. Every example is a job the agent suite can
+# genuinely do today, grounded in a real SIR, build, commit, PR or spec — no
+# aspirational capabilities. Keep each one SHORT: the point is to teach the
+# four-block shape, not to ship a 30-line prompt. Aim for GOAL 1-2 lines,
+# CONTEXT 4-5 labelled rows, CONSTRAINTS 2-3, DONE LOOKS LIKE 2-3.
+# `route` names the specialist only; the renderer prefixes gts-orchestrator.
+# `code` is injected raw into innerHTML, so it must contain no <, > or &.
+WORKS = [
+    {
+        "sys": "T7", "tag": "Build failure",
+        "title": "Is this night build a real regression, or noise?",
+        "route": "gts-issue-analyst",
+        "code": """GOAL
+  Is this build failure a real regression or CI noise? Name the owner.
+
+CONTEXT
+  Build : INT-EUREX-150.005.031-NIGHT-STEST #12 on gtsci, UNSTABLE
+  Odd   : ran 2m 54s against a 1h 04m estimate, so it aborted early
+  Green : the sibling job on 150.005.030 passed the same night
+
+CONSTRAINTS
+  Read-only - no re-run, no Jira write, no PR. Quote the log lines you
+  rely on. If they do not settle it, say UNKNOWN.
+
+DONE LOOKS LIKE
+  Verdict first, then the failing stage, the quoted evidence, the owning
+  component, and one next step.""",
+    },
+    {
+        "sys": "T7", "tag": "Incident",
+        "title": "Why did the production roll-over overrun?",
+        "route": "gts-issue-analyst",
+        "code": """GOAL
+  Explain what drove the roll-over duration on this date, and where the
+  realistic savings are.
+
+CONTEXT
+  Run     : db=prod, mode STANDARD, business date 2026-08-14, all markets
+  Impact  : critical path 178 steps / 09:11:54 - too close to market open
+  Top two : wait_to_start_rollover 02:14:28,
+            get_session_map_file_SX101_EUREX 01:28:08
+  Ruled out : the RDS bridge step takes 00:00:54, so the hand-off is fine
+
+CONSTRAINTS
+  Read-only - trigger nothing, change no schedule. Tag every step WAIT or
+  WORK; do not sell me a wait as an optimisation target.
+
+DONE LOOKS LIKE
+  Top five contributors with durations, each tagged WAIT or WORK, then the
+  two changes that would actually shorten the run and what each saves.""",
+    },
+    {
+        "sys": "T7", "tag": "Jira SIR",
+        "title": "Root cause straight out of a Jira SIR",
+        "route": "gts-issue-analyst",
+        "code": """GOAL
+  Give me symptom, root cause and remediation for this SIR.
+
+CONTEXT
+  SIR     : T7-563473 "OPM/GW - Race condition with BrcSubscriptions and
+            SessionLogins", Gateway / OPM, baseline 150.005.025
+  Symptom : OPM sometimes gets a PerfBrcSubscription before the matching
+            SessionLogin, then writes zero into BrcSubscription.SessionID
+  Fix     : shipped in commit bcf927d6 of dev/gts.eurex.gateway.common
+
+CONSTRAINTS
+  Jira and GitHub read-only - no comment, no transition, no PR. Do not
+  restate the ticket: explain why the ordering can invert at all.
+
+DONE LOOKS LIKE
+  SYMPTOM, ROOT CAUSE, FIX AS SHIPPED, RESIDUAL RISK - four short
+  sections, with anything you could not verify in the code flagged.""",
+    },
+    {
+        "sys": "T7", "tag": "Sonar finding",
+        "title": "True or false positive, with a probability",
+        "route": "gts-issue-analyst",
+        "code": """GOAL
+  Adjudicate this Sonar finding as true or false positive, with a
+  probability, and propose the fix.
+
+CONTEXT
+  Finding : paste the real Sonar issue URL - the agent needs the key
+  SIR     : T7-570497 "Analyse sonar issues in gateway team code basis",
+            10 pd estimated, components EDC / Gateway / LDS / TFH
+  Why     : 10 pd is too much if most of the backlog is noise
+
+CONSTRAINTS
+  Read-only on Sonar - mark nothing false-positive, change no severity,
+  open no PR. Ground the verdict in the source file, not the rule text.
+
+DONE LOOKS LIKE
+  Verdict and probability first, then rule, file:line, why it fires, and
+  either the fix as text or the FP justification a human would paste.""",
+    },
+    {
+        "sys": "P7", "tag": "Crash SIR",
+        "title": "Root cause of a crash, down to file and function",
+        "route": "gts-issue-analyst",
+        "code": """GOAL
+  Root-cause this crash SIR, down to file and function.
+
+CONTEXT
+  SIR      : P7-3742 "PricingEngine crash (std::out_of_range) during vola
+             fitting on LEPO instruments with no put partner", High
+  Symptom  : the exception escapes a boost::asio worker thread, so the
+             process dies instead of skipping the instrument
+  My hunch : LEPOs are call-only, so the put id keeps its sentinel value
+             and the lookup on it throws
+
+CONSTRAINTS
+  Jira and GitHub read-only - no transition, no comment, no PR. Confirm or
+  refute my hunch from the source; if I am wrong, say so.
+
+DONE LOOKS LIKE
+  The throwing call at file:line, the call chain to it, why the sibling
+  accessor does not crash, and the smallest safe fix as a proposal.""",
+    },
+    {
+        "sys": "P7", "tag": "Ask & understand",
+        "title": "How does P7 decide a vola surface may be published?",
+        "route": "p7-sdlc-knowledge",
+        "code": """GOAL
+  Explain how P7 decides a fitted vola surface may be published, and
+  where that gate is implemented.
+
+CONTEXT
+  Specs   : DFS10155 (Implied Volatility), DFS11120 (Black76 fitting),
+            INR10010 for the functional picture
+  Trigger : SIR P7-3709, a surface send blocked by Bid/Ask violations -
+            I want the designed behaviour, not that defect
+  I know  : the flow is PricingEngine to middleware to frontend. I do not
+            know which layer owns the veto.
+
+CONSTRAINTS
+  Read-only question - no plan, no code change, no Jira, no PR. Where the
+  spec and the code disagree, say so and quote both.
+
+DONE LOOKS LIKE
+  A short prose answer, the spec sections by document and number, the
+  file:line implementing the gate, and what an operator sees.""",
+    },
+    {
+        "sys": "T7", "tag": "Code trace",
+        "title": "Trace a behaviour through the code to file:line",
+        "route": "t7-sdlc-developer",
+        "code": """GOAL
+  Trace how a broadcast subscription reaches perfmondb.BrcSubscription,
+  and show every place SessionID is set on that path.
+
+CONTEXT
+  Repo   : dev/gts.eurex.gateway.common
+  Anchor : T7-563473 introduced BrcSubscriptionStore(ConnectionID,
+           SessionID, BroadcastType, Integer4, bool, Integer1)
+  Ask    : can any caller still reach the store with a zero SessionID?
+
+CONSTRAINTS
+  Read-only - read the repo, edit nothing, push nothing, open no PR. Real
+  paths and line numbers; if you cannot resolve one, say so.
+
+DONE LOOKS LIKE
+  The call path with file:line per hop, a table of every call site and the
+  SessionID it passes, then a yes/no with the offending site.""",
+    },
+    {
+        "sys": "T7", "tag": "Plan the work",
+        "title": "Three related SIRs into one implementation plan",
+        "route": "t7-sdlc-planner",
+        "code": """GOAL
+  Turn these three SIRs into one plan with shared scope and testable
+  acceptance criteria.
+
+CONTEXT
+  SIRs  : T7-571883 "CPU sets are parsed incorrectly", T7-574087
+          (CPUAffinity=NO_VALUE must be a no-op), T7-559167 (harmonise
+          CPU pinning, 1024 cores) - all three touch CPU affinity
+  Code  : ParseCpuMask and ToNumber in gts.common.intmsg.model.common
+  Worry : the 1024-core work silently re-breaks the parser fix
+
+CONSTRAINTS
+  Plan only, no product code. This agent CAN write Jira, so: create and
+  update nothing - propose the ticket text in chat and I will ask.
+
+DONE LOOKS LIKE
+  A task table with affected files, acceptance criteria per SIR, the safe
+  implementation order, and an explicit OUT OF SCOPE list.""",
+    },
+    {
+        "sys": "T7", "tag": "Spec section",
+        "title": "The DFS section that would have prevented the defect",
+        "route": "t7-sdlc-spec-author",
+        "code": """GOAL
+  Draft the DFS section that would have prevented this defect.
+
+CONTEXT
+  SIR    : T7-574149 "Incorrect offsets in eti.xml" - the final padding
+           field of the TES Reversal Broadcast carried a wrong offset
+  Source : analysis thread issue #321 in dev/T7-Deep-Analysis-Request
+  Gap    : the rule for trailing padding is implicit today; it must be
+           explicit enough that a generator and a reviewer agree
+
+CONSTRAINTS
+  Write to ./demo-out/ only - do not touch the spec repository, open no
+  PR, transition no SIR. DFS conventions: metadata header, numbered
+  sections, normative "shall". Assumptions become OPEN QUESTIONs.
+
+DONE LOOKS LIKE
+  One self-contained DFS section with metadata header, the normative
+  offset rule, a worked example, and the OPEN QUESTIONs. Name the file.""",
+    },
+    {
+        "sys": "P7", "tag": "Test-first fix",
+        "title": "RED test first, then the fix as a printed diff",
+        "route": "p7-orchestrator → tester → developer",
+        "code": """GOAL
+  Write the test that fails today because of P7-3742 and passes once the
+  guard is added, then show the fix as a printed diff.
+
+CONTEXT
+  SIR   : P7-3742, PricingEngine crash on LEPOs with no put partner
+  Where : anyInstrumentOfExpiryInContinuousTrading in
+          app/VolaFittingWaterfall.cxx asks for the call AND the put;
+          getSecurityTradingStatus in library/ProductStateManager.cxx
+          then does an unconditional .at(id)
+  Model : the sibling getSecurityStatus already guards with count(id) == 0
+
+CONSTRAINTS
+  RED first - I want the test failing for the right reason before any
+  production line changes. PRINT the diff; do not apply, commit or push.
+
+DONE LOOKS LIKE
+  The failing test with its assertion and today's failure message, the
+  minimal diff, and why the test fails again if the guard is removed.""",
+    },
+    {
+        "sys": "T7", "tag": "Commit review",
+        "title": "Does this commit actually finish the SIR?",
+        "route": "t7-sdlc-reviewer",
+        "code": """GOAL
+  Review this commit against the SIR it claims to fix. Is it complete?
+
+CONTEXT
+  Commit : bcf927d6 in dev/gts.eurex.gateway.common
+           "T7-563473: Pass SessionId and ConnectionID to Perfmon"
+  SIR    : T7-563473, OPM/Gateway race on BrcSubscription, baseline
+           150.005.025
+  Worry  : the new trailing parameters are defaulted, so old call sites
+           keep compiling - was any caller missed?
+
+CONSTRAINTS
+  GitHub and Jira read-only - post no review, comment or approval. Judge
+  the commit as it stands; do not rewrite unrelated code.
+
+DONE LOOKS LIKE
+  A completeness verdict, call sites updated versus left on the default,
+  findings with file:line, and the review comments as text for me.""",
+    },
+    {
+        "sys": "P7", "tag": "PR review",
+        "title": "Can I approve this pull request?",
+        "route": "p7-sdlc-reviewer",
+        "code": """GOAL
+  Review the open PR for P7-3742 and tell me whether I can approve it.
+
+CONTEXT
+  PR   : paste the PR URL so we review the same revision
+  SIR  : P7-3742, PricingEngine crash on LEPOs with no put partner
+  Bar  : it must not silently swallow a genuinely missing instrument -
+         a LEPO with no put is expected, a missing call leg is not
+  Also : does it add a test that would have caught the crash?
+
+CONSTRAINTS
+  GitHub and Jira read-only - post no review or approval, do not merge,
+  transition no SIR. Review the diff, not the whole file.
+
+DONE LOOKS LIKE
+  APPROVE or REQUEST CHANGES with one sentence of reasoning, blocking
+  findings and nits separated with file:line, a yes/no on the test, and
+  the review text for me to paste.""",
+    },
+    {
+        "sys": "T7", "tag": "PR text",
+        "title": "PR description and changelog, without opening a PR",
+        "route": "t7-sdlc-pr-author",
+        "code": """GOAL
+  Draft the PR title, description and changelog for this change - and do
+  not open the PR.
+
+CONTEXT
+  Change   : the CPU-mask parsing fix for T7-571883, in
+             gts.common.intmsg.model.common
+  Range    : parent 681c6b78 to merge b30e3761
+  Tests    : CpuMaskEtAllTestSuite - ParseHumanReadableCpuMaskTest,
+             ParseHexCpuMaskTest, ToNumberBase10TestRejectInvalidLiterals
+  Audience : reviewers new to this defect, plus a release note for ops
+
+CONSTRAINTS
+  Create no PR, push no branch, comment on no Jira issue. Print it as
+  text. Claim no behaviour the diff does not contain.
+
+DONE LOOKS LIKE
+  A ticket-prefixed title, a body covering what changed, why and how it
+  was verified, a one-line changelog, and what to review first.""",
+    },
+    {
+        "sys": "P7", "tag": "Delivery gates",
+        "title": "Pre-delivery gates, command printed for a human",
+        "route": "gts-delivery",
+        "code": """GOAL
+  Run the read-only pre-delivery gates for this baseline and print the
+  gts-deliver command a human would run - do not run it.
+
+CONTEXT
+  Target    : P7, project p7, integration baseline 012.003.021
+  Container : P7-3642 "hotfix baseline to sync 1.1 fix - 012.003.021"
+  In scope  : SIR P7-3742, still at Analysis complete with an open PR -
+              I expect that to fail a gate, so call it out
+  Builds    : INT-P7-012.003.021 #3 is SUCCESS on gtsci
+
+CONSTRAINTS
+  READ-ONLY - do not run gts-deliver, push no tag, modify no baseline,
+  trigger no build. A gate you cannot evaluate is UNKNOWN, never PASS.
+
+DONE LOOKS LIKE
+  A gate table - gate, PASS / FAIL / UNKNOWN, evidence, blocking - then a
+  go / no-go, then the exact command labelled "not executed".""",
+    },
+]
 HOWTO = [
     {
         "key": "prompting", "label": "Prompting 101",
@@ -88,33 +422,23 @@ CONTEXT          the real artifacts — paste links, not descriptions
                  • build / log URL · SIR / Jira · PR / commit / repo
                  • component + branch (+ baseline) · recent change · already tried
 CONSTRAINTS      the guardrails — scope · toolchain · read-only · propose, don't push
-DONE LOOKS LIKE  acceptance criteria + format — verdict first, then evidence, then next step</pre>
-<div class="woheading"><span class="wohn">2</span>A worked example <span class="wohs">— build root-cause</span></div>
-<pre class="wocode">━━━━━━━━━━━━━━━━━━━━━  AGENT WORK-ORDER  ━━━━━━━━━━━━━━━━━━━━━
+DONE LOOKS LIKE  acceptance criteria + format — verdict first, then evidence, then next step</pre>""",
+        "worksHead": """<div class="woheading"><span class="wohn">2</span>Worked examples <span class="wohs">— one per kind of task, on real T7 and P7 artifacts</span></div>
+<div class="wointro">Fourteen complete work-orders, each for a different <b>kind</b> of job the agents can do today, ordered as a lifecycle — analyse, understand, plan, specify, implement, review, deliver. Every one goes to <code>/gts-orchestrator</code>, which routes it to the specialist named beside it. Pick the one closest to your task and swap in your own artifacts.</div>""",
+        "works": WORKS,
+        "outro": """<div class="woheading"><span class="wohn">3</span>Vague to sharp <span class="wohs">— the same request, rewritten</span></div>
+<pre class="wocode">VAGUE   "the night build is broken again, can you have a look?"
+        → which job · which build · broken how · and what do you want back?
 
-GOAL  (one imperative sentence — the single outcome)
-  Find the root cause of this UNSTABLE build and give me a
-  definitive, owner-ready fix.
-
-CONTEXT  (the real artifacts — paste links, not descriptions)
-  • Build / log URL   : https://gtsci.xeops.deutsche-boerse.de/job/&lt;job&gt;/123/console
-  • SIR / Jira issue  : &lt;SIR key or full URL&gt;
-  • PR / commit / repo: https://github.deutsche-boerse.de/&lt;org&gt;/&lt;repo&gt;/pull/&lt;n&gt;
-  • Component + branch: perfmon_core / release-x.y   (baseline: &lt;prod baseline&gt;)
-  • Recent change     : &lt;what landed / merged / config changed since last green&gt;
-  • Already tried     : &lt;what you checked and ruled out&gt;
-
-CONSTRAINTS  (the guardrails)
-  • Re-derive from the LIVE log/tools — do not reuse earlier conclusions.
-  • Propose, don't push — surface the fix and the owner; I coordinate the merge.
-  • Respect the toolchain: GCC 14, x86_64 EL9, CMake/make.
-  • Read-only on all connectors — no mutations.
-
-DONE LOOKS LIKE  (acceptance criteria + format)
-  • One definitive verdict per issue — root cause and true- vs false-positive.
-  • Quoted log/tool evidence for every claim (file:line or console excerpt).
-  • Concrete next step: who fixes what, and where.
-  • Verdict first, then evidence — no hedging.</pre>""",
+SHARP   GOAL             Is this build failure a real regression or CI noise?
+                         Name the owner.
+        CONTEXT          INT-EUREX-150.005.031-NIGHT-STEST #12 UNSTABLE on gtsci ·
+                         ran 2m 54s against a 1h 04m estimate ·
+                         the sibling job on 150.005.030 passed the same night
+        CONSTRAINTS      Read-only. No re-run, no Jira write, no PR. Say UNKNOWN
+                         rather than guessing.
+        DONE LOOKS LIKE  Verdict first, quoted log evidence, owner, one next step.</pre>
+<div class="wointro">Three habits carry most of the weight. <b>One outcome per work-order</b> — if you need a review <i>and</i> a fix, send two. <b>Paste the artifact, not a description of it</b> — a build number, a SIR key, a commit sha, a PR URL; the agents resolve those live. <b>Say what must not happen</b> — an explicit read-only is honoured, and the agents will tell you what they did <i>not</i> do.</div>""",
     },
     {
         "key": "ask", "label": "Ask & understand",
@@ -167,7 +491,7 @@ DONE LOOKS LIKE  (acceptance criteria + format)
         "defRoute": "gts-orchestrator → gts-issue-analyst",
         "examples": [
             {"pers": "Build engineer", "cat": "Jenkins — red build: real or false positive?",
-             "prompts": ["Is this red EUREX-INT build a real failure or a false positive? https://gtsci.xeop.de/job/EUREX-INT/1234/", "The nightly EUREX build went UNSTABLE — root-cause it and tell me whether it's a flake or a real regression."]},
+             "prompts": ["Is this red EUREX-INT build a real failure or a false positive? <paste the build URL from gtsci.xeops.deutsche-boerse.de>", "The nightly EUREX build went UNSTABLE — root-cause it and tell me whether it's a flake or a real regression."]},
             {"pers": "Developer", "cat": "Jenkins — root-cause a build from its log",
              "prompts": ["The EUREX release build failed in CPack packaging with 'Error 1101: Cannot extract dependency information' — find the root cause and the smallest fix to hand back.", "Console log pasted below — which component broke the build, and why?"]},
             {"pers": "Ops engineer", "cat": "T7 incident — root-cause a production crash",
@@ -359,9 +683,9 @@ DONE LOOKS LIKE  (acceptance criteria + format)
         ],
     },
     {
-        "key": "ship", "label": "Build & ship",
-        "lead": "Compile the affected components in dependency order, then package the change into a clean, ticket-linked pull request with release notes.",
-        "handled": ["t7-sdlc-builder", "t7-sdlc-pr-author"],
+        "key": "ship", "label": "Build, ship & deliver",
+        "lead": "Compile the affected components in dependency order, package the change into a clean, ticket-linked pull request \u2014 then, once it is merged and reviewed, run the read-only readiness gates and get the exact gts-deliver command to put it into an integration baseline. The delivery agent proposes and monitors; you execute the delivery.",
+        "handled": ["t7-sdlc-builder", "t7-sdlc-pr-author", "gts-delivery"],
         "defRoute": "gts-orchestrator → t7-orchestrator → t7-sdlc-builder / t7-sdlc-pr-author",
         "examples": [
             {"pers": "Build engineer", "cat": "Resolve the build order", "route": "gts-orchestrator → t7-orchestrator → t7-sdlc-builder",
@@ -369,7 +693,7 @@ DONE LOOKS LIKE  (acceptance criteria + format)
             {"pers": "Build engineer", "cat": "Diagnose a broken build", "route": "gts-orchestrator → t7-orchestrator → t7-sdlc-builder",
              "prompts": ["The build fails after the GOLD-linker change (T7-573865). Build it, capture the error, and tell me what broke.", "Build the linker-change set (T7-573865); if it fails, show the first error and the culprit component."]},
             {"pers": "Release manager", "cat": "PR title + summary only", "route": "gts-orchestrator → t7-orchestrator → t7-sdlc-pr-author",
-             "prompts": ["Give me a conventional-commit PR title and a one-paragraph summary for the CoMa validation fix (T7-572008)."]},
+             "prompts": ["Give me a PR title in {ticket} {Description} form and a one-paragraph summary for the CoMa validation fix (T7-572008)."]},
             {"pers": "Developer", "cat": "Compile the Java tests too", "route": "gts-orchestrator → t7-orchestrator → t7-sdlc-builder",
              "prompts": ["Compile the Java test sources too and confirm they build (T7-571832)."]},
             {"pers": "Release manager", "cat": "Changelog across tickets", "route": "gts-orchestrator → t7-orchestrator → t7-sdlc-pr-author",
@@ -391,14 +715,20 @@ DONE LOOKS LIKE  (acceptance criteria + format)
              "ask": "I changed the ODC server \u2014 just compile the affected components and tell me if anything breaks.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-builder"},
             {"pers": "Release manager", "cat": "Open the pull request",
-             "ask": "Write the PR for the SpA rejection fix (T7-574620), link the ticket, and use conventional-commit style.",
+             "ask": "Write the PR for the SpA rejection fix (T7-574620), link the ticket, and title it in our {ticket} {Description} form.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
             {"pers": "Release manager", "cat": "Generate release notes",
              "ask": "Generate the release notes for everything merged under DFS150510 this iteration.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
             {"pers": "Developer", "cat": "Turn my branch into a clean PR",
-             "ask": "Turn my current branch into a clean PR \u2014 conventional-commit title, summary and test notes.",
+             "ask": "Turn my current branch into a clean PR \u2014 a {ticket} {Description} title, summary and test notes.",
              "route": "gts-orchestrator \u2192 t7-orchestrator \u2192 t7-sdlc-pr-author"},
+            {"pers": "Release manager", "cat": "Pre-delivery readiness check", "route": "gts-orchestrator \u2192 gts-delivery  (or /gts-delivery direct)",
+             "prompts": ["Is release 150.005.031 open for delivery, and is T7-563473 governance-clean? Suggest the tag and branch."]},
+            {"pers": "Release manager", "cat": "Propose the delivery command", "route": "gts-orchestrator \u2192 gts-delivery",
+             "prompts": ["Deliver gts.eurex.gateway.common for T7-563473 into the open T7 integration release \u2014 run the gates and give me the exact gts-deliver command and the tags it will create."]},
+            {"pers": "Build engineer", "cat": "Watch the integration build after delivery", "route": "gts-orchestrator \u2192 gts-delivery \u2192 gts-issue-analyst",
+             "prompts": ["I ran gts-deliver \u2014 did INT-EUREX pick it up, did it pass, and if not is it infra noise or a real failure?"]},
         ],
     },
 ]
@@ -456,6 +786,12 @@ def role_info(name):
     if name == "gts-issue-analyst":
         return ("analyst", "Issue Analyst",
                 "A read-only, cross-system analysis peer of the knowledge agent — diagnoses an engineering signal (a red build, a Sonar finding, a security alert, an issue or a SIR) and hands any fix back to the pipeline. Never writes.")
+    if name == "gts-delivery":
+        return ("delivery", "Delivery Agent",
+                "A cross-system, propose-only peer of the analyst — runs the read-only pre-delivery readiness gates (release open, SIR governance, scope, tag format, branch availability), proposes the exact gts-deliver command and tags for you to run, then monitors the integration build. It never delivers, tags or mutates a baseline itself.")
+    if name == "gts-feedback":
+        return ("feedback", "Feedback Channel",
+                "The way to report the agent suite itself — captures the conversation, redacts secrets, checks for duplicates and hands you a pre-filled New-Issue link for the feedback repo. It prepares the ticket; you submit it. Not for T7 / P7 product defects — those go to Jira.")
     m = re.match(r"^(?:p7|t7)-sdlc-(.+)$", name)
     role = m.group(1) if m else name
     labels = {"pr-author": "PR Author", "spec-author": "Spec Author", "knowledge": "Knowledge"}
@@ -481,6 +817,13 @@ def role_examples(system, role):
         return ["Is this red EUREX build a real failure or a false positive? <paste the Jenkins build URL>",
                 "Adjudicate SonarQube issue <key> on gts.eurex.gateway.outboundfi — true or false positive, with the data-flow.",
                 "This Jira SIR wraps a failed build — unwrap it, find the root cause, and recommend the fix."]
+    if role == "delivery":
+        return ["Deliver gts.eurex.gateway.common for T7-563473 into the open 150.005 integration release — run the readiness gates and give me the exact command.",
+                "Is release 150.005.031 open, is my SIR governance-clean, and what tag and branch should I use?",
+                "I ran gts-deliver — did INT-EUREX pick it up, and did the build pass or is it infra noise?"]
+    if role == "feedback":
+        return ["The T7 planner ignored my acceptance criteria — file this whole conversation as a bug.",
+                "Feature request: let the reviewer post its findings straight onto the pull request."]
     if role == "spec-author":
         return ["Author the DFS for the SpA Cash Market Risk requirements (T7-571121 / DFS150510).",
                 "Turn the approved plan into a DTS with the full metadata header."]
@@ -497,12 +840,28 @@ def role_examples(system, role):
 
 
 def use_when(desc):
-    tail = re.split(r"(?i)\buse when:\s*", desc, maxsplit=1)
+    """Turn a description into short 'Use when' bullets.
+
+    Some agents write 'Use when: a; b; c', others a prose 'Use when ...' paragraph —
+    handle both, and break a glued-together clause back into sentences so no bullet
+    renders as a wall of text.
+    """
+    tail = re.split(r"(?i)\buse when:?\s+", desc, maxsplit=1)
     tail = tail[1] if len(tail) > 1 else desc
-    parts = [p.strip(" .") for p in re.split(r";\s+", tail) if p.strip(" .")]
+    parts = [p.strip(" .;") for p in re.split(r";\s+", tail) if p.strip(" .;")]
     if len(parts) < 2:
-        parts = [p.strip(" .") for p in re.split(r",\s+", tail) if p.strip(" .")]
-    return parts[:6]
+        parts = [p.strip(" .,") for p in re.split(r",\s+", tail) if p.strip(" .,")]
+    out = []
+    for p in parts:
+        chunks = re.split(r"(?<=[.!?])\s+(?=[A-Z(])", p) if len(p) > 160 else [p]
+        for c in chunks:
+            c = c.strip(" .;,")
+            if not c:
+                continue
+            if len(c) > 220:
+                c = textwrap.shorten(c, width=220, placeholder=" \u2026")
+            out.append(c)
+    return out[:6]
 
 
 def invoke_of(name, system, role, invocable):
@@ -528,44 +887,109 @@ def model_kind(model):
 
 
 # The MCP servers the agents reach their tools through (skill-first access).
-# Grouped by purpose; tools are a representative set, not the exhaustive list.
+# `id` MUST match the tool namespace used in the agents' `tools:` frontmatter —
+# the "Used by agents" list is resolved by that id.
+# `tools` is the COMPLETE surface each server exposes, not a sample. Refresh it
+# from the live servers (VS Code MCP: List Servers, or the lens repos' own tool
+# registries) whenever a server ships new tools. The Cortex `read_large_content`
+# pagination helper is present on every hosted server and is omitted throughout.
+# Verified 2026-08-18.
+
+# The three GitHub connectors expose the same read-only browse surface.
+GITHUB_TOOLS = [
+    "search_code", "search_issues", "search_pull_requests", "search_repositories", "search_orgs", "search_users",
+    "get_file_contents", "read_file_lines", "get_repository", "get_repository_tree", "list_repositories",
+    "list_commits", "get_commit", "list_commit_comments",
+    "list_pull_requests", "get_pull_request", "get_pull_request_diff", "list_pull_request_files",
+    "list_pull_request_comments", "list_pull_request_reviews",
+    "list_issues", "get_issue", "list_issue_comments", "list_issue_labels", "list_labels", "get_label",
+    "list_branches", "list_tags", "get_tag", "list_releases", "get_latest_release", "get_release_by_tag",
+    "list_workflows", "list_workflow_runs", "get_workflow_run", "list_workflow_run_jobs",
+    "get_workflow_job_logs", "list_check_runs", "get_combined_status", "wait_for_required_checks",
+    "list_dependabot_alerts", "get_dependabot_alert", "list_code_scanning_alerts", "get_code_scanning_alert",
+    "list_secret_scanning_alerts", "get_secret_scanning_alert",
+    "list_notifications", "get_notification_details", "get_teams", "get_team_members",
+    "list_gists", "get_gist", "get_me", "upload_file",
+]
+
 MCPS = [
-    {"id": "github", "label": "GitHub Enterprise", "group": "code", "auth": "GitHub PAT", "repo": "dev/cortex-mcp",
-     "blurb": "Read the T7 / P7 GitHub Enterprise repos — code search, files, commits, diffs, pull requests, issues, branches, tags and CI workflow runs. (T7 also uses the read-only browse variants github_dbg / github_ghe.)",
-     "tools": ["search_code", "get_file_contents", "list_commits", "get_commit", "get_pull_request", "get_pull_request_diff", "list_pull_requests", "list_pull_request_files", "get_issue", "list_issues", "list_workflow_runs", "get_workflow_run", "list_branches", "get_repository"]},
-    {"id": "t7spec", "label": "T7 specifications", "group": "spec", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
-     "blurb": "Search and read the T7 specification corpus (DFS / DTS / SRQ / manuals) — keyword, semantic and structured queries over hundreds of documents.",
-     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "list_files", "status"]},
-    {"id": "p7spec", "label": "P7 specifications", "group": "spec", "auth": "Cortex (OAuth)", "repo": "dev/cortex-mcp",
-     "blurb": "Search and read the P7 (Pricing & Risk) specification corpus — the same keyword / semantic / structured retrieval as t7spec, for P7 documents.",
-     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "status"]},
+    {"id": "codereviewer_lens", "label": "Code-review brain", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.codereviewer-lens",
+     "banner": "assets/lens-codereviewer.svg",
+     "blurb": "The review engine behind the reviewer agents — SonarQube, Fortify, GitHub code/secret scanning, dependency checks and a RAG over the C++/Java/Python coding-guideline PDFs, combined with deterministic architecture and concurrency rules. It also scores requirement-conformance and answers guideline questions at write time.",
+     "tools": ["review_diff", "review_pr", "review_commit", "review_snippet", "review_semantics", "validate_intent",
+               "assess_conformance", "check_architecture_rules", "analyse_concurrency", "trace_impact",
+               "query_code_graph", "check_compliance", "configure_review", "get_review_status",
+               "ask_guideline", "explain_rule", "list_guidelines"]},
+    {"id": "jenkins_lens", "label": "Jenkins build analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.jenkins-lens",
+     "banner": "assets/lens-jenkins.svg",
+     "blurb": "Root-cause failing or UNSTABLE Jenkins builds — pull build info, diagnose the console log, localise the failing substep, score the build and separate real regressions from infrastructure noise. Used by gts-issue-analyst and gts-delivery.",
+     "tools": ["analyze_build", "diagnose_log", "score_build", "build_info", "job_status", "list_jobs", "ask"]},
+    {"id": "sonarqube_lens", "label": "SonarQube finding analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.sonarqube-lens",
+     "banner": "assets/lens-sonarqube.svg",
+     "blurb": "Turn a SonarQube issue or hotspot into a grounded verdict — parse a pasted Sonar URL or key, then adjudicate the finding against the real code from six perspectives with a true-vs-false-positive probability and a fix plan. Used by gts-issue-analyst.",
+     "tools": ["analyze_finding", "parse_sonar_url"]},
     {"id": "t7codebase", "label": "T7 Codebase Explorer", "group": "refdata", "auth": "Cortex bearer + AAD group", "repo": "dev/mcp.codebase-explorer",
-     "blurb": "Navigate the T7 source across projects, environments and releases — keyword code search, file listing and semantic page-index lookups.",
+     "blurb": "Navigate the T7 source across projects, environments and releases — keyword code search, file listing and semantic page-index lookups. This is how the planner and developer localise a change to real files instead of guessing.",
      "tools": ["search_code", "list_files", "list_projects", "list_environments", "list_releases", "page_index_search", "get_page_chunk"]},
     {"id": "t7dbcopy", "label": "T7 RDS Sense · reference data", "group": "refdata", "auth": "DBCopy login", "repo": "dev/cortex-mcp",
-     "blurb": "Query the T7 Reference Data System (DBCopy) — a semantic RDS model plus read-only SQL over the live 'rdb' and Contract-Manager 'comadb' databases, baseline-aware.",
-     "tools": ["search_entities", "get_entity", "map_entity_to_tables", "describe_table", "run_query", "query_entity", "count_entity", "resolve_enum", "diff_baselines", "get_deployed_version"]},
+     "blurb": "Query the T7 Reference Data System (DBCopy) — the documented RDS semantic model, the physical schema behind it, read-only SQL over the live 'rdb' and Contract-Manager 'comadb' databases, enum resolution, baseline diffs and roll-over run data.",
+     "tools": ["search_entities", "list_entities", "get_entity", "get_entity_relations", "get_semantic_model",
+               "search_attributes", "get_baseline_stats", "diff_baselines",
+               "map_entity_to_tables", "get_table_entity_mapping", "get_mapping_confidence", "describe_table",
+               "list_tables", "list_databases", "get_create_table", "get_table_indexes", "get_schema_snapshot",
+               "run_query", "query_entity", "count_entity",
+               "resolve_enum", "resolve_map_enum", "lookup_enum",
+               "get_environments", "get_deployed_version",
+               "get_rds_rollover", "get_rollover_history", "get_rollover_runtime", "render_rds_rollover",
+               "search_coma_entities", "list_coma_entities", "get_coma_entity", "get_coma_baseline_stats", "list_coma_baselines"]},
     {"id": "eurex_refdata", "label": "Eurex reference data", "group": "refdata", "auth": "API key", "repo": "dev/cortex-mcp",
-     "blurb": "Query public Eurex reference data via the GraphQL API — products, contracts, trading hours, settlement prices, holidays, expirations and tick rules.",
-     "tools": ["query_products", "query_contracts", "query_trading_hours", "query_settlement_prices", "query_holidays", "query_expirations", "query_tick_rules", "graphql"]},
+     "blurb": "Query public Eurex reference data via the GraphQL API — products, contracts, trading hours, settlement prices, holidays, expirations, tick rules, TES and EnLight profiles, vendor codes and deliverable bonds, plus a raw GraphQL escape hatch.",
+     "tools": ["query_products", "query_contracts", "query_flexible_contracts", "query_expirations",
+               "query_trading_hours", "query_settlement_prices", "query_holidays", "query_tick_rules",
+               "query_tes_profiles", "query_vendor_codes", "query_deliverable_bonds",
+               "query_enlight", "query_enlight_responders", "query_changelog", "graphql"]},
+    {"id": "github", "label": "GitHub Enterprise · default", "group": "code", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
+     "blurb": "The default GitHub connector, read-only: github.deutsche-boerse.de, where both T7 and P7 product source and the gts.* AI-tooling repos live. Code search, files, commits, diffs, pull requests, issues, branches, tags, releases, CI runs and security alerts. It cannot write — agents that publish do so with the git CLI, never through this server.",
+     "tools": GITHUB_TOOLS},
+    {"id": "github_ghe", "label": "GitHub Enterprise · explicit", "group": "code", "auth": "GitHub PAT (pass-through)", "repo": "dev/cortex-mcp",
+     "blurb": "The same internal host as `github`, in its explicit form, with your own GitHub PAT passed through — same tool surface. The knowledge agents use it so a repository question is always answered from the host the repo actually lives on. Read-only.",
+     "tools": GITHUB_TOOLS},
+    {"id": "github_dbg", "label": "GitHub Cloud · Trading-DEV", "group": "code", "auth": "GitHub PAT (dbg.ghe.com)", "repo": "dev/cortex-mcp",
+     "blurb": "The GitHub Cloud host dbg.ghe.com (Trading-DEV org) — cloud org repos and sandbox mirrors, same tool surface as `github`. A separate identity from the internal GHE: use it only when the repository URL is dbg.ghe.com, never as a fallback for an internal repo. Read-only.",
+     "tools": GITHUB_TOOLS},
+    {"id": "t7spec", "label": "T7 specifications", "group": "spec", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
+     "blurb": "Search and read the T7 specification corpus (DFS / DTS / SRQ / functional and interface manuals) — keyword, semantic and structured queries over hundreds of documents. `status` first tells you how current the index is.",
+     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "list_files", "status"]},
+    {"id": "p7spec", "label": "P7 specifications", "group": "spec", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
+     "blurb": "Search and read the P7 (Pricing & Risk) specification corpus — the same keyword / semantic / structured retrieval as t7spec, for P7 documents.",
+     "tools": ["search", "vsearch", "grep", "query", "get", "multi_get", "status"]},
     {"id": "devops_jira", "label": "Jira · SIRs & tickets", "group": "tickets", "auth": "Jira PAT", "repo": "dev/cortex-mcp",
-     "blurb": "Read and write Jira across all projects — look up issues and SIRs, run JQL, list your tickets, and (for the right agents) create, update, transition, comment and link.",
-     "tools": ["get_issue", "search_issues", "run_jql", "get_my_issues", "get_issues_assigned_to", "get_issue_comments", "get_issue_links", "get_transitions", "create_issue", "update_issue", "transition_issue", "add_comment", "link_issues"]},
+     "blurb": "The full Jira surface across all projects — issues and SIRs, JQL, boards and sprints, attachments, project metadata and Xray test management. Note this is the server's whole capability: agent grants are least-privilege, so most agents get a read-only subset and none holds the delete or batch tools.",
+     "tools": ["get_issue", "get_issue_comments", "get_issue_links", "get_remote_issue_links", "get_issue_changelog",
+               "get_issue_watchers", "get_issue_worklogs", "get_transitions", "get_issue_types", "get_link_types",
+               "search_issues", "run_jql", "get_my_issues", "get_issues_assigned_to", "get_project_issues",
+               "get_epic_issues", "search_users", "get_user", "get_user_permissions", "get_myself",
+               "create_issue", "batch_create_issues", "update_issue", "transition_issue", "assign_issue",
+               "add_comment", "edit_comment", "delete_comment", "delete_issue", "link_issues", "remove_issue_link",
+               "create_remote_issue_link", "add_watcher", "remove_watcher", "add_worklog",
+               "get_create_meta", "get_edit_meta", "get_fields", "get_field_options", "get_statuses",
+               "get_priorities", "get_resolutions", "get_server_info", "list_projects", "get_project",
+               "get_project_components", "get_project_versions", "create_version", "update_version",
+               "list_boards", "get_board", "get_board_backlog", "get_board_configuration", "get_board_issues",
+               "list_sprints", "get_sprint", "get_sprint_issues", "create_sprint", "update_sprint", "add_issues_to_sprint",
+               "list_attachments", "attach_file", "download_attachment", "get_attachment_text",
+               "start_attachment_text_extraction", "get_attachment_text_extraction", "get_attachment_visual_context",
+               "create_test", "create_test_execution", "add_tests_to_test_execution", "add_tests_to_test_plan",
+               "import_junit_results", "propose_coverage"]},
     {"id": "confluence", "label": "Confluence", "group": "tickets", "auth": "Confluence PAT", "repo": "dev/cortex-mcp",
-     "blurb": "Read Confluence spaces and pages — search content, fetch pages by title or id, browse children and comments, and (where granted) append or update sections.",
-     "tools": ["search_content", "get_page", "get_page_by_title", "list_spaces", "get_space", "list_page_children", "get_page_comments", "append_to_page", "update_page_section"]},
-    {"id": "feedback", "label": "Cortex feedback tracker", "group": "tickets", "auth": "Cortex bearer", "repo": "dev/cortex-mcp",
-     "blurb": "File and manage feedback about the tooling itself — create issues, comment and label in the shared Cortex feedback tracker.",
-     "tools": ["create_issue", "get_issue", "list_issues", "update_issue", "add_comment", "edit_comment", "add_label", "remove_label", "list_labels"]},
-    {"id": "codereviewer-lens", "label": "Code-review brain", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.codereviewer-lens",
-     "blurb": "The review engine behind the reviewer agents — deterministic + LLM checks for security, quality, architecture boundaries, concurrency, guideline compliance and change impact.",
-     "tools": ["review_diff", "review_pr", "review_commit", "review_snippet", "review_semantics", "check_architecture_rules", "analyse_concurrency", "trace_impact", "query_code_graph", "validate_intent", "check_compliance", "ask_guideline", "explain_rule", "list_guidelines"]},
-    {"id": "jenkins-lens", "label": "Jenkins build analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.jenkins-lens",
-     "blurb": "Root-cause failing or unstable Jenkins builds — pull build info, diagnose console logs, score a build and separate real failures from infrastructure noise. Used by gts-issue-analyst.",
-     "tools": ["analyze_build", "diagnose_log", "build_info", "score_build", "job_status", "list_jobs", "ask"]},
-    {"id": "sonarqube-lens", "label": "SonarQube finding analysis", "group": "review", "auth": "via Cortex", "repo": "dev/gts.scm.ai.sonarqube-lens",
-     "blurb": "Turn a SonarQube issue or hotspot into a grounded root-cause verdict — parse a Sonar URL and analyse the finding against the real code. Used by gts-issue-analyst.",
-     "tools": ["analyze_finding", "parse_sonar_url"]},
+     "blurb": "Read Confluence spaces and pages — search content, fetch pages by title or id, walk ancestors and children, read comments, labels, history and attachments, and (where granted) append or update a section. Used by the spec authors to pull source material into a DFS / DTS / SRQ.",
+     "tools": ["search_content", "get_page", "get_page_by_title", "get_page_ancestors", "list_page_children",
+               "get_page_comments", "get_page_history", "get_page_version", "get_page_labels", "get_page_attachments",
+               "get_content_properties", "list_spaces", "get_space", "get_space_content", "get_user", "get_current_user",
+               "append_to_page", "update_page_section", "upload_attachment"]},
+    {"id": "sharepoint", "label": "SharePoint · spec documents", "group": "tickets", "auth": "Azure AD sign-in", "repo": "dev/cortex-mcp",
+     "blurb": "Reach the SharePoint document libraries where the released specification documents live — the spec authors use it to locate the governing DFS / DTS / SRQ for a release before writing a new one. The whole connector is granted, so its exact tool surface is whichever SharePoint connector you enable in Cortex.",
+     "tools": ["sharepoint/*"]},
 ]
 
 # Agentic-harness benchmarking campaigns (results dashboards + artifact repos), newest first.
@@ -579,6 +1003,59 @@ EVALS = [
      "dashboard": "https://pages.github.deutsche-boerse.de/dev/gts.ai.harness.eval-results/gts.ai.sdlc/runs/views/dashboard.html",
      "artifacts": "https://github.deutsche-boerse.de/dev/gts.ai.harness.eval-results"},
 ]
+
+# Roadmap shown on the "What's Next" tab — in design or in build, deliberately undated.
+# `i` is the tracking issue in dev/gts.ai.sdlc, where one exists.
+NEXT = [
+    {"t": "T7 Component Skill/Context Generator Agent",
+     "b": ["Generates T7 component-specific (ME, GMC, OPM, etc.) skills from the docs, specs, repo and any existing reference the user provides.",
+           "Generates a T7 component-specific, task-aware context document."]},
+    {"t": "GTS Deep Agents",
+     "b": ["Agents create their own GCP instances and run tasks independently."]},
+    {"t": "T7 SuperAgent",
+     "b": ["Forensic, evidence-based, deterministic issue analysis.",
+           "Root-cause for time-critical, hard-to-resolve issues.",
+           "Built for the toughest cases."]},
+    {"t": "Jira STP Agent",
+     "b": ["One-click Jira issue to pull request.",
+           "Runs automatically in GCP."],
+     "d": "Pilot implementation. Standard uses are subject to risk assessment, policy compliance and further review."},
+    {"t": "On-demand RCA Agent",
+     "b": ["Root-cause analysis at the point of failure \u2014 e.g. build-failure analysis straight from the failing Jenkins build."]},
+    {"t": "Smoke Test Agent", "i": 26,
+     "b": ["Reads the Jenkins build, its smoke-test stage and the changeset.",
+           "Pulls the smoke-test log, spots the known patterns, summarises.",
+           "Investigates on its own GCP instance."]},
+    {"t": "Unit Test Agent", "i": 23,
+     "b": ["Creates and runs unit tests for one component \u2014 Boost.Test, Catch2, GoogleTest.",
+           "Writes a test that reproduces a reported defect, or covers a changeset.",
+           "Handles CMake enablement and reports failures."]},
+    {"t": "Component Skill & Resource Management",
+     "b": ["Collect, coordinate and maintain component-specific skills and agentic resources."]},
+    {"t": "Assignment Agents",
+     "b": ["Issue analysis by assignment in Jira.",
+           "GitHub issue analysis.",
+           "Pull-request review by assignment."],
+     "d": "Pilot implementation. Standard uses are subject to risk assessment, policy compliance and further review."},
+    {"t": "Self-Improving Harness",
+     "b": ["Integrated and on-demand evals \u2014 score a change as it happens, not only in a campaign.",
+           "Builds learning and memory from every run, so lessons carry across sessions.",
+           "Feeds scored failures back into the agent or skill that caused them.",
+           "A self-improvement and reflection skill \u2014 use when capturing the learnings from a session."]},
+    {"t": "T7 Knowledge Graph",
+     "b": ["Efficient, recency- and baseline-aware retrieval across the whole T7 knowledge base \u2014 requirement docs, repos, Confluence, SharePoint."]},
+    {"t": "Ready-to-use Skills",
+     "b": ["Grill-me, interview-mode and brainstorm-together \u2014 skills you invoke directly."]},
+    {"t": "Bidirectional Cortex Integration",
+     "b": ["Connect both ways with Cortex to run, resume and continue interactions."]},
+    {"t": "t7spec / t7codebase MCP Improvements",
+     "b": ["Ongoing work on speed, answer quality and tool capability."]},
+]
+
+FEEDBACK_REPO = "https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback"
+SDLC_REPO = "https://github.deutsche-boerse.de/dev/gts.ai.sdlc"
+FEEDBACK_NEW_ISSUE = "https://github.deutsche-boerse.de/dev/gts.ai.sdlc-feedback/issues/new/choose"
+SDLC_ISSUE_URL = "https://github.deutsche-boerse.de/dev/gts.ai.sdlc/issues/"
 
 agents = []
 for path in sorted(glob.glob(os.path.join(AGENT_DIR, "*.agent.md"))):
@@ -656,11 +1133,14 @@ TEMPLATE = r"""<!doctype html>
   body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;
     font-family:Inter,'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
   a{color:#3F6FB5;text-decoration:none} a:hover{text-decoration:underline}
-  .hero{background:linear-gradient(135deg,#5E54C8 0%,#3F6FB5 52%,#2E8E84 100%);color:#fff;padding:34px 24px 30px}
-  .hero-in{max-width:1180px;margin:0 auto}
-  .hero .eyebrow{font-size:12.5px;font-weight:700;letter-spacing:2.5px;opacity:.85}
-  .hero h1{margin:8px 0 6px;font-size:30px;font-weight:800;letter-spacing:-.4px}
-  .hero .sub{margin:0;font-size:15px;opacity:.94;max-width:860px}
+  .hero{background:linear-gradient(135deg,#5E54C8 0%,#3F6FB5 52%,#2E8E84 100%);color:#fff;padding:15px 24px 16px}
+  .hero-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap}
+  .hero .eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.85}
+  .hero h1{margin:3px 0 0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+  .herobtn{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.45);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;font-family:'SF Mono',ui-monospace,Menlo,monospace;white-space:nowrap;transition:background .14s,border-color .14s}
+  .herobtn:hover{background:rgba(255,255,255,.25);border-color:rgba(255,255,255,.75)}
+  .herobtn svg{flex:0 0 auto;opacity:.9}
+  .hbarw{opacity:.75}
   .wrap{max-width:1180px;margin:0 auto;padding:22px 24px 56px}
   .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:2px 0 18px}
   .search{flex:1 1 240px;min-width:200px;display:flex;align-items:center;gap:8px;
@@ -673,7 +1153,7 @@ TEMPLATE = r"""<!doctype html>
   .chip.on{background:#1F2733;color:#fff;border-color:#1F2733}
   .legend{display:flex;flex-wrap:wrap;gap:13px;font-size:11.5px;color:var(--muted);margin-left:auto}
   .legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:1px}
-  .layout{display:grid;grid-template-columns:344px 1fr;gap:20px;align-items:start}
+  .layout{display:grid;grid-template-columns:288px 1fr;gap:20px;align-items:start}
   .card{background:var(--card);border:1px solid var(--line);border-radius:0;box-shadow:0 1px 3px rgba(15,23,42,.05)}
   .list{padding:12px;max-height:80vh;overflow:auto}
   .group{font-size:11px;font-weight:700;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;margin:14px 8px 8px}
@@ -728,7 +1208,7 @@ TEMPLATE = r"""<!doctype html>
   .xnote b{color:var(--ink)}
   .xnote button{margin-left:auto;border:0;background:#1F2733;color:#fff;border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;cursor:pointer}
   .tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:2px solid var(--line);margin:12px 0 22px}
-  .tab{padding:9px 15px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;border:2px solid #3F6FB5;background:#3F6FB5;border-radius:11px 11px 0 0;margin-bottom:-2px;transition:.14s;position:relative;top:4px}
+  .tab{padding:9px 12px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;border:2px solid #3F6FB5;background:#3F6FB5;border-radius:11px 11px 0 0;margin-bottom:-2px;transition:.14s;position:relative;top:4px}
   .tab:hover:not(.on){background:#4E7AC0;border-color:#4E7AC0;top:2px}
   .tab.on{color:var(--ink);background:#fff;top:0;border-bottom-color:#fff;box-shadow:inset 0 3px 0 #3F6FB5,0 -3px 8px rgba(15,23,42,.05)}
   .uw{font-size:11.5px;font-weight:700;color:var(--body);margin:0 0 3px}
@@ -739,6 +1219,7 @@ TEMPLATE = r"""<!doctype html>
   .dsuffix{margin-left:7px;font-weight:600;font-size:14px;color:var(--muted)}
   .howto{margin-top:2px}
   .hintro{background:#fff;border:1px solid var(--line);border-radius:0;padding:15px 18px;font-size:13.5px;color:var(--body);line-height:1.6;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  .mcpnote{display:block;margin-top:8px;font-size:12.5px;color:var(--muted)}
   .hintro b{color:var(--ink)}
   .hintro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
   ol.hprin{margin:11px 0 2px;padding-left:22px}
@@ -746,6 +1227,26 @@ TEMPLATE = r"""<!doctype html>
   ol.hprin li b{color:var(--ink)}
   ol.hprin li::marker{color:#3F6FB5;font-weight:800}
   .hprinnote{display:block;margin-top:9px;color:var(--muted);font-size:13px}
+  .qm{margin:14px 0 2px;border:1px solid var(--line);background:#F8FAFD;padding:13px 15px}
+  .qmhead{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px}
+  .qmhead span{font-weight:600;color:var(--muted)}
+  .qmform{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px}
+  .qmres{flex:0 0 auto;display:flex;align-items:center;background:#2F3B4D;color:#fff;padding:8px 12px;font-size:12.5px;font-weight:800;line-height:1.25;max-width:96px}
+  .qmterm{flex:1 1 120px;max-width:280px;background:#fff;border:1px solid #DCE6F3;padding:7px 10px;line-height:1.3}
+  .qmterm b{display:block;font-size:12.5px;color:var(--ink)}
+  .qmterm span{display:block;margin-top:2px;font-size:11px;color:var(--muted)}
+  .qmterm.bad{border-color:#F0D9D7;background:#FFFAF9}
+  .qmterm.bad b{color:#B3453F}
+  .qmop{flex:0 0 auto;align-self:center;font-size:15px;font-weight:800;color:var(--faint)}
+  .qmop.minus{color:#B3453F}
+  .qmchart{display:block;width:100%;height:auto;margin:13px 0 0}
+  .qmzones{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+  .qmzone{flex:1 1 250px;background:#fff;border:1px solid var(--line);border-left:3px solid #3E9460;padding:7px 10px}
+  .qmzone b{display:block;font-size:12.5px;color:var(--ink)}
+  .qmzone span{display:block;margin-top:2px;font-size:11.5px;color:var(--muted)}
+  .qmzone.rot{border-left-color:#C98A2E}
+  .qmtake{margin-top:10px;padding-top:9px;border-top:1px dashed #D9E2EE;font-size:12.5px;color:var(--body);line-height:1.55}
+  .qmtake b{color:var(--ink)}
   .woheading{display:flex;align-items:center;gap:10px;margin:22px 0 2px;font-size:15px;font-weight:800;color:var(--ink)}
   .woheading .wohn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,#3F6FB5,#2E8E84);color:#fff;font-size:12.5px;font-weight:800;flex:0 0 auto}
   .woheading .wohs{font-weight:600;color:var(--muted);font-size:13px}
@@ -754,8 +1255,79 @@ TEMPLATE = r"""<!doctype html>
   .wointro{font-size:13.5px;color:var(--body);line-height:1.6;margin:9px 0 2px}
   .wointro code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
   .wocode{margin:9px 0 2px;background:#fff;border:1px solid #DCE6F3;border-radius:8px;padding:13px 15px;overflow-x:auto;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.7px;line-height:1.6;color:#33415A;white-space:pre;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-  .mcplayout{display:grid;grid-template-columns:344px 1fr;gap:20px;align-items:start}
+  .wochips{display:flex;flex-wrap:wrap;gap:6px;margin:11px 0 0}
+  .wochip{display:inline-flex;align-items:center;gap:6px;border:1px solid #DCE6F3;background:#fff;color:var(--body);border-radius:999px;padding:5px 12px 5px 6px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+  .wochip:hover:not(.on){border-color:#B9CBE4;background:#F7FAFE}
+  .wochip.on{background:linear-gradient(135deg,#3F6FB5,#2E8E84);border-color:transparent;color:#fff}
+  .wochip .wcsys{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:17px;border-radius:999px;font-size:9.5px;font-weight:800;letter-spacing:.3px}
+  .wcsys.sT7{background:#3F6FB5;color:#fff}
+  .wcsys.sP7{background:#2E8E84;color:#fff}
+  .wochip.on .wcsys{background:rgba(255,255,255,.26);color:#fff}
+  .wometa{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:14px 0 0;font-size:13.5px;font-weight:800;color:var(--ink)}
+  .wometa .wmroute{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11px;font-weight:600;color:#3F6FB5;background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:2px 8px}
+  .wometa .wmroute .rlab{font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.4px;font-size:9.5px;color:var(--faint);margin-right:6px}
+  .mcplayout{display:grid;grid-template-columns:288px 1fr;gap:20px;align-items:start}
   .mcprepo{font-size:12.5px;font-weight:700;color:#2B5CB8;text-decoration:none;font-family:'SF Mono',ui-monospace,Menlo,monospace;word-break:break-all}
+  .mcpban{display:block;margin:12px 0 2px;border:1px solid var(--line);background:#fff;padding:8px 8px 6px;text-decoration:none;transition:border-color .12s,box-shadow .12s}
+  .mcpban:hover{border-color:#C6D6EA;box-shadow:0 2px 8px rgba(15,23,42,.07)}
+  .mcpban img{display:block;width:100%;height:auto}
+  .mcpbanc{display:block;margin-top:6px;font-size:11.5px;color:var(--muted)}
+  .mcpban:hover .mcpbanc{color:#2B5CB8}
+  ol.nxlist{counter-reset:n;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  ol.nxlist > li{position:relative;background:#fff;border:1px solid var(--line);padding:11px 14px 12px 48px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  ol.nxlist > li::before{counter-increment:n;content:counter(n);position:absolute;left:12px;top:11px;width:25px;height:25px;display:flex;align-items:center;justify-content:center;background:#6E5BB8;color:#fff;font-weight:800;font-size:13px}
+  @media(max-width:960px){ol.nxlist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:640px){ol.nxlist{grid-template-columns:1fr}}
+  .nxt{font-size:13px;font-weight:800;color:var(--ink);line-height:1.35;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .nxi{font-size:10.5px;font-weight:700;color:#6E5BB8;text-decoration:none;background:#F4F1FC;border:1px solid #E2DCF6;padding:1px 5px}
+  .nxi:hover{background:#EAE4F9}
+  .nxb{margin:6px 0 0;padding-left:15px}
+  .nxb li{font-size:12px;color:var(--body);line-height:1.5;margin:2px 0}
+  .nxb li::marker{color:#6E5BB8}
+  .nxd{display:block;margin-top:8px;padding:5px 8px;background:#FFFBF3;border:1px solid #F0E2C8;border-left:2px solid #C98A2E;font-size:11px;color:#8A6420;line-height:1.45}
+  .fbhero{background:linear-gradient(135deg,#2E8E84 0%,#3F6FB5 100%);color:#fff;padding:22px 24px;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .fbeyebrow{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;opacity:.9}
+  .fbh1{margin-top:7px;font-size:23px;font-weight:800;letter-spacing:-.3px}
+  .fbsub{margin-top:7px;font-size:13.5px;line-height:1.6;opacity:.96;max-width:820px}
+  .fbbtns{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+  .fbbtn{display:inline-block;padding:9px 15px;font-size:13px;font-weight:800;text-decoration:none;border:1px solid transparent}
+  .fbbtn.primary{background:#fff;color:#1F6B62}
+  .fbbtn.primary:hover{background:#F1F7F6}
+  .fbbtn.ghost{border-color:rgba(255,255,255,.55);color:#fff}
+  .fbbtn.ghost:hover{background:rgba(255,255,255,.13)}
+  .sect2{margin:20px 2px 9px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#1F6B45;display:flex;align-items:center;gap:9px}
+  .sect2::after{content:"";flex:1;height:1px;background:var(--line)}
+  .fbways{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  @media(max-width:760px){.fbways{grid-template-columns:1fr}}
+  .fbway{position:relative;background:#fff;border:1px solid var(--line);padding:12px 14px 13px 48px;box-shadow:0 1px 3px rgba(15,23,42,.04)}
+  .fbwn{position:absolute;left:12px;top:12px;width:25px;height:25px;display:flex;align-items:center;justify-content:center;background:#2E8E84;color:#fff;font-weight:800;font-size:13px}
+  .fbway b{display:block;font-size:13px;color:var(--ink)}
+  .fbwd{display:block;margin-top:5px;font-size:12.5px;color:var(--body);line-height:1.55}
+  .fbwd b{display:inline}
+  .fbway a{color:#2B5CB8;font-weight:700;text-decoration:none}
+  .fbway a:hover{text-decoration:underline}
+  .fbway code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;color:#3F6FB5}
+  .fbdiag{display:block;background:#fff;border:1px solid var(--line);padding:8px 8px 6px;text-decoration:none;box-shadow:0 1px 3px rgba(15,23,42,.04);transition:border-color .12s,box-shadow .12s}
+  .fbdiag:hover{border-color:#C6D6EA;box-shadow:0 2px 8px rgba(15,23,42,.07)}
+  .fbdiag img{display:block;width:100%;height:auto}
+  .fbdiagc{display:block;margin-top:7px;font-size:12px;color:var(--muted);line-height:1.55}
+  .fbdiag:hover .fbdiagc{color:#2B5CB8}
+  .fbscope{margin-top:14px;background:#FFFBF3;border:1px solid #F0E2C8;border-left:3px solid #C98A2E;padding:11px 14px;font-size:12.5px;color:var(--body);line-height:1.55}
+  .fbscope b{color:var(--ink)}
+  .fblinks{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+  .fbll{font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+  .fblinks a{font-size:12.5px;font-weight:700;color:#2B5CB8;text-decoration:none;font-family:'SF Mono',ui-monospace,Menlo,monospace}
+  .fblinks a:hover{text-decoration:underline}
+  .nxcta{margin-top:16px;background:#fff;border:1px solid var(--line);border-left:3px solid #2E8E84;padding:14px 16px;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+  .nxctat{font-size:14.5px;font-weight:800;color:var(--ink)}
+  .nxctad{margin-top:5px;font-size:13px;color:var(--body);line-height:1.6}
+  .nxways{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  .nxway{flex:1 1 300px;border:1px solid var(--line);background:#FBFCFE;padding:10px 12px}
+  .nxway b{display:block;font-size:12.5px;color:var(--ink)}
+  .nxway span{display:block;margin-top:4px;font-size:12px;color:var(--muted);line-height:1.55}
+  .nxway a{color:#2B5CB8;font-weight:700;text-decoration:none}
+  .nxway a:hover{text-decoration:underline}
+  .nxway code{background:#F1F5FA;border:1px solid #E1E8F0;border-radius:5px;padding:1px 6px;font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:11.5px;color:#3F6FB5}
   .mcprepo:hover{text-decoration:underline}
   .evcard{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:0 4px 18px rgba(15,23,42,.07);max-width:780px;overflow:hidden}
   .evstripe{position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#3F6FB5,#2E8E84)}
@@ -829,6 +1401,10 @@ TEMPLATE = r"""<!doctype html>
   .excmd .plab{font-family:Inter,'SF Pro Display',sans-serif;font-weight:700;color:#9AA1AB;margin-right:7px;text-transform:uppercase;font-size:10px;letter-spacing:.4px}
   .excmd .sl{color:#1F3A6B;font-weight:700;margin-right:5px}
   .oralt{align-self:center;font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.7px;margin:-1px 0}
+  .wo4{border:1px solid #D8E2F1;padding:11px 12px;display:grid;grid-template-columns:auto 1fr;gap:5px 11px;align-items:baseline;background:#FCFDFF;margin-top:-8px;border-top:none}
+  .wo4 .w4l{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:9px;font-weight:800;letter-spacing:.55px;color:#93A0B4;text-align:right;white-space:nowrap}
+  .wo4 .w4t{font-size:12.4px;line-height:1.5;color:var(--body)}
+  .excmd.w4h{padding:8px 11px}
   .exroute{font-size:11.5px;color:var(--muted);font-family:'SF Mono',ui-monospace,Menlo,monospace;line-height:1.5;word-break:break-word}
   .exroute .rlab{font-family:Inter,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.4px;font-size:10px;color:var(--faint);margin-right:6px}
   footer{margin-top:26px;color:var(--muted);font-size:12px;text-align:center}
@@ -837,9 +1413,14 @@ TEMPLATE = r"""<!doctype html>
 </head>
 <body>
 <header class="hero"><div class="hero-in">
-  <div class="eyebrow">GTS AI SDLC</div>
-  <h1>SDLC Agent Exploration</h1>
-  <p class="sub">A full team of AI agents that runs the software lifecycle for the <b>P7</b> and <b>T7</b> platforms — answering questions, analysing issues, writing specs, implementing, testing, reviewing, building and shipping. Start on <b>How to use GTS AI SDLC Agents</b> to see what you can ask for, then open the <b>T7</b> or <b>P7</b> tabs to meet every agent.</p>
+  <div>
+    <div class="eyebrow">GTS AI SDLC</div>
+    <h1>SDLC Agent Exploration</h1>
+  </div>
+  <a class="herobtn" href="__REPO__" target="_blank" rel="noopener" title="Open the repository on GitHub Enterprise">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <span>dev/gts.ai.sdlc</span><span class="hbarw">&#8599;</span>
+  </a>
 </div></header>
 <main class="wrap">
   <div class="tabs" id="tabs"></div>
@@ -858,6 +1439,8 @@ TEMPLATE = r"""<!doctype html>
   <div class="howto" id="setup" style="display:none"></div>
   <div class="howto" id="mcp" style="display:none"></div>
   <div class="howto" id="evals" style="display:none"></div>
+  <div class="howto" id="next" style="display:none"></div>
+  <div class="howto" id="feedback" style="display:none"></div>
   <footer id="foot"></footer>
 </main>
 <script>
@@ -868,17 +1451,23 @@ const PIPE = /*__PIPE__*/;
 const HOWTO = /*__HOWTO__*/;
 const MCPS = /*__MCPS__*/;
 const EVALS = /*__EVALS__*/;
+const NEXT = /*__NEXT__*/;
+const FEEDBACK_NEW_ISSUE = "/*__FEEDBACK__*/";
+const FEEDBACK_REPO = "/*__FBREPO__*/";
+const SDLC_ISSUE_URL = "/*__ISSUEURL__*/";
+const GUIDE = ["howto","setup","mcp","evals","next","feedback"];
 const PCOL = {"Developer":"#2E8E84","Tester":"#3E9460","Reviewer":"#C2862B","Architect":"#6E5BB8","Release manager":"#3F6FB5","Business analyst":"#C2557A","Product owner":"#B0518F","Ops engineer":"#5B6472","Security engineer":"#C0553B","Build engineer":"#6B7A45","Newcomer":"#8A92A0","Anyone":"#8A92A0"};
 let sel = "/*__DEFAULT__*/";
 let fTab = "howto", fSkill = null, q = "";
 let hStep = HOWTO[0].key;
+let hEx   = 0;
 let selMcp = MCPS[0].id;
 let eStep = EVALS[0].key;
 
 const $ = s => document.querySelector(s);
 const esc = s => (s||"").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const byName = n => AGENTS.find(a => a.name === n);
-function syncTab(){ if(fTab==="howto"||fTab==="setup"||fTab==="mcp"||fTab==="evals") return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
+function syncTab(){ if(GUIDE.includes(fTab)) return; const a=byName(sel); if(a && a.system!=="generic") fTab=a.system; }
 function go(n){ if(byName(n)){ sel=n; syncTab(); try{history.replaceState(null,"","#"+n)}catch(e){} render(); } }
 
 function legend(){
@@ -1016,19 +1605,53 @@ function renderHowto(){
       <li><b>Give links and context</b> — the real Jira SIR, GitHub issue or PR, build log or URL behind your request, so the agents ground their work on the right thing.</li>
       <li><b>Treat the agent as a companion, not a test</b> — rather than quizzing its intelligence, share the background, the constraints and what &ldquo;done&rdquo; looks like, and refine together.</li>
     </ol>
-    <span class="hprinnote">The stages below are real ways people put the team to work — examples, not limits.</span></div>`;
+    <div class="qm">
+      <div class="qmhead">What actually decides the output <span>— five things add up, one subtracts</span></div>
+      <div class="qmform">
+        <div class="qmres">Agentic output</div><span class="qmop">=</span>
+        <div class="qmterm"><b>Harness</b><span>the agent, its skills &amp; tools</span></div><span class="qmop">+</span>
+        <div class="qmterm"><b>Prompt</b><span>your work-order</span></div><span class="qmop">+</span>
+        <div class="qmterm"><b>Model</b><span>Opus 4.8 &middot; Sonnet 5 &middot; GPT-5 Sol</span></div><span class="qmop">+</span>
+        <div class="qmterm"><b>Effective context</b><span>signal &middot; relevance &middot; evidence</span></div><span class="qmop minus">&minus;</span>
+        <div class="qmterm bad"><b>Context rot</b><span>noise &middot; stale &middot; confusion</span></div>
+      </div>
+      <svg class="qmchart" viewBox="0 0 760 128" role="img" aria-label="Output quality stays high through roughly the first fifth of the context window, then falls away as context rot sets in">
+        <rect x="52" y="14" width="132" height="86" fill="#EAF6EF"/>
+        <rect x="184" y="14" width="524" height="86" fill="#FBF4E8"/>
+        <line x1="52" y1="100" x2="708" y2="100" stroke="#D9E2EE" stroke-width="1"/>
+        <line x1="52" y1="14" x2="52" y2="100" stroke="#D9E2EE" stroke-width="1"/>
+        <line x1="184" y1="10" x2="184" y2="104" stroke="#C98A2E" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M52 26 L184 29 C 250 42, 300 70, 380 84 C 470 97, 590 101, 708 103" fill="none" stroke="#3F6FB5" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="46" y="21" font-size="11" fill="#8A92A0" text-anchor="end">high</text>
+        <text x="46" y="102" font-size="11" fill="#8A92A0" text-anchor="end">low</text>
+        <text x="118" y="94" font-size="10.5" fill="#3E9460" font-weight="700" text-anchor="middle">intelligent zone</text>
+        <text x="450" y="46" font-size="10.5" fill="#C98A2E" font-weight="700" text-anchor="middle">context rotting zone</text>
+        <text x="184" y="120" font-size="11" fill="#C98A2E" font-weight="700" text-anchor="middle">20%</text>
+        <text x="708" y="120" font-size="11" fill="#8A92A0" text-anchor="end">context window used &rarr;</text>
+      </svg>
+      <div class="qmzones">
+        <div class="qmzone"><b>First ~20% — intelligent zone</b><span>fresh intent &middot; relevant evidence &middot; steady tool use</span></div>
+        <div class="qmzone rot"><b>The rest — context rotting</b><span>signal diluted &middot; old context wins &middot; task focus lost</span></div>
+      </div>
+      <div class="qmtake"><b>Bigger context is not better.</b> Useful context creates intelligence; stale context creates rot. So give one task per chat, paste the artifacts that matter, and start a fresh chat for the next one.</div>
+    </div>
+    <span class="hprinnote">The stages below are real ways people put the team to work &mdash; examples, not limits. If an agent gets something wrong, say <code>/gts-feedback</code> in the same chat and it prepares the ticket, conversation and all.</span></div>`;
   const subtabs = `<div class="subtabs">` + HOWTO.map((s,i)=>
     `<button class="subtab ${s.key===hStep?'on':''}" data-h="${esc(s.key)}"><span class="stpn">${i}</span>${esc(s.label)}</button>`).join("") + `</div>`;
   const step = HOWTO.find(s=>s.key===hStep) || HOWTO[0];
   const handled = (step.handled||[]).map(n=>`<span class="hby" data-go="${esc(n)}">${esc(n)}</span>`).join("");
   const lead = step.lead ? `<div class="hlead"><div class="hleadtxt">${esc(step.lead)}</div>`+
     ((step.handled&&step.handled.length)?`<div class="hhandled"><span class="hbylab">Handled by</span>${handled}</div>`:``)+`</div>` : ``;
-  const boxes = step.body ? step.body : `<div class="exgrid">` + (step.examples||[]).map(e=>{
+  let boxes = step.body ? step.body : `<div class="exgrid">` + (step.examples||[]).map(e=>{
     const pc = PCOL[e.pers] || "#8A92A0";
     const rt = e.route || step.defRoute || "";
-    const proms = (e.prompts || [e.ask]).map((p,i)=>
-      (i>0?`<div class="oralt">or</div>`:``)+
-      `<div class="excmd"><span class="plab">Prompt:</span><span class="sl">/gts-orchestrator</span> ${esc(p)}</div>`).join("");
+    const proms = e.g
+      ? `<div class="excmd w4h"><span class="plab">Prompt:</span><span class="sl">/gts-orchestrator</span></div>`+
+        `<div class="wo4">`+[["GOAL",e.g],["CONTEXT",e.c],["CONSTRAINTS",e.k],["DONE",e.d]].map(([l,t])=>
+          `<span class="w4l">${l}</span><span class="w4t">${esc(t||"")}</span>`).join("")+`</div>`
+      : (e.prompts || [e.ask]).map((p,i)=>
+        (i>0?`<div class="oralt">or</div>`:``)+
+        `<div class="excmd"><span class="plab">Prompt:</span><span class="sl">/gts-orchestrator</span> ${esc(p)}</div>`).join("");
     return `<div class="exbox">`+
       `<div class="exhead" style="background:${pc}20;color:${pc};border:1px solid ${pc}3A">`+
         `<span class="exhcat">${esc(e.cat)}</span><span class="exhper">${esc(e.pers)}</span></div>`+
@@ -1036,8 +1659,19 @@ function renderHowto(){
       (rt?`<div class="exroute"><span class="rlab">Routes</span>${esc(rt)}</div>`:``)+
     `</div>`;
   }).join("") + `</div>`;
+  if(step.works && step.works.length){
+    const xi = Math.min(Math.max(hEx,0), step.works.length-1);
+    const w  = step.works[xi];
+    boxes += (step.worksHead||"")
+      + `<div class="wochips">` + step.works.map((x,i)=>
+          `<button class="wochip ${i===xi?'on':''}" data-x="${i}"><span class="wcsys s${esc(x.sys)}">${esc(x.sys)}</span>${esc(x.tag)}</button>`).join("") + `</div>`
+      + `<div class="wometa">${esc(w.title)}<span class="wmroute"><span class="rlab">Routes</span>gts-orchestrator → ${esc(w.route)}</span></div>`
+      + `<pre class="wocode">${w.code}</pre>`
+      + (step.outro||"");
+  }
   $("#howto").innerHTML = intro + subtabs + lead + boxes;
-  $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; renderHowto(); });
+  $("#howto").querySelectorAll(".subtab").forEach(b=>b.onclick=()=>{ hStep=b.dataset.h; hEx=0; renderHowto(); });
+  $("#howto").querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{ hEx=+b.dataset.x; renderHowto(); });
   $("#howto").querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ fSkill=null; const t=byName(el.dataset.go); if(t) fTab=(t.system==="generic"?"t7":t.system); go(el.dataset.go); });
 }
 function renderSetup(){
@@ -1077,11 +1711,12 @@ code gts.ai.sdlc</pre>
         <span class="setd"><code>&#36;{input:cortex-bearer}</code> makes VS Code prompt you for the token the first time the server starts and keep it in its secret store, so the secret never goes in the file. Servers that share a token reuse the same input id.</span>
       </li>
       <li><b>Keep the servers your platform uses.</b> Together they give the agents their full capability &mdash; code, specs, reference data, tickets and review:
-        <span class="setsrv"><b>Code &amp; GitHub</b> &mdash; <code>github</code> (repos, PRs, commits); T7 knowledge also uses <code>github_dbg</code> / <code>github_ghe</code></span>
+        <span class="setsrv"><b>Code &amp; GitHub</b> &mdash; <code>github</code> (the default: repos, PRs, commits, CI, security alerts); the knowledge agents also use <code>github_ghe</code>, and <code>github_dbg</code> for repos on <code>dbg.ghe.com</code></span>
         <span class="setsrv"><b>Specifications</b> &mdash; <code>t7spec</code> for T7, <code>p7spec</code> for P7</span>
         <span class="setsrv"><b>T7 codebase &amp; reference data</b> &mdash; <code>t7codebase</code>, <code>t7dbcopy</code>, <code>eurex_refdata</code></span>
-        <span class="setsrv"><b>Tickets, docs &amp; feedback</b> &mdash; <code>devops_jira</code> (Jira &amp; SIRs), <code>confluence</code>, <code>feedback</code></span>
-        <span class="setsrv"><b>Review &amp; analysis</b> &mdash; <code>codereviewer-lens</code>, <code>jenkins-lens</code>, <code>sonarqube-lens</code>: code review, root-cause analysis and issue diagnosis</span>
+        <span class="setsrv"><b>Tickets &amp; documents</b> &mdash; <code>devops_jira</code> (Jira &amp; SIRs), <code>confluence</code>, <code>sharepoint</code> (spec authoring)</span>
+        <span class="setsrv"><b>Review &amp; analysis</b> &mdash; <code>codereviewer_lens</code>, <code>jenkins_lens</code>, <code>sonarqube_lens</code>: code review, build root-cause and Sonar-finding adjudication</span>
+        <span class="setd">Names matter &mdash; a server must be called exactly this in <code>mcp.json</code>, because the agents' tool grants name it. See <a href="#mcp">MCP Servers</a> for what each one does.</span>
       </li>
     </ol>
 
@@ -1089,10 +1724,10 @@ code gts.ai.sdlc</pre>
     <ol class="setup" style="counter-reset:s 5">
       <li>The copied <code>mcp.json</code> already wires each server's authentication &mdash; you don't edit headers by hand. The first time a server starts, VS Code prompts for the secret it needs and stores it locally. Two cover most setups:
         <div class="setcred">
-          <div><div class="ck">Cortex bearer</div><div class="cv">One shared token for the Cortex knowledge and spec services (<code>t7codebase</code>, <code>t7spec</code>, <code>feedback</code>). Get it from the <a href="${D}/" target="_blank" rel="noopener">Cortex dashboard</a> &rarr; <b>Manage connectors</b>.</div></div>
+          <div><div class="ck">Cortex bearer</div><div class="cv">One shared token for the Cortex knowledge, spec and review services (<code>t7codebase</code>, <code>t7spec</code>, <code>p7spec</code>, the three lenses). Get it from the <a href="${D}/" target="_blank" rel="noopener">Cortex dashboard</a> &rarr; <b>Manage connectors</b>.</div></div>
           <div><div class="ck">Jira PAT</div><div class="cv">Its own Personal Access Token for <code>devops_jira</code>, which Cortex passes through to Jira. Create it at <code>devopsjira.deutsche-boerse.com</code> &rarr; <b>Profile &rarr; Personal Access Tokens &rarr; Create token</b>.</div></div>
         </div>
-        <span class="setd">Any other server you keep authenticates on its own &mdash; <code>github</code>, <code>confluence</code>, <code>sonarqube</code>, <code>t7dbcopy</code> and <code>eurex_refdata</code> each prompt for their own token, which you get from that service.</span>
+        <span class="setd">Any other server you keep authenticates on its own &mdash; <code>github_ghe</code>, <code>github_dbg</code>, <code>confluence</code>, <code>t7dbcopy</code> and <code>eurex_refdata</code> each prompt for their own token, which you get from that service.</span>
         <span class="setd"><code>t7codebase</code> (T7 Codebase Explorer) also requires membership of the <b>&ldquo;Derivatives &amp; Cash Trading IT&rdquo;</b> Azure AD group &mdash; a <code>403</code> means ask your lead to add you. Microsoft services (Teams, SharePoint, Outlook) sign in with an Azure AD popup on first use. See the <a href="${D}/tutorial" target="_blank" rel="noopener">Cortex tutorial</a>.</span>
         <span class="setd">Typically that's just the Cortex bearer, plus a Jira PAT if you use Jira. Tokens are entered at the VS Code prompt and stored by VS Code &mdash; never committed to the repo.</span>
       </li>
@@ -1104,24 +1739,25 @@ code gts.ai.sdlc</pre>
         <div class="setverify"><b>Smoke test</b> &mdash; open Copilot Chat, pick <code>gts-orchestrator</code>, and send one of the prompts below. A grounded answer means agents, skills and servers are all wired correctly.</div>
         <div class="excmd"><span class="sl">/gts-orchestrator</span> What is the current state of T7-573481?</div>
         <div class="excmd"><span class="sl">/gts-orchestrator</span> How many commits have been made to resolve T7-573481, and what are they?</div>
-        <div class="excmd"><span class="sl">/gts-orchestrator</span> What is the root cause of failure? Please do a deep-dive analysis of this Jenkins build failure: https://gtsci.xeops.deutsche-boerse.de/view/P7-EUREX-MONITOR/job/INT-EUREX-150.004.030/72/console</div>
+        <div class="excmd"><span class="sl">/gts-orchestrator</span> What is the root cause of failure? Please do a deep-dive analysis of this Jenkins build failure: &lt;paste a build URL from gtsci.xeops.deutsche-boerse.de&gt;</div>
       </li>
       <li><b>Start building.</b> Describe any task to <code>/gts-orchestrator</code> &mdash; a Jira SIR, a stack trace or a requirement &mdash; and it routes the work and drives the pipeline. New here? See <a href="#howto">How to use GTS AI SDLC Agents</a> for real examples.</li>
     </ol>
 
     <div class="trouble">
-      <div class="th"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B8862F" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Troubleshooting &mdash; the four most common snags</div>
+      <div class="th"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B8862F" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>Troubleshooting &mdash; the most common snags</div>
       <div class="troubler"><div class="sym">A server shows red / disconnected</div><div class="fix">Usually the corporate proxy can't reach Cortex &mdash; common on Remote-SSH / WSL / OTD Linux. Add the host to <code>http.noProxy</code> in the <b>Remote</b> settings (Command Palette &rarr; <b>Preferences: Open Remote Settings (JSON)</b>): <code>"http.noProxy": ["cortex-mcp.cash.dev.fra.gcp.dbgservice.com"]</code>, then reload. Details: <a href="${D}/tutorial" target="_blank" rel="noopener">tutorial step 8</a>.</div></div>
       <div class="troubler"><div class="sym">401 / Unauthorized</div><div class="fix">The bearer or Jira PAT is wrong or expired. Re-copy <code>mcp.json</code> from Cortex (or regenerate the Jira PAT), then <b>MCP: List Servers &rarr; Restart</b>. Prefer a long-lived token so it doesn't rotate out from under you.</div></div>
       <div class="troubler"><div class="sym">The agent doesn't appear</div><div class="fix">Copilot Chat isn't in <b>Agent mode</b>, custom agents are off, or the wrong folder is open. Switch to Agent mode, open the <code>gts.ai.sdlc</code> folder (agents live in <code>.github/agents/</code>), and reload the window.</div></div>
       <div class="troubler"><div class="sym"><code>mcp.json</code> isn't picked up</div><div class="fix">Wrong path &mdash; it must be <code>.vscode/mcp.json</code> at the repo root. Check for JSON syntax errors, save, then run <b>MCP: List Servers</b>.</div></div>
+      <div class="troubler"><div class="sym">Agents appear, but skills don't load</div><div class="fix">Skills are a separate switch from agents: check <code>chat.useAgentSkills</code> is enabled in Settings, confirm the folder you opened contains <code>.agents/skills/</code>, then reload the window.</div></div>
     </div>
 
-    <div class="setnote"><b>You configure servers, not agents</b> &mdash; an agent reaches a tool only through a skill that wraps its server, so once the servers are in <code>mcp.json</code>, every agent that needs them just works.</div>`;
+    <div class="setnote"><b>You configure servers, not agents</b> &mdash; an agent reaches a tool only through a skill that wraps its server, so once the servers are in <code>mcp.json</code>, every agent that needs them just works. Still stuck, or something here is wrong? <a href="#feedback">Tell us on the Feedback tab</a>.</div>`;
 }
 function renderMcp(){
-  const intro = `<div class="hintro"><b>Every capability the agents use — through one gateway.</b> Skills reach their tools only through these MCP servers (skill-first access), all Cortex-hosted over HTTP. Pick a server on the left to see what it does and the tools it provides. Keep the ones your work needs — see <a href="#setup">Setup</a>.</div>`;
-  const GRP = {code:"Code & GitHub", spec:"Specifications", refdata:"T7 codebase & reference data", tickets:"Tickets, docs & feedback", review:"Review & analysis"};
+  const intro = `<div class="hintro"><b>Every capability the agents use — through one gateway.</b> Skills reach their tools only through these MCP servers (skill-first access), all Cortex-hosted over HTTP. Pick a server on the left to see what it does and the <b>complete</b> set of tools it exposes — an agent is granted a least-privilege subset of that, never necessarily all of it. Keep the servers your work needs — see <a href="#setup">Setup</a>. <span class="mcpnote">Every hosted server also carries a <code>read_large_content</code> pagination helper, omitted below. The spec authors additionally use the local VS Code Python extension to render a spec to DOCX — that is not a server you configure.</span></div>`;
+  const GRP = {review:"Review & analysis", refdata:"T7 codebase & reference data", code:"Code & GitHub", spec:"Specifications", tickets:"Tickets & documents"};
   let list = "";
   for(const g of Object.keys(GRP)){
     const items = MCPS.filter(m=>m.group===g);
@@ -1140,10 +1776,17 @@ function renderMcp(){
   const repo = m.repo ? `<a class="mcprepo" href="https://github.deutsche-boerse.de/${esc(m.repo)}" target="_blank" rel="noopener">${esc(m.repo)} \u2197</a>` : `<span class="none">\u2014</span>`;
   const users = AGENTS.filter(a=>a.servers.includes(m.id)).map(a=>a.name);
   const usedby = users.length ? `<div class="tchips">`+users.map(n=>`<span class="pill srv go" data-go="${esc(n)}">${esc(n)}</span>`).join("")+`</div>` : `<span class="none">reached indirectly through skills</span>`;
+  const wild = m.tools.length===1 && m.tools[0].endsWith("/*");
+  const count = wild ? "whole connector granted" : `${m.tools.length} tool${m.tools.length===1?"":"s"}`;
+  const banner = m.banner
+    ? `<a class="mcpban" href="${esc(m.banner)}" target="_blank" rel="noopener" title="Open full size">`+
+      `<img src="${esc(m.banner)}" alt="How ${esc(m.label)} works" loading="lazy">`+
+      `<span class="mcpbanc">How it works &mdash; from the ${esc(m.repo.split("/").pop())} repo &#8599;</span></a>`
+    : ``;
   const detail = `<div class="dhead"><div><div class="dname">${esc(m.id)}</div>`+
-      `<div class="reach">${m.tools.length} tools · Cortex-hosted over HTTP</div></div>`+
+      `<div class="reach">${count} · Cortex-hosted over HTTP</div></div>`+
       `<div class="badges"><span class="b" style="background:#EEF3FA;color:#2B5CB8">${esc(m.label)}</span></div></div>`+
-    `<div class="sect">What it does</div><div class="ddesc">${esc(m.blurb)}</div>`+
+    `<div class="sect">What it does</div><div class="ddesc">${esc(m.blurb)}</div>`+ banner +
     `<div class="sect">Tools it provides</div><div class="tchips">${tools}</div>`+
     `<div class="sect">Authentication</div><div class="ddesc">${esc(m.auth)}</div>`+
     `<div class="sect">Repository</div>${repo}`+
@@ -1170,42 +1813,88 @@ function renderEvals(){
   $("#evals").innerHTML = intro + subtabs + card;
   $("#evals").querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ eStep=b.dataset.e; renderEvals(); });
 }
+function renderNext(){
+  const intro = `<div class="hintro"><b>What's coming next.</b> In design or in build, deliberately undated &mdash; the order shifts with what people actually ask for, which is why the box at the bottom matters.`+
+    `<span class="mcpnote"><b>Disclaimer:</b> Upcoming agentic implementations are subject to approved usage, the AI governance model and risk assessment. Using agents is a shared responsibility: be aware, comply, self-regulate.</span></div>`;
+  const cards = NEXT.map(n =>
+    `<li><div class="nxt">${esc(n.t)}`+
+    (n.i ? `<a class="nxi" href="${SDLC_ISSUE_URL}${n.i}" target="_blank" rel="noopener">#${n.i} &#8599;</a>` : ``)+
+    `</div>`+
+    (n.b.length ? `<ul class="nxb">`+n.b.map(x=>`<li>${esc(x)}</li>`).join("")+`</ul>` : ``)+
+    (n.d ? `<span class="nxd">${esc(n.d)}</span>` : ``)+
+    `</li>`).join("");
+  const cta = `<div class="nxcta">`+
+    `<div class="nxctat">Tell us what you need next</div>`+
+    `<div class="nxctad">This list is shaped by the people using the agents. Missing, wrong, slow, or would save you an hour a week? Ideas, needs, feature requests and bugs all go to the same place.</div>`+
+    `<div class="nxways">`+
+      `<div class="nxway"><b>From the chat you're already in</b><span>Type <code>/gts-feedback</code> right after the thing that went wrong. It captures the conversation, redacts secrets, checks for duplicates and hands you a ready-to-submit ticket.</span></div>`+
+      `<div class="nxway"><b>Straight on the feedback page</b><span><a href="${FEEDBACK_NEW_ISSUE}" target="_blank" rel="noopener">Open a bug report or feature request &#8599;</a> &mdash; pick the form and fill it in.</span></div>`+
+    `</div></div>`;
+  $("#next").innerHTML = intro + `<ol class="nxlist">${cards}</ol>` + cta;
+}
+function renderFeedback(){
+  const html = `<div class="fbhero">`+
+      `<div class="fbeyebrow">Feedback &middot; ideas &middot; bug reports</div>`+
+      `<div class="fbh1">Tell us what to build, fix or change</div>`+
+      `<div class="fbsub">This page is how you shape the agents. Anything about the <b>AI SDLC tooling itself</b> &mdash; an agent that got it wrong, a capability you need, a rough edge that costs you time &mdash; belongs here.</div>`+
+      `<div class="fbbtns">`+
+        `<a class="fbbtn primary" href="${FEEDBACK_NEW_ISSUE}" target="_blank" rel="noopener">Report a bug or request a feature &#8599;</a>`+
+        `<a class="fbbtn ghost" href="${FEEDBACK_REPO}/issues" target="_blank" rel="noopener">Browse what's already reported &#8599;</a>`+
+      `</div></div>`+
+    `<div class="sect2">Two ways to send it</div>`+
+    `<div class="fbways">`+
+      `<div class="fbway"><span class="fbwn">1</span><b>From the chat &mdash; <code>/gts-feedback</code></b>`+
+        `<span class="fbwd">Run it in the chat where the problem happened. The agent captures the conversation, redacts secrets, checks for duplicates and hands you a one-click, pre-filled issue link. Fastest, and the report carries real evidence.</span></div>`+
+      `<div class="fbway"><span class="fbwn">2</span><b>On the feedback page &mdash; a form</b>`+
+        `<span class="fbwd"><a href="${FEEDBACK_NEW_ISSUE}" target="_blank" rel="noopener">Open a New issue</a> and pick <b>Bug report</b> or <b>Feature request</b>. Use this when you already know what you want to say, or you're not in a chat session.</span></div>`+
+    `</div>`+
+    `<div class="sect2">A bug report is best with the conversation attached</div>`+
+    `<a class="fbdiag" href="${FEEDBACK_REPO}" target="_blank" rel="noopener">`+
+      `<img src="assets/how-to-report.svg" alt="Three steps: capture the chat with Command Palette then Chat: Export Chat, open a ticket with /gts-feedback or the New issue form, then attach the exported chat, redact secrets and submit." loading="lazy">`+
+      `<span class="fbdiagc">In VS Code: <b>Command Palette</b> &rarr; <b>Chat: Export Chat</b>, then drag the file into the issue. Redact tokens and PII first &mdash; the tracker is shared. Full guide in the repo &#8599;</span></a>`+
+    `<div class="fbscope"><b>Scope.</b> This tracker is only for the AI SDLC tooling &mdash; the agents, skills and pipeline. Defects in <b>T7 / P7 product code</b> go to Jira / SIRs or the product repos, not here.</div>`+
+    `<div class="fblinks"><span class="fbll">Feedback repository</span>`+
+      `<a href="${FEEDBACK_REPO}" target="_blank" rel="noopener">dev/gts.ai.sdlc-feedback &#8599;</a>`+
+      `<a href="${FEEDBACK_NEW_ISSUE}" target="_blank" rel="noopener">New issue &#8599;</a>`+
+      `<a href="${FEEDBACK_REPO}/issues" target="_blank" rel="noopener">All issues &#8599;</a>`+
+    `</div>`;
+  $("#feedback").innerHTML = html;
+}
 function render(){
-  const guide = fTab==="howto" || fTab==="setup" || fTab==="mcp" || fTab==="evals";
+  const guide = GUIDE.includes(fTab);
   document.querySelector(".controls").style.display = guide ? "none" : "";
   document.querySelector(".layout").style.display = guide ? "none" : "";
-  $("#howto").style.display = fTab==="howto" ? "" : "none";
-  $("#setup").style.display = fTab==="setup" ? "" : "none";
-  $("#mcp").style.display = fTab==="mcp" ? "" : "none";
-  $("#evals").style.display = fTab==="evals" ? "" : "none";
+  GUIDE.forEach(t => $("#"+t).style.display = fTab===t ? "" : "none");
   if(fTab==="howto") renderHowto();
   else if(fTab==="setup") renderSetup();
   else if(fTab==="mcp") renderMcp();
   else if(fTab==="evals") renderEvals();
+  else if(fTab==="next") renderNext();
+  else if(fTab==="feedback") renderFeedback();
   else { renderList(); renderDetail(); }
   document.querySelectorAll("#tabs .tab").forEach(b=>b.classList.toggle("on",b.dataset.v===fTab));
 }
 function init(){
   legend();
-  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"VS Code SetUp Steps"},{v:"mcp",t:"MCP Servers"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"},{v:"evals",t:"Harness Evals"}]
+  $("#tabs").innerHTML = [{v:"howto",t:"How to use GTS AI SDLC Agents"},{v:"setup",t:"VS Code SetUp Steps"},{v:"mcp",t:"MCP Servers"},{v:"t7",t:"T7 SDLC Agents"},{v:"p7",t:"P7 SDLC Agents"},{v:"evals",t:"Harness Evals"},{v:"next",t:"What's Next"},{v:"feedback",t:"Feedback"}]
     .map(o=>`<button class="tab" data-v="${o.v}">${esc(o.t)}</button>`).join("");
   $("#tabs").querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
     fTab=b.dataset.v;
-    if(fTab!=="howto" && fTab!=="setup" && fTab!=="mcp" && fTab!=="evals"){
+    if(!GUIDE.includes(fTab)){
       const cur=byName(sel);
       if(!cur || (cur.system!=="generic" && cur.system!==fTab)) sel=fTab+"-orchestrator";
     }
-    try{history.replaceState(null,"",fTab==="howto"?"#howto":fTab==="setup"?"#setup":fTab==="mcp"?"#mcp":fTab==="evals"?"#evals":"#"+sel)}catch(e){}
+    try{history.replaceState(null,"",GUIDE.includes(fTab)?"#"+fTab:"#"+sel)}catch(e){}
     render();
   });
   $("#q").oninput = e => { q = e.target.value.trim().toLowerCase(); render(); };
   const fromHash = decodeURIComponent((location.hash || "").replace(/^#/, ""));
-  if(fromHash==="howto"||fromHash==="setup"||fromHash==="mcp"||fromHash==="evals") fTab=fromHash;
+  if(GUIDE.includes(fromHash)) fTab=fromHash;
   else if(fromHash && byName(fromHash)){ sel = fromHash; const a=byName(sel); fTab=(a.system==="generic"?"t7":a.system); }
   syncTab();
   window.addEventListener("hashchange", () => {
     const n = decodeURIComponent(location.hash.replace(/^#/, ""));
-    if(n==="howto"||n==="setup"||n==="mcp"||n==="evals"){ fTab=n; render(); }
+    if(GUIDE.includes(n)){ fTab=n; render(); }
     else if(byName(n)){ sel = n; const a=byName(n); fTab=(a.system==="generic"?"t7":a.system); render(); }
   });
   $("#foot").innerHTML = `${AGENTS.length} agents · generated from <code>.github/agents/*.agent.md</code> — ` +
@@ -1226,6 +1915,11 @@ html = (TEMPLATE
         .replace("/*__HOWTO__*/", json.dumps(HOWTO, ensure_ascii=False))
         .replace("/*__MCPS__*/", json.dumps(MCPS, ensure_ascii=False))
         .replace("/*__EVALS__*/", json.dumps(EVALS, ensure_ascii=False))
+        .replace("/*__NEXT__*/", json.dumps(NEXT, ensure_ascii=False))
+        .replace("/*__FEEDBACK__*/", FEEDBACK_NEW_ISSUE)
+        .replace("/*__FBREPO__*/", FEEDBACK_REPO)
+        .replace("/*__ISSUEURL__*/", SDLC_ISSUE_URL)
+        .replace("__REPO__", SDLC_REPO)
         .replace("/*__DEFAULT__*/", DEFAULT))
 
 out = os.path.join(HERE, "index.html")
