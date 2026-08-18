@@ -35,6 +35,14 @@ original overview is preserved in [`docs/GTS_FOUNDATION.md`](docs/GTS_FOUNDATION
 The supplied license classifies this material as DBAG internal use; keep this
 repository in an approved private DBAG-controlled location.
 
+The imported catalog keeps the original GTS extension metadata (`systems`,
+`tools`, and `extends`) in its skill frontmatter. Portable VS Code discovery is
+based on each skill's standard `name`, `description`, and invocation fields;
+the control centre validates the GTS extensions separately and resolves common
+and system-specific skills from the configured repository `system`. A skill's
+GTS `tools` metadata never grants a tool by itself: tool access remains scoped
+by the selected custom agent and the installed MCP/tool configuration.
+
 ## Safety and honesty boundary
 
 No AI system can guarantee 100% correctness for every complex financial system. This control plane fails closed and produces evidence-bound outcomes:

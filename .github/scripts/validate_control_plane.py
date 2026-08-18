@@ -118,6 +118,21 @@ REQUIRED_GTS_SKILLS = {
     "teams",
 }
 
+GTS_SKILL_FRONTMATTER_KEYS = {
+    # Portable Agent Skills fields used by the imported catalog.
+    "name",
+    "description",
+    "argument-hint",
+    "user-invocable",
+    "disable-model-invocation",
+    "context",
+    # GTS extension metadata. VS Code discovery does not depend on these keys;
+    # the control centre validates them and resolves system scope itself.
+    "systems",
+    "tools",
+    "extends",
+}
+
 REQUIRED_SKILLS = {
     "ingest-specifications",
     "compile-requirements",
@@ -173,6 +188,22 @@ def frontmatter_scalar(frontmatter: str, key: str) -> str | None:
     if not match:
         return None
     return match.group(1).strip().strip("\"'")
+
+
+def frontmatter_keys(frontmatter: str) -> list[str]:
+    return re.findall(r"(?m)^([A-Za-z][A-Za-z0-9_-]*):", frontmatter)
+
+
+def inline_list(frontmatter: str, key: str) -> list[str] | None:
+    raw = frontmatter_scalar(frontmatter, key)
+    if raw is None:
+        return None
+    if not (raw.startswith("[") and raw.endswith("]")):
+        return None
+    body = raw[1:-1].strip()
+    if not body:
+        return []
+    return [item.strip().strip("\"'") for item in body.split(",")]
 
 
 def validate_skills(root: Path, errors: list[str]) -> None:
@@ -244,12 +275,53 @@ def validate_gts_foundation(root: Path, errors: list[str]) -> None:
         frontmatter = markdown_frontmatter(path, errors)
         declared = frontmatter_scalar(frontmatter, "name")
         description = frontmatter_scalar(frontmatter, "description")
+        keys = frontmatter_keys(frontmatter)
+        duplicate_keys = sorted({key for key in keys if keys.count(key) > 1})
+        unknown_keys = sorted(set(keys) - GTS_SKILL_FRONTMATTER_KEYS)
         if declared != path.parent.name:
             errors.append(
                 f"{path}: name must be {path.parent.name!r}, found {declared!r}"
             )
+        if declared and not re.fullmatch(r"[a-z0-9-]{1,64}", declared):
+            errors.append(f"{path}: name must be a portable Agent Skills identifier")
         if not description or len(description) < 30:
             errors.append(f"{path}: description must explain purpose and trigger")
+        elif len(description) > 1024:
+            errors.append(f"{path}: description exceeds the 1024 character limit")
+        if duplicate_keys:
+            errors.append(
+                f"{path}: duplicate frontmatter keys: {', '.join(duplicate_keys)}"
+            )
+        if unknown_keys:
+            errors.append(
+                f"{path}: unsupported GTS frontmatter keys: {', '.join(unknown_keys)}"
+            )
+
+        systems = inline_list(frontmatter, "systems")
+        if frontmatter_scalar(frontmatter, "systems") is not None:
+            if not systems or any(not re.fullmatch(r"[a-z0-9-]+", item) for item in systems):
+                errors.append(f"{path}: systems must be a non-empty inline identifier list")
+
+        tools = inline_list(frontmatter, "tools")
+        if frontmatter_scalar(frontmatter, "tools") is not None and not tools:
+            errors.append(f"{path}: tools must be a non-empty inline list")
+
+        user_invocable = frontmatter_scalar(frontmatter, "user-invocable")
+        if user_invocable is not None and user_invocable not in {"true", "false"}:
+            errors.append(f"{path}: user-invocable must be true or false")
+
+        context = frontmatter_scalar(frontmatter, "context")
+        if context is not None and context not in {"inline", "fork"}:
+            errors.append(f"{path}: context must be inline or fork")
+
+        extends = frontmatter_scalar(frontmatter, "extends")
+        if extends is not None:
+            if not re.fullmatch(r"skills/(?:common|systems)/[a-z0-9/-]+", extends):
+                errors.append(f"{path}: extends must reference a GTS skill path")
+            else:
+                target = skill_root / extends.removeprefix("skills/") / "SKILL.md"
+                if not target.is_file():
+                    errors.append(f"{path}: extends target does not exist: {extends}")
 
     lock_path = root / ".github" / "sdlc" / "gts-foundation-lock.json"
     lock = load_json(lock_path, errors)

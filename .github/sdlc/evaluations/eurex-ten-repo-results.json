@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-05T21:20:16.192129+00:00",
-  "control_plane_revision": "b46fc41a57017ff5deba05fefbde4f603294370d",
-  "evaluated_control_sha256": "4224e42ec21e9bcb67c9a222b2035861f7df715350a476561bc9f810a268e007",
+  "generated_at": "2026-08-18T19:35:10.155772+00:00",
+  "control_plane_revision": "e59a5a760c37f1db1a8f2ca7949b1479e364d902",
+  "evaluated_control_sha256": "a76e9aec1c8170ea7967cbc2118d708e08337785704466b15f1a92b446ce60de",
   "evaluation_harness_sha256": "a3cf722c6aedf519c414cfb0ccae0987129a5860444de9eea105eb68b380839f",
   "fixture_kind": "synthetic-local-git",
   "repository_count": 10,
@@ -229,7 +229,7 @@
       "expected": "Stale/wrong extension digest rejected",
       "observed": "repository evidence is not bound to the selected extension packet",
       "status": "PASS",
-      "evidence": "Expected digest 830abb765ffb...",
+      "evidence": "Expected digest 4356db75b001...",
       "deficiency": "",
       "correction": "",
       "specification": ""
@@ -242,7 +242,7 @@
       "expected": "Reject changed validation-only repo; require replanning and new human approval",
       "observed": "matching-engine: unplanned implementation change in a validation-only repository; prepare a new plan and obtain new human approval",
       "status": "PASS",
-      "evidence": "base=f69a539ebe3c..., HEAD changed",
+      "evidence": "base=dcf0fe720f3d..., HEAD changed",
       "deficiency": "",
       "correction": "Reject unplanned implementation changes before accepting evidence",
       "specification": ""
