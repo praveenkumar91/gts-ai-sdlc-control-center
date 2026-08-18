@@ -1,0 +1,240 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 900" width="1500" height="900" role="img" aria-label="SonarQube-Lens — Multi-Agent AI Code-Quality Analysis and Remediation for a SonarQube finding. A finding from any project — a BUG, VULNERABILITY, CODE_SMELL or SECURITY_HOTSPOT at any severity from BLOCKER to INFO — is pasted as a URL or issue key, or delivered by a Quality-Gate webhook, and analysed by ten agents in four phases. Phase one, COLLECT: SonarFetcher pulls the issue and rule facts from the SonarQube API; CodeFetcher re-reads the real source at the analysed commit through a multi-provider grounding chain; GitForensics finds who introduced it, when, and in which pull request. Phase two, ADJUDICATE: the PerspectiveAnalyst runs six independent perspectives — rule intent, code context, runtime risk, repo norms, history and ownership, and security and compliance — each returning a typed sub-verdict with a quoted line; the FalsePositiveJudge computes a deterministic 0 to 100 percent false-positive probability and emits one verdict — MUST FIX, ACCEPTABLE RISK, NEEDS DISCUSSION or FALSE POSITIVE. Phase three, PRESCRIBE: the FixSpecifier ranks concrete fixes from minimal change to refactor to redesign, self-reviewed; the Reviewer runs two independent rubrics in two LLM calls, Diagnosis sixty plus Fix forty, and can send the work back with REVISE in a bounded loop. Phase four, ACT and NOTIFY: the Jira Agent raises a deduplicated SIR, the Remediator marks a false positive or opens a fix pull request only on APPROVE plus a human gate and dry-run by default, and the Notifier always reports to Microsoft Teams and email. The Orchestrator coordinates all four phases and an orchestration crash never changes your build; the deterministic core always runs and the LLM layer enriches it when a key is present.">
+  <title>SonarQube-Lens — ten agents, four phases (Collect · Adjudicate · Prescribe · Act and Notify), one verdict — for a SonarQube finding</title>
+
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#AEB4BD"/>
+    </marker>
+    <marker id="arA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#C2862B"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="900" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- HEADER -->
+    <circle cx="52" cy="64" r="15" fill="none" stroke="#15756B" stroke-width="4"/>
+    <line x1="62.6" y1="74.6" x2="75" y2="87" stroke="#15756B" stroke-width="4" stroke-linecap="round"/>
+    <text x="92" y="74" font-size="40" font-weight="700" fill="#1A1A2E" letter-spacing="-0.5">SonarQube-Lens</text>
+    <text x="94" y="100" font-size="16" font-weight="500" fill="#5B6472">Multi-Agent AI Code-Quality Analysis and Remediation</text>
+
+    <text x="1460" y="56" text-anchor="end" font-size="13" font-weight="700" fill="#8A92A0" letter-spacing="1.2">TEN AGENTS · SIX PERSPECTIVES · ONE VERDICT</text>
+    <text x="1460" y="78" text-anchor="end" font-size="12" fill="#A7AEB8">read-only by default · evidence-first · MCP-native</text>
+
+    <line x1="40" y1="120" x2="1460" y2="120" stroke="#ECECEC" stroke-width="1"/>
+
+    <!-- TRIGGER -->
+    <text x="40" y="142" font-size="13" font-weight="700" fill="#8A92A0" letter-spacing="1.5">IT STARTS WITH A SONARQUBE FINDING</text>
+
+    <rect x="40" y="150" width="612" height="58" rx="14" fill="#DEF3F0" stroke="#C3E6E1" stroke-width="1"/>
+    <g transform="translate(74,179)" stroke="#15756B" stroke-width="2" fill="none" stroke-linecap="round">
+      <circle cx="-2" cy="-2" r="8"/>
+      <line x1="4" y1="4" x2="11" y2="11"/>
+    </g>
+    <text x="104" y="176" font-size="17" font-weight="700" fill="#156B62">A rule fired — is it a real defect, or just noise?</text>
+    <text x="104" y="196" font-size="12" fill="#3E8E83"><tspan font-weight="600">Any project</tspan> · BUG · VULNERABILITY · CODE_SMELL · HOTSPOT · BLOCKER→INFO</text>
+
+    <text x="690" y="166" font-size="12" font-weight="700" fill="#8A92A0" letter-spacing="1.2">HOW IT'S INVOKED</text>
+    <text x="690" y="194" font-size="13.5" fill="#5B6472"><tspan font-weight="600" fill="#3A4150">paste a URL / issue key</tspan>  ·  VS Code MCP  ·  CLI  ·  Jenkins post-scan  ·  QG webhook</text>
+
+    <!-- arrow down into phase 1 -->
+    <line x1="120" y1="210" x2="120" y2="238" stroke="#C9CED5" stroke-width="1.6" marker-end="url(#ar)"/>
+
+    <!-- forward arrows between phases -->
+    <g fill="none" stroke="#C9CED5" stroke-width="1.8">
+      <path d="M369 470 H399" marker-end="url(#ar)"/>
+      <path d="M732 470 H762" marker-end="url(#ar)"/>
+      <path d="M1095 470 H1125" marker-end="url(#ar)"/>
+    </g>
+
+    <!-- ===================== PHASE 1 · COLLECT ===================== -->
+    <rect x="40" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="72" cy="274" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+    <text x="72" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#3F6FB5">1</text>
+    <text x="98" y="270" font-size="18" font-weight="700" fill="#2B3242">Collect</text>
+    <text x="98" y="291" font-size="11" fill="#9AA1AB">gather the evidence — re-read the real source</text>
+    <line x1="56" y1="310" x2="353" y2="310" stroke="#E7EDF6" stroke-width="1.2"/>
+
+    <!-- SonarFetcher -->
+    <g>
+      <circle cx="80" cy="360" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+      <g transform="translate(80,360)" stroke="#3F6FB5" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="-2" cy="-2" r="6"/><line x1="2.5" y1="2.5" x2="8" y2="8"/>
+      </g>
+      <text x="108" y="350" font-size="14.5" font-weight="700" fill="#2B3242">SonarFetcher</text>
+      <text x="108" y="371" font-size="11.5" fill="#5B6472">Pulls the issue + rule facts from SonarQube</text>
+      <text x="108" y="389" font-size="10.5" fill="#9AA1AB">rule intent · severity · status · assignee · tags</text>
+    </g>
+    <!-- CodeFetcher -->
+    <g>
+      <circle cx="80" cy="458" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+      <g transform="translate(80,458)" stroke="#3F6FB5" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-3 -8 L-9 0 L-3 8"/><path d="M3 -8 L9 0 L3 8"/>
+      </g>
+      <text x="108" y="448" font-size="14.5" font-weight="700" fill="#2B3242">CodeFetcher</text>
+      <text x="108" y="469" font-size="11.5" fill="#5B6472">Re-reads the real source at the analysed commit</text>
+      <text x="108" y="487" font-size="10.5" fill="#9AA1AB">GHE → Sonar raw / show / snippet · always grounded</text>
+    </g>
+    <!-- GitForensics -->
+    <g>
+      <circle cx="80" cy="556" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+      <g transform="translate(80,556)" stroke="#3F6FB5" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="-6" cy="-6" r="2.6"/><circle cx="-6" cy="6" r="2.6"/><circle cx="7" cy="0" r="2.6"/>
+        <path d="M-6 -3.4 V3.4 M-3.8 -5 L4.8 -1.4 M4.8 1.4 L-3.8 5"/>
+      </g>
+      <text x="108" y="546" font-size="14.5" font-weight="700" fill="#2B3242">GitForensics</text>
+      <text x="108" y="567" font-size="11.5" fill="#5B6472">Finds who introduced it, when, in which PR</text>
+      <text x="108" y="585" font-size="10.5" fill="#9AA1AB">git blame · introducing commit · PR + reviewers</text>
+    </g>
+    <!-- phase-1 yield -->
+    <rect x="56" y="632" width="297" height="60" rx="10" fill="#F5F8FC" stroke="#E3ECF6" stroke-width="1"/>
+    <text x="70" y="658" font-size="11" font-weight="700" fill="#3F6FB5" letter-spacing="0.4">YIELDS</text>
+    <text x="70" y="678" font-size="11.5" fill="#5B6472">the finding, the real source, and its authorship</text>
+
+    <!-- ===================== PHASE 2 · ADJUDICATE ===================== -->
+    <rect x="403" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="435" cy="274" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.4"/>
+    <text x="435" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#6E5BB8">2</text>
+    <text x="461" y="270" font-size="18" font-weight="700" fill="#2B3242">Adjudicate</text>
+    <text x="461" y="291" font-size="11" fill="#9AA1AB">judge true- vs false-positive — six ways</text>
+    <line x1="419" y1="310" x2="716" y2="310" stroke="#EBE5F6" stroke-width="1.2"/>
+
+    <!-- PerspectiveAnalyst -->
+    <g>
+      <circle cx="443" cy="348" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.4"/>
+      <g transform="translate(443,348)" stroke="#6E5BB8" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="0" r="8"/><circle cx="0" cy="0" r="2.4" fill="#6E5BB8" stroke="none"/><path d="M-8 0 H-12 M8 0 H12 M0 -8 V-12 M0 8 V12"/>
+      </g>
+      <text x="471" y="343" font-size="14.5" font-weight="700" fill="#2B3242">PerspectiveAnalyst</text>
+      <text x="471" y="363" font-size="11.5" fill="#5B6472">Six independent perspectives, every time</text>
+    </g>
+    <!-- 6 perspective chips -->
+    <g font-size="9.5" font-weight="600">
+      <g transform="translate(419,378)"><rect width="94" height="22" rx="6" fill="#EAF1FB" stroke="#D2E0F2"/><text x="10" y="15" fill="#2E5C9E">P1 Rule</text></g>
+      <g transform="translate(519,378)"><rect width="94" height="22" rx="6" fill="#EAF4EE" stroke="#D5E8DC"/><text x="10" y="15" fill="#2F7A4F">P2 Context</text></g>
+      <g transform="translate(619,378)"><rect width="97" height="22" rx="6" fill="#FBE9E4" stroke="#F0D3CB"/><text x="10" y="15" fill="#A8412C">P3 Risk</text></g>
+      <g transform="translate(419,404)"><rect width="94" height="22" rx="6" fill="#FAF1DE" stroke="#EFE0C2"/><text x="10" y="15" fill="#9A6A1E">P4 Norms</text></g>
+      <g transform="translate(519,404)"><rect width="94" height="22" rx="6" fill="#F0EBFB" stroke="#E0D6F4"/><text x="10" y="15" fill="#5B49A6">P5 History</text></g>
+      <g transform="translate(619,404)"><rect width="97" height="22" rx="6" fill="#E4F4F1" stroke="#C3E6E1"/><text x="10" y="15" fill="#156B62">P6 Security</text></g>
+    </g>
+
+    <!-- FalsePositiveJudge -->
+    <g>
+      <circle cx="443" cy="458" r="15" fill="#E4F4F1" stroke="#86CFC6" stroke-width="1.4"/>
+      <g transform="translate(443,458)" stroke="#15756B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 -9 V7"/><path d="M-8 -4 H8"/><path d="M-8 -4 L-10 3 H-6 Z"/><path d="M8 -4 L6 3 H10 Z"/><path d="M-4 9 H4"/>
+      </g>
+      <text x="471" y="452" font-size="14.5" font-weight="700" fill="#2B3242">FalsePositiveJudge</text>
+      <text x="471" y="472" font-size="11.5" fill="#5B6472">A computed 0–100% FP probability</text>
+      <text x="471" y="490" font-size="10.5" fill="#9AA1AB">deterministic noisy-OR · LLM may contest, not override</text>
+    </g>
+
+    <!-- ONE VERDICT pills (2x2) -->
+    <text x="419" y="524" font-size="11" font-weight="700" fill="#8A92A0" letter-spacing="1">ONE VERDICT</text>
+    <g>
+      <rect x="419" y="532" width="143" height="30" rx="15" fill="#FBE6E1" stroke="#EBC3B9"/><circle cx="437" cy="547" r="4.5" fill="#C65B45"/><text x="449" y="551" font-size="11.5" font-weight="700" fill="#A8412C">MUST_FIX</text>
+      <rect x="573" y="532" width="143" height="30" rx="15" fill="#EAF5EE" stroke="#C5E4D0"/><circle cx="591" cy="547" r="4.5" fill="#3E9460"/><text x="603" y="551" font-size="11.5" font-weight="700" fill="#2F7A4F">FALSE_POSITIVE</text>
+      <rect x="419" y="568" width="143" height="30" rx="15" fill="#FBF2DD" stroke="#EBD9AE"/><circle cx="437" cy="583" r="4.5" fill="#C2862B"/><text x="449" y="587" font-size="11.5" font-weight="700" fill="#9A6A1E">ACCEPT_RISK</text>
+      <rect x="573" y="568" width="143" height="30" rx="15" fill="#F0EBFB" stroke="#E0D6F4"/><circle cx="591" cy="583" r="4.5" fill="#6E5BB8"/><text x="603" y="587" font-size="11.5" font-weight="700" fill="#5B49A6">DISCUSS</text>
+    </g>
+    <text x="419" y="624" font-size="11" fill="#9AA1AB">the number sets the band · certainty + disposition follow</text>
+    <rect x="419" y="638" width="297" height="54" rx="10" fill="#F7F5FC" stroke="#E8E1F5" stroke-width="1"/>
+    <text x="433" y="662" font-size="11" font-weight="700" fill="#6E5BB8" letter-spacing="0.4">YIELDS</text>
+    <text x="433" y="681" font-size="11.5" fill="#5B6472">a verdict, an FP class, and a certainty band</text>
+
+    <!-- ===================== PHASE 3 · PRESCRIBE ===================== -->
+    <rect x="766" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="798" cy="274" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.4"/>
+    <text x="798" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#C2862B">3</text>
+    <text x="824" y="270" font-size="18" font-weight="700" fill="#2B3242">Prescribe</text>
+    <text x="824" y="291" font-size="11" fill="#9AA1AB">fix it — then check the work</text>
+    <line x1="782" y1="310" x2="1079" y2="310" stroke="#F2E8D5" stroke-width="1.2"/>
+
+    <!-- FixSpecifier -->
+    <g>
+      <circle cx="806" cy="368" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.4"/>
+      <g transform="translate(806,368)" stroke="#C2862B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 -8 a5 5 0 0 0 -7 6 L-8 4 L-4 8 L2 2 a5 5 0 0 0 6 -7 L4 -1 L1 -4 Z"/>
+      </g>
+      <text x="834" y="358" font-size="14.5" font-weight="700" fill="#2B3242">FixSpecifier</text>
+      <text x="834" y="379" font-size="11.5" fill="#5B6472">Ranks concrete fixes for a real defect</text>
+      <text x="834" y="397" font-size="10.5" fill="#9AA1AB">minimal-change → refactor → redesign · self-reviewed</text>
+    </g>
+    <!-- Reviewer -->
+    <g>
+      <circle cx="806" cy="476" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.4"/>
+      <g transform="translate(806,476)" stroke="#C2862B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-9 -5 h18 M-9 0 h18 M-9 5 h12"/><path d="M2 7 l3 3 l6 -7" stroke-width="2"/>
+      </g>
+      <text x="834" y="466" font-size="14.5" font-weight="700" fill="#2B3242">Reviewer</text>
+      <text x="834" y="487" font-size="11.5" fill="#5B6472">Two independent rubrics, two LLM calls</text>
+      <text x="834" y="505" font-size="10.5" fill="#9AA1AB">Diagnosis 60 + Fix 40 · no evidence ⇒ fail</text>
+    </g>
+    <!-- REVISE loop callout -->
+    <rect x="782" y="536" width="297" height="56" rx="10" fill="#FBF1DC" stroke="#EFE0C2" stroke-width="1"/>
+    <g transform="translate(806,564)" stroke="#C2862B" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 -4 a7 7 0 1 0 -1 8"/><path d="M7 -8 V-3 H2"/>
+    </g>
+    <text x="834" y="558" font-size="12.5" font-weight="700" fill="#9A6A1E">REVISE — bounded self-correction</text>
+    <text x="834" y="577" font-size="10.5" fill="#A98C53">sends a weak analysis back to be redone</text>
+    <!-- phase-3 yield -->
+    <rect x="782" y="632" width="297" height="60" rx="10" fill="#FAF6EE" stroke="#F0E7D3" stroke-width="1"/>
+    <text x="796" y="658" font-size="11" font-weight="700" fill="#C2862B" letter-spacing="0.4">YIELDS</text>
+    <text x="796" y="678" font-size="11.5" fill="#5B6472">ranked, self-reviewed fixes + an independent sign-off</text>
+
+    <!-- ===================== PHASE 4 · ACT AND NOTIFY ===================== -->
+    <rect x="1129" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="1161" cy="274" r="15" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.4"/>
+    <text x="1161" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#3E9460">4</text>
+    <text x="1187" y="270" font-size="18" font-weight="700" fill="#2B3242">Act and Notify</text>
+    <text x="1187" y="291" font-size="11" fill="#9AA1AB">gated writes — always tell people</text>
+    <line x1="1145" y1="310" x2="1442" y2="310" stroke="#E2F0E8" stroke-width="1.2"/>
+
+    <!-- Jira Agent -->
+    <g>
+      <circle cx="1169" cy="360" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.4"/>
+      <g transform="translate(1169,360)" stroke="#6E5BB8" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="-8" y="-8" width="16" height="16" rx="3"/><path d="M-4 0 l3 3 l5 -6"/>
+      </g>
+      <text x="1197" y="350" font-size="14.5" font-weight="700" fill="#2B3242">Jira Agent</text>
+      <text x="1197" y="371" font-size="11.5" fill="#5B6472">Raises a deduplicated Jira SIR</text>
+      <text x="1197" y="389" font-size="10.5" fill="#9AA1AB">severity→priority · author-assign · rich body</text>
+    </g>
+    <!-- Remediator -->
+    <g>
+      <circle cx="1169" cy="458" r="15" fill="#FBE3DE" stroke="#E59A8C" stroke-width="1.4"/>
+      <g transform="translate(1169,458)" stroke="#C65B45" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="-8" y="-1" width="16" height="9" rx="2"/><path d="M-5 -1 v-4 a5 5 0 0 1 10 0 v4"/>
+      </g>
+      <text x="1197" y="448" font-size="14.5" font-weight="700" fill="#2B3242">Remediator <tspan font-size="10" font-weight="700" fill="#C65B45">· GATED</tspan></text>
+      <text x="1197" y="469" font-size="11.5" fill="#5B6472">Marks FP / opens a fix PR</text>
+      <text x="1197" y="487" font-size="10.5" fill="#9AA1AB">only on APPROVE + human gate · dry-run default</text>
+    </g>
+    <!-- Notifier -->
+    <g>
+      <circle cx="1169" cy="556" r="15" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.4"/>
+      <g transform="translate(1169,556)" stroke="#3E9460" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-7 4 V-2 a7 7 0 0 1 14 0 V4 l2 3 H-9 Z"/><path d="M-2 7 a2 2 0 0 0 4 0"/>
+      </g>
+      <text x="1197" y="546" font-size="14.5" font-weight="700" fill="#2B3242">Notifier</text>
+      <text x="1197" y="567" font-size="11.5" fill="#5B6472">Always reports to Teams + Email</text>
+      <text x="1197" y="585" font-size="10.5" fill="#9AA1AB">runs every time · severity-routed channels</text>
+    </g>
+    <!-- phase-4 yield -->
+    <rect x="1145" y="632" width="297" height="60" rx="10" fill="#F2FAF5" stroke="#DCEFE3" stroke-width="1"/>
+    <text x="1159" y="658" font-size="11" font-weight="700" fill="#3E9460" letter-spacing="0.4">YIELDS</text>
+    <text x="1159" y="678" font-size="11.5" fill="#5B6472">a gated action + a notification, every single time</text>
+
+    <!-- FOOTER -->
+    <rect x="40" y="748" width="1418" height="104" rx="16" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="84" cy="800" r="20" fill="none" stroke="#15756B" stroke-width="2.4"/>
+    <line x1="98" y1="814" x2="110" y2="826" stroke="#15756B" stroke-width="2.4" stroke-linecap="round"/>
+    <text x="140" y="788" font-size="16" font-weight="700" fill="#1F2733">The Orchestrator <tspan font-size="12" font-weight="600" fill="#9AA1AB">· InputParser + IssueRouter</tspan></text>
+    <text x="140" y="812" font-size="12.5" fill="#5B6472">coordinates all four phases under one correlation id — an <tspan font-weight="700" fill="#3A4150">orchestration crash never changes your build</tspan>.</text>
+    <text x="140" y="834" font-size="12.5" fill="#5B6472">The <tspan font-weight="700" fill="#3A4150">deterministic core always runs</tspan> with no key; the <tspan font-weight="700" fill="#3A4150">LLM layer</tspan> enriches diagnosis, fixes and review when a key is present.</text>
+    <text x="1440" y="788" text-anchor="end" font-size="11" font-weight="700" fill="#15756B" letter-spacing="0.5">EVERY CLAIM QUOTES A LITERAL LINE</text>
+
+  </g>
+</svg>

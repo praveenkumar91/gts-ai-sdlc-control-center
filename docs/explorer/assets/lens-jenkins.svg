@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 900" width="1500" height="900" role="img" aria-label="Jenkins-Lens — Multi-Agent AI Failure-Analysis and Remediation for a FAILED or UNSTABLE Jenkins build. A red build from any project or pipeline across the gtsci and dacci instances, triggered by a post-failure hook, a webhook, MCP chat or the CLI, is analysed by ten agents in four phases. Phase one, LOCATE: LogFetcher windows the console to the failure region; the Upstream Tracer walks the gtsci trigger chain; the Downstream Tracer crosses into the T7 migration jobs on dacci. Phase two, DIAGNOSE: Diagnostics names the root cause with quoted evidence across sixteen categories; the False-Positive Detector decides whether the red build is genuine with a deterministic 0 to 100 percent score, emitting one verdict — TRUE POSITIVE, INCONCLUSIVE or FALSE POSITIVE — plus a probability. Phase three, PRESCRIBE: ActionSpec writes an ordered, gated action plan; the Reviewer runs two independent critic passes and can send the analysis back with REVISE in a bounded self-correcting loop. Phase four, ACT and NOTIFY: the Remediator is the only write-capable agent and acts only on APPROVE plus a human gate, dry-run by default; the Notifier always reports to Teams, email and the Jenkins build description. The Orchestrator, the tenth agent, coordinates all four phases and an orchestration crash never changes the build result. The outcome is one evidence-grounded verdict with the root cause, quoted evidence and an ordered fix.">
+  <title>Jenkins-Lens — ten agents, four phases (Locate · Diagnose · Prescribe · Act &amp; Notify), one verdict — for a failed or UNSTABLE Jenkins build</title>
+
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#AEB4BD"/>
+    </marker>
+    <marker id="arA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#C2862B"/>
+    </marker>
+    <marker id="arR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#C65B45"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="900" fill="#FFFFFF"/>
+
+  <g font-family="Inter, 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+
+    <!-- ================= HEADER ================= -->
+    <circle cx="52" cy="64" r="15" fill="none" stroke="#1A1A2E" stroke-width="4"/>
+    <line x1="62.6" y1="74.6" x2="75" y2="87" stroke="#1A1A2E" stroke-width="4" stroke-linecap="round"/>
+    <text x="92" y="74" font-size="40" font-weight="700" fill="#1A1A2E" letter-spacing="-0.5">Jenkins-Lens</text>
+    <text x="94" y="100" font-size="16" font-weight="500" fill="#5B6472">Multi-Agent AI Failure-Analysis &amp; Remediation</text>
+
+    <text x="1460" y="56" text-anchor="end" font-size="13" font-weight="700" fill="#8A92A0" letter-spacing="1.2">TEN AGENTS · FOUR PHASES · ONE VERDICT</text>
+    <text x="1460" y="78" text-anchor="end" font-size="12" fill="#A7AEB8">read-only by default · evidence-first · MCP-native</text>
+
+    <line x1="40" y1="120" x2="1460" y2="120" stroke="#ECECEC" stroke-width="1"/>
+
+    <!-- ================= TRIGGER ================= -->
+    <text x="40" y="142" font-size="13" font-weight="700" fill="#8A92A0" letter-spacing="1.5">IT STARTS WITH A RED BUILD</text>
+
+    <!-- red build chip -->
+    <rect x="40" y="150" width="612" height="58" rx="14" fill="#FDECEC" stroke="#F0CFC7" stroke-width="1"/>
+    <g transform="translate(74,179)" stroke="#C65B45" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M0 -11 L12 9 H-12 Z"/>
+      <line x1="0" y1="-3" x2="0" y2="3.5"/>
+      <circle cx="0" cy="6.4" r="0.5" fill="#C65B45"/>
+    </g>
+    <text x="104" y="176" font-size="17" font-weight="700" fill="#A8412C">A Jenkins build goes RED — FAILED or UNSTABLE</text>
+    <text x="104" y="196" font-size="12" fill="#B07567"><tspan font-weight="600">Any project or pipeline</tspan> · across <tspan font-weight="600">gtsci ↔ dacci</tspan> · 16 root-cause categories</text>
+
+    <!-- how it's invoked -->
+    <text x="690" y="166" font-size="12" font-weight="700" fill="#8A92A0" letter-spacing="1.2">HOW IT'S INVOKED</text>
+    <text x="690" y="194" font-size="13.5" fill="#5B6472"><tspan font-weight="600" fill="#3A4150">post{ failure / unstable }</tspan> hook  ·  webhook service  ·  MCP chat in VS Code  ·  CLI replay</text>
+
+    <!-- arrow down into phase 1 -->
+    <line x1="120" y1="210" x2="120" y2="238" stroke="#C9CED5" stroke-width="1.6" marker-end="url(#ar)"/>
+
+    <!-- forward arrows between phases -->
+    <g fill="none" stroke="#C9CED5" stroke-width="1.8">
+      <path d="M369 470 H399" marker-end="url(#ar)"/>
+      <path d="M732 470 H762" marker-end="url(#ar)"/>
+      <path d="M1095 470 H1125" marker-end="url(#ar)"/>
+    </g>
+
+    <!-- ============================================================= -->
+    <!-- ===================== PHASE 1 · LOCATE ======================= -->
+    <!-- ============================================================= -->
+    <rect x="40" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="72" cy="274" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+    <text x="72" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#3F6FB5">1</text>
+    <text x="98" y="270" font-size="18" font-weight="700" fill="#2B3242">Locate</text>
+    <text x="98" y="291" font-size="11" fill="#9AA1AB">find where it broke — and where it began</text>
+    <line x1="56" y1="310" x2="353" y2="310" stroke="#E7EDF6" stroke-width="1.2"/>
+
+    <!-- LogFetcher -->
+    <g>
+      <circle cx="80" cy="360" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+      <g transform="translate(80,360)" stroke="#3F6FB5" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="-7" y="-9" width="14" height="18" rx="2.5"/>
+        <line x1="-3.5" y1="-4" x2="3.5" y2="-4"/><line x1="-3.5" y1="0" x2="3.5" y2="0"/><line x1="-3.5" y1="4" x2="1" y2="4"/>
+      </g>
+      <text x="108" y="350" font-size="14.5" font-weight="700" fill="#2B3242">LogFetcher</text>
+      <text x="108" y="371" font-size="11.5" fill="#5B6472">Windows the console to the failure region</text>
+      <text x="108" y="389" font-size="10.5" fill="#9AA1AB">tiered error → warning → tail · follows ref'd logs</text>
+    </g>
+    <!-- Upstream Tracer -->
+    <g>
+      <circle cx="80" cy="458" r="15" fill="#E3ECFB" stroke="#8FB0E4" stroke-width="1.4"/>
+      <g transform="translate(80,458)" stroke="#3F6FB5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="7" r="2.4" fill="#3F6FB5" stroke="none"/>
+        <line x1="0" y1="6" x2="0" y2="-4" fill="none"/>
+        <path d="M-4 0 L0 -6 L4 0" fill="none"/>
+        <circle cx="0" cy="-7.5" r="2" fill="none"/>
+      </g>
+      <text x="108" y="448" font-size="14.5" font-weight="700" fill="#2B3242">Upstream Tracer</text>
+      <text x="108" y="469" font-size="11.5" fill="#5B6472">Walks the gtsci trigger chain</text>
+      <text x="108" y="487" font-size="10.5" fill="#9AA1AB">stops at the first green build or root job</text>
+    </g>
+    <!-- Downstream Tracer -->
+    <g>
+      <circle cx="80" cy="556" r="15" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.4"/>
+      <g transform="translate(80,556)" stroke="#3E9460" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="-7" y1="-8" x2="-7" y2="8" stroke="#9FD3B0" stroke-dasharray="2 2"/>
+        <circle cx="2" cy="-7" r="2" fill="#3E9460" stroke="none"/>
+        <line x1="2" y1="-5" x2="2" y2="5"/>
+        <path d="M-2 1 L2 7 L6 1"/>
+      </g>
+      <text x="108" y="546" font-size="14.5" font-weight="700" fill="#2B3242">Downstream Tracer</text>
+      <text x="108" y="567" font-size="11.5" fill="#5B6472">Crosses gtsci → dacci into T7 migration</text>
+      <text x="108" y="585" font-size="10.5" fill="#9AA1AB">switches credentials per instance</text>
+    </g>
+    <!-- phase-1 yield -->
+    <rect x="56" y="632" width="297" height="60" rx="10" fill="#F5F8FC" stroke="#E3ECF6" stroke-width="1"/>
+    <text x="70" y="658" font-size="11" font-weight="700" fill="#3F6FB5" letter-spacing="0.4">YIELDS</text>
+    <text x="70" y="678" font-size="11.5" fill="#5B6472">an annotated failure window + the failure's chain</text>
+
+    <!-- ============================================================= -->
+    <!-- ==================== PHASE 2 · DIAGNOSE ====================== -->
+    <!-- ============================================================= -->
+    <rect x="403" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="435" cy="274" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.4"/>
+    <text x="435" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#6E5BB8">2</text>
+    <text x="461" y="270" font-size="18" font-weight="700" fill="#2B3242">Diagnose</text>
+    <text x="461" y="291" font-size="11" fill="#9AA1AB">name the cause — and test if it's real</text>
+    <line x1="419" y1="310" x2="716" y2="310" stroke="#EBE5F6" stroke-width="1.2"/>
+
+    <!-- Diagnostics -->
+    <g>
+      <circle cx="443" cy="360" r="15" fill="#ECE7FA" stroke="#A99BE0" stroke-width="1.4"/>
+      <path d="M-9 0 H-4 L-1.5 -6 L1.5 6 L4 0 H9" transform="translate(443,360)" fill="none" stroke="#6E5BB8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="471" y="350" font-size="14.5" font-weight="700" fill="#2B3242">Diagnostics</text>
+      <text x="471" y="371" font-size="11.5" fill="#5B6472">Root cause — with quoted evidence</text>
+      <text x="471" y="389" font-size="10.5" fill="#9AA1AB">16 categories via routing_rules.yaml · confidence</text>
+    </g>
+    <!-- False-Positive Detector -->
+    <g>
+      <circle cx="443" cy="458" r="15" fill="#FBE3EE" stroke="#E0A6C8" stroke-width="1.4"/>
+      <g transform="translate(443,458)" fill="none" stroke="#B0467E" stroke-width="1.8">
+        <circle cx="0" cy="0" r="8.5"/><circle cx="0" cy="0" r="4"/><circle cx="0" cy="0" r="1.2" fill="#B0467E"/>
+      </g>
+      <text x="471" y="448" font-size="14.5" font-weight="700" fill="#2B3242">False-Positive Detector</text>
+      <text x="471" y="469" font-size="11.5" fill="#5B6472">Is the red build a genuine defect?</text>
+      <text x="471" y="487" font-size="10.5" fill="#9AA1AB">deterministic 0–100% score · LLM only contests</text>
+    </g>
+    <!-- phase-2 verdict callout -->
+    <rect x="419" y="528" width="297" height="164" rx="12" fill="#FAF7FC" stroke="#E7DEF1" stroke-width="1"/>
+    <text x="435" y="554" font-size="11.5" font-weight="700" fill="#6E5BB8" letter-spacing="0.6">EMITS ONE VERDICT, QUANTIFIED</text>
+    <g font-size="11.5">
+      <circle cx="439" cy="576" r="4.5" fill="#C65B45"/>
+      <text x="452" y="580" font-weight="700" fill="#A8412C">TRUE POSITIVE</text><text x="556" y="580" fill="#8A6F68">— keep &amp; fix</text>
+      <circle cx="439" cy="600" r="4.5" fill="#C2862B"/>
+      <text x="452" y="604" font-weight="700" fill="#9A6A1E">INCONCLUSIVE</text><text x="556" y="604" fill="#9A8763">— escalate to a human</text>
+      <circle cx="439" cy="624" r="4.5" fill="#3E9460"/>
+      <text x="452" y="628" font-weight="700" fill="#2F7A4F">FALSE POSITIVE</text><text x="562" y="628" fill="#6E8C7B">— downgrade / suppress</text>
+    </g>
+    <line x1="435" y1="646" x2="700" y2="646" stroke="#EDE6F5" stroke-width="1"/>
+    <text x="435" y="672" font-size="11" fill="#9AA1AB">+ a 0–100% false-positive probability &amp; certainty</text>
+
+    <!-- ============================================================= -->
+    <!-- ==================== PHASE 3 · PRESCRIBE ===================== -->
+    <!-- ============================================================= -->
+    <rect x="766" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="798" cy="274" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.4"/>
+    <text x="798" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#C2862B">3</text>
+    <text x="824" y="270" font-size="18" font-weight="700" fill="#2B3242">Prescribe</text>
+    <text x="824" y="291" font-size="11" fill="#9AA1AB">plan the fix — then self-review</text>
+    <line x1="782" y1="310" x2="1079" y2="310" stroke="#F4E9CF" stroke-width="1.2"/>
+
+    <!-- ActionSpec -->
+    <g>
+      <circle cx="806" cy="360" r="15" fill="#FBF1DC" stroke="#E7BD6E" stroke-width="1.4"/>
+      <g transform="translate(806,360)" stroke="#C2862B" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="-6" cy="-6" r="1.5" fill="#C2862B" stroke="none"/><line x1="-2" y1="-6" x2="7" y2="-6"/>
+        <circle cx="-6" cy="0" r="1.5" fill="#C2862B" stroke="none"/><line x1="-2" y1="0" x2="7" y2="0"/>
+        <circle cx="-6" cy="6" r="1.5" fill="#C2862B" stroke="none"/><line x1="-2" y1="6" x2="3" y2="6"/>
+      </g>
+      <text x="834" y="350" font-size="14.5" font-weight="700" fill="#2B3242">ActionSpec</text>
+      <text x="834" y="371" font-size="11.5" fill="#5B6472">An ordered, executable action plan</text>
+      <text x="834" y="389" font-size="10.5" fill="#9AA1AB">owner role + human-gate flag per step</text>
+    </g>
+    <!-- Reviewer -->
+    <g>
+      <circle cx="806" cy="458" r="15" fill="#EEF1F5" stroke="#C2C9D4" stroke-width="1.4"/>
+      <g transform="translate(806,458)" fill="none" stroke="#4A5568" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="0" cy="0" r="8.5"/><path d="M-4 0 L-1 3 L4.5 -3.5"/>
+      </g>
+      <text x="834" y="448" font-size="14.5" font-weight="700" fill="#2B3242">Reviewer</text>
+      <text x="834" y="469" font-size="11.5" fill="#5B6472">Two independent critic passes</text>
+      <text x="834" y="487" font-size="10.5" fill="#9AA1AB">APPROVE / REVISE / ESCALATE · 2 rubrics</text>
+    </g>
+    <!-- phase-3 self-correct callout -->
+    <rect x="782" y="528" width="297" height="164" rx="12" fill="#FCF8F0" stroke="#EFE2C8" stroke-width="1"/>
+    <g transform="translate(800,552)" fill="none" stroke="#C2862B" stroke-width="1.8" stroke-linecap="round">
+      <path d="M9 -2 A6 6 0 1 1 7 -6"/><path d="M7 -9 L7.4 -5.6 L4 -5.2"/>
+    </g>
+    <text x="820" y="555" font-size="11.5" font-weight="700" fill="#C2862B" letter-spacing="0.5">SELF-CORRECTING</text>
+    <text x="798" y="582" font-size="11.5" fill="#5B6472">The Reviewer can hand the analysis</text>
+    <text x="798" y="600" font-size="11.5" fill="#5B6472">back with <tspan font-weight="700" fill="#9A6A1E">REVISE</tspan> — a bounded loop to</text>
+    <text x="798" y="618" font-size="11.5" fill="#5B6472">Diagnostics until the case holds.</text>
+    <text x="798" y="644" font-size="11" fill="#9AA1AB">Hard rule: no quoted evidence ⇒ fail.</text>
+    <text x="798" y="668" font-size="11" fill="#9AA1AB">Nothing ships until the Reviewer approves.</text>
+
+    <!-- REVISE loop arrow (phase 3 -> phase 2) -->
+    <path d="M766 600 H736" fill="none" stroke="#E7BD6E" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arA)"/>
+    <text x="749" y="591" text-anchor="middle" font-size="9.5" font-weight="700" fill="#C2862B">REVISE</text>
+
+    <!-- ============================================================= -->
+    <!-- ================= PHASE 4 · ACT & NOTIFY ===================== -->
+    <!-- ============================================================= -->
+    <rect x="1129" y="238" width="329" height="474" rx="18" fill="#FCFCFD" stroke="#ECECEC" stroke-width="1"/>
+    <circle cx="1161" cy="274" r="15" fill="#FBE3DE" stroke="#E59A8C" stroke-width="1.4"/>
+    <text x="1161" y="279" text-anchor="middle" font-size="15" font-weight="700" fill="#C65B45">4</text>
+    <text x="1187" y="270" font-size="18" font-weight="700" fill="#2B3242">Act &amp; Notify</text>
+    <text x="1187" y="291" font-size="11" fill="#9AA1AB">apply the fix (gated) — and always report</text>
+    <line x1="1145" y1="310" x2="1442" y2="310" stroke="#F6E2DC" stroke-width="1.2"/>
+
+    <!-- Remediator -->
+    <g>
+      <circle cx="1169" cy="360" r="15" fill="#FBE3DE" stroke="#E59A8C" stroke-width="1.4"/>
+      <g transform="translate(1169,360)" fill="none" stroke="#C65B45" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 -6 a3.7 3.7 0 0 0 -4.9 4.9 L-6 5 L-5 6 L0.1 0.9 a3.7 3.7 0 0 0 4.9 -4.9 L2.4 -1.4 L0.6 -3.2 Z"/>
+      </g>
+      <text x="1197" y="350" font-size="14.5" font-weight="700" fill="#2B3242">Remediator</text>
+      <text x="1197" y="371" font-size="11.5" fill="#5B6472">The only write-capable agent</text>
+      <text x="1197" y="389" font-size="10.5" fill="#9AA1AB">on APPROVE + human gate · dry-run default</text>
+    </g>
+    <!-- Notifier -->
+    <g>
+      <circle cx="1169" cy="458" r="15" fill="#E3F3E8" stroke="#8CCB9F" stroke-width="1.4"/>
+      <g transform="translate(1169,458)" fill="none" stroke="#3E9460" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-5 4 V-1 a5 5 0 0 1 10 0 V4 l1.7 2.5 H-6.7 Z"/>
+        <path d="M-1.9 7.2 a2 2 0 0 0 3.8 0"/>
+      </g>
+      <text x="1197" y="448" font-size="14.5" font-weight="700" fill="#2B3242">Notifier</text>
+      <text x="1197" y="469" font-size="11.5" fill="#5B6472">Reports the outcome — always</text>
+      <text x="1197" y="487" font-size="10.5" fill="#9AA1AB">Teams · email · Jenkins build description</text>
+    </g>
+    <!-- phase-4 gate callout -->
+    <rect x="1145" y="528" width="297" height="164" rx="12" fill="#FBF4F2" stroke="#F0D8D0" stroke-width="1"/>
+    <g transform="translate(1163,553)" fill="none" stroke="#C65B45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="-6" y="-1" width="12" height="9" rx="1.6"/><path d="M-3.5 -1 V-4 a3.5 3.5 0 0 1 7 0 V-1"/>
+    </g>
+    <text x="1183" y="555" font-size="11.5" font-weight="700" fill="#C65B45" letter-spacing="0.5">WRITE-BY-APPROVAL</text>
+    <text x="1161" y="582" font-size="11.5" fill="#5B6472">Nothing changes Jenkins, GitHub or</text>
+    <text x="1161" y="600" font-size="11.5" fill="#5B6472">Jira until the gate opens — Reviewer</text>
+    <text x="1161" y="618" font-size="11.5" fill="#5B6472"><tspan font-weight="700" fill="#2F7A4F">APPROVE</tspan> + a human OK.</text>
+    <text x="1161" y="644" font-size="11" fill="#9AA1AB">Dry-run by default · every action audited.</text>
+    <text x="1161" y="668" font-size="11" fill="#9AA1AB">The Notifier fires on every outcome.</text>
+
+    <!-- ================= ORCHESTRATOR SPINE ================= -->
+    <!-- ticks from each phase down to the spine -->
+    <g stroke="#D7DBE0" stroke-width="1.3" stroke-dasharray="3 3">
+      <line x1="204.5" y1="712" x2="204.5" y2="726"/>
+      <line x1="567.5" y1="712" x2="567.5" y2="726"/>
+      <line x1="930.5" y1="712" x2="930.5" y2="726"/>
+      <line x1="1293.5" y1="712" x2="1293.5" y2="726"/>
+    </g>
+    <rect x="40" y="726" width="1418" height="48" rx="14" fill="#F4F5F7" stroke="#E4E7EC" stroke-width="1"/>
+    <g transform="translate(74,750)" stroke-linecap="round">
+      <circle cx="0" cy="0" r="3.2" fill="#5B6472" stroke="none"/>
+      <g stroke="#7C8696" stroke-width="1.5">
+        <line x1="0" y1="0" x2="0" y2="-9"/><line x1="0" y1="0" x2="8" y2="-4.5"/><line x1="0" y1="0" x2="8" y2="4.5"/>
+        <line x1="0" y1="0" x2="0" y2="9"/><line x1="0" y1="0" x2="-8" y2="4.5"/><line x1="0" y1="0" x2="-8" y2="-4.5"/>
+      </g>
+      <g fill="#AAB1BB" stroke="none"><circle cx="0" cy="-9" r="1.7"/><circle cx="8" cy="-4.5" r="1.7"/><circle cx="8" cy="4.5" r="1.7"/><circle cx="0" cy="9" r="1.7"/><circle cx="-8" cy="4.5" r="1.7"/><circle cx="-8" cy="-4.5" r="1.7"/></g>
+    </g>
+    <text x="104" y="747" font-size="14" font-weight="700" fill="#3A4150">Orchestrator<tspan font-size="12" font-weight="500" fill="#5B6472">  · the 10th agent — coordinates all four phases, drives the REVISE loop &amp; enforces the human gate</tspan></text>
+    <text x="104" y="765" font-size="11.5" fill="#9AA1AB">An orchestration crash never changes the build's result beyond its original cause — the agents run beside the pipeline, not in its critical path.</text>
+
+    <!-- spine -> outcome -->
+    <line x1="749" y1="774" x2="749" y2="792" stroke="#C9CED5" stroke-width="1.6" marker-end="url(#ar)"/>
+
+    <!-- ================= OUTCOME ================= -->
+    <text x="40" y="812" font-size="13" font-weight="700" fill="#8A92A0" letter-spacing="1.5">OUTCOME</text>
+    <!-- lens -->
+    <circle cx="70" cy="850" r="28" fill="#FFFFFF" stroke="#2D2D44" stroke-width="2.5"/>
+    <circle cx="64" cy="844" r="10" fill="none" stroke="#2D2D44" stroke-width="3"/>
+    <line x1="71.5" y1="851.5" x2="80" y2="860" stroke="#2D2D44" stroke-width="3" stroke-linecap="round"/>
+    <text x="112" y="844" font-size="12.5" fill="#5B6472">Ten agents focus the noise</text>
+    <text x="112" y="862" font-size="12.5" font-weight="600" fill="#3A4150">into one grounded verdict</text>
+
+    <!-- verdict pills -->
+    <g>
+      <rect x="320" y="828" width="232" height="40" rx="20" fill="#FBE6E1" stroke="#EBC3B9" stroke-width="1"/>
+      <circle cx="344" cy="848" r="5" fill="#C65B45"/>
+      <text x="358" y="853" font-size="13.5" font-weight="700" fill="#A8412C">TRUE POSITIVE</text>
+      <text x="478" y="853" font-size="11.5" fill="#B07567">— keep &amp; fix</text>
+
+      <rect x="566" y="828" width="214" height="40" rx="20" fill="#FBF2DD" stroke="#EBD9AE" stroke-width="1"/>
+      <circle cx="590" cy="848" r="5" fill="#C2862B"/>
+      <text x="604" y="853" font-size="13.5" font-weight="700" fill="#9A6A1E">INCONCLUSIVE</text>
+      <text x="716" y="853" font-size="11.5" fill="#A98C53">— escalate</text>
+
+      <rect x="794" y="828" width="238" height="40" rx="20" fill="#EAF5EE" stroke="#C5E4D0" stroke-width="1"/>
+      <circle cx="818" cy="848" r="5" fill="#3E9460"/>
+      <text x="832" y="853" font-size="13.5" font-weight="700" fill="#2F7A4F">FALSE POSITIVE</text>
+      <text x="956" y="853" font-size="11.5" fill="#6E8C7B">— downgrade</text>
+    </g>
+
+    <!-- deliverables -->
+    <line x1="1066" y1="804" x2="1066" y2="876" stroke="#ECECEC" stroke-width="1"/>
+    <text x="1086" y="814" font-size="12" font-weight="700" fill="#8A92A0" letter-spacing="1.2">WHAT YOU GET</text>
+    <g font-size="12" fill="#5B6472">
+      <path d="M1086 834 l3 3 l6 -7" fill="none" stroke="#3E9460" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="1102" y="839">Root cause + confidence</text>
+      <path d="M1086 860 l3 3 l6 -7" fill="none" stroke="#3E9460" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="1102" y="865">Quoted evidence lines</text>
+      <path d="M1284 834 l3 3 l6 -7" fill="none" stroke="#3E9460" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="1300" y="839">Ordered action plan</text>
+      <path d="M1284 860 l3 3 l6 -7" fill="none" stroke="#3E9460" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="1300" y="865">Teams · email · build-desc</text>
+    </g>
+
+  </g>
+</svg>
