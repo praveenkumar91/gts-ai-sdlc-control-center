@@ -1,19 +1,19 @@
 ---
 name: code-review-lens
-description: "Use when: performing code review of a T7/P7 change (diff, commit, PR, or snippet). This skill is the single brain for the code-review CONCERNS — correctness, code quality, security (OWASP/CWE), performance, coding-guideline compliance, dependencies, intent-vs-implementation, architecture boundaries, and concurrency — via the codereviewer-lens MCP server. Reviewer agents delegate these concerns here and never call the codereviewer-lens MCP tools directly."
+description: "Use when: performing code review of a T7/P7 change (diff, commit, PR, or snippet). This skill is the single brain for the code-review CONCERNS — correctness, code quality, security (OWASP/CWE), performance, coding-guideline compliance, dependencies, intent-vs-implementation, architecture boundaries, and concurrency — via the codereviewer_lens MCP server. Reviewer agents delegate these concerns here and never call the codereviewer_lens MCP tools directly."
 systems: [all]
-tools: [codereviewer-lens/review_diff, codereviewer-lens/review_commit, codereviewer-lens/review_pr, codereviewer-lens/review_semantics, codereviewer-lens/validate_intent, codereviewer-lens/check_architecture_rules, codereviewer-lens/analyse_concurrency, codereviewer-lens/trace_impact, codereviewer-lens/query_code_graph, codereviewer-lens/check_compliance, codereviewer-lens/get_review_status]
+tools: [codereviewer_lens/review_diff, codereviewer_lens/review_commit, codereviewer_lens/review_pr, codereviewer_lens/review_snippet, codereviewer_lens/review_semantics, codereviewer_lens/validate_intent, codereviewer_lens/check_architecture_rules, codereviewer_lens/analyse_concurrency, codereviewer_lens/trace_impact, codereviewer_lens/query_code_graph, codereviewer_lens/check_compliance, codereviewer_lens/configure_review, codereviewer_lens/get_review_status]
 user-invocable: false
 ---
 
 # Code Review Lens — the review brain
 
-`codereviewer-lens` is a comprehensive, tool-grounded code-review engine: SonarQube, Fortify,
+`codereviewer_lens` is a comprehensive, tool-grounded code-review engine: SonarQube, Fortify,
 GitHub code/secret scanning, dependency/SCA, a RAG over the C++/Java/Python coding-guideline PDFs,
 and deterministic architecture-boundary (`ARCH-###`) + concurrency (`CONC-###`) rules. It is **the
 brain for every code-review concern**. A reviewer agent **delegates** these concerns to lens through
 this skill; it does **not** re-implement them with its own reasoning, and it **never** calls the
-`codereviewer-lens` MCP tools directly outside this skill.
+`codereviewer_lens` MCP tools directly outside this skill.
 
 ## Language coverage
 
@@ -45,7 +45,9 @@ lens and remain the reviewer's own responsibility (do not expect this skill to p
 | Component-boundary violations | `check_architecture_rules(diff_text, language, repo)` | deterministic `ARCH-###`; **needs `repo`** |
 | Thread-safety / races | `analyse_concurrency(diff_text, language, repo)` | `CONC-###` |
 | Cross-component impact (side-effects on dependents) | `trace_impact(...)` · `query_code_graph(...)` | needs `repo` |
+| Ad-hoc review of a bare code block (not a diff) | `review_snippet(code, language, profile)` | for a snippet with no unified diff; `check_compliance` is the quick-check shortcut over the same path |
 | Ad-hoc quick compliance | `check_compliance(code, language)` | quick-check profile |
+| Inspect the effective review profile | `configure_review(profile)` | severity threshold · enabled agents · verdict policy — report what a profile actually runs |
 | Re-read a prior result | `get_review_status(review_id)` | — |
 
 ## Choosing the tool + profile (by trigger)
@@ -90,15 +92,15 @@ Every review tool returns a JSON object with:
 
 ## Fail-safe (lens unavailable)
 
-If the `codereviewer-lens` MCP server is **unreachable** (as opposed to a per-provider degradation,
+If the `codereviewer_lens` MCP server is **unreachable** (as opposed to a per-provider degradation,
 which lens reports as a coverage gap and still returns a verdict), you **must not** return an
 approval. Return your agent's *changes-required / needs-context* verdict with the reason
-*"code review could not be completed — codereviewer-lens unavailable"* and escalate. **No brain ⇒ no
+*"code review could not be completed — codereviewer_lens unavailable"* and escalate. **No brain ⇒ no
 certification.**
 
 ## Constraints
 
-- DELEGATE here — never call `codereviewer-lens` MCP tools directly from an agent body.
+- DELEGATE here — never call `codereviewer_lens` MCP tools directly from an agent body.
 - ALWAYS pass `repo` to `review_commit` and the focused tools (`check_architecture_rules`,
   `analyse_concurrency`, `trace_impact`, `query_code_graph`) so repo-scoped rules and the SonarQube
   project key resolve.

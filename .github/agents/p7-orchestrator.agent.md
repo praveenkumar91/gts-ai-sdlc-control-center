@@ -149,7 +149,7 @@ Route by the tester's **failure classification** (not a bare pass/fail):
 Delegate to `/p7-sdlc-reviewer`:
 > "Review all changes for correctness, security, performance, and pattern adherence: {all changed files}"
 
-The reviewer **delegates the generic code-review concerns to the `codereviewer-lens` brain** (via `code-review-lens`) and retains the P7-specific judgment — requirement conformance against the Jira ticket, P7 pattern conformance, the holistic PR assessment, and test quality.
+The reviewer **delegates the generic code-review concerns to the `codereviewer_lens` brain** (via `code-review-lens`) and retains the P7-specific judgment — requirement conformance against the Jira ticket, P7 pattern conformance, the holistic PR assessment, and test quality.
 
 - If **REQUEST CHANGES** with [REQUIRED] items: Send back to `/p7-sdlc-developer` (max 2 iterations). Then re-run tests, then re-review.
 - If **APPROVE** or only [SUGGESTION] items: Proceed.

@@ -5,7 +5,7 @@ model: "Claude Sonnet 4.6 (copilot)"
 tools: [read, edit, search, execute, p7spec/*, github/*, devops_jira/get_issue, devops_jira/get_issue_comments, devops_jira/get_issue_links, devops_jira/search_issues]
 user-invocable: false
 system: p7
-skills: [skills/systems/p7/p7-spec, skills/systems/p7/p7-code]
+skills: [skills/systems/p7/p7-spec, skills/systems/p7/p7-code, skills/systems/p7/p7-github]
 skills_common: [github, jira, sdlc-debugging, sdlc-verification, coding-guidelines, requirement-conformance, gts-build-graph]
 ---
 
