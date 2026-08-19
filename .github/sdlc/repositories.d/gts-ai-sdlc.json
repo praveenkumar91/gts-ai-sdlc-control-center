@@ -1,0 +1,59 @@
+{
+  "$schema": "../schemas/repository.schema.json",
+  "schemaVersion": "1.0",
+  "repositoryId": "gts-ai-sdlc",
+  "displayName": "GTS AI SDLC",
+  "system": "GTS-SDLC",
+  "orchestrator": "repository-worker",
+  "checkout": {
+    "mode": "existing-or-clone",
+    "localCandidates": [
+      "."
+    ],
+    "defaultBranch": "master"
+  },
+  "ownership": {
+    "components": [
+      "agent-framework",
+      "skills",
+      "sdlc-orchestration"
+    ],
+    "paths": [
+      ".github/**",
+      ".agents/**",
+      "README.md"
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      "gts-agent-orchestration"
+    ],
+    "consumes": [],
+    "contractsProduced": [],
+    "contractsConsumed": [],
+    "gui": false
+  },
+  "dependencies": [],
+  "sharedResources": [],
+  "customizations": {
+    "instructions": [
+      ".github/copilot-instructions.md"
+    ],
+    "agents": [
+      ".github/agents"
+    ],
+    "skills": [
+      ".agents/skills"
+    ]
+  },
+  "commands": {
+    "bootstrap": [],
+    "unit": [
+      "python -m unittest discover -s .github/scripts/tests -p test_*.py"
+    ],
+    "integration": [],
+    "lint": [],
+    "build": [],
+    "security": []
+  }
+}

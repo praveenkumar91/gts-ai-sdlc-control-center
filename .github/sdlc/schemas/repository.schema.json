@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "repository.schema.json",
+  "title": "GTS SDLC repository descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "repositoryId",
+    "displayName",
+    "system",
+    "checkout",
+    "ownership",
+    "capabilities",
+    "dependencies",
+    "sharedResources",
+    "customizations",
+    "commands"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0" },
+    "repositoryId": { "$ref": "#/$defs/id" },
+    "displayName": { "type": "string", "minLength": 1 },
+    "system": { "type": "string", "minLength": 1 },
+    "orchestrator": { "type": "string", "minLength": 1 },
+    "checkout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "localCandidates", "defaultBranch"],
+      "properties": {
+        "mode": { "enum": ["existing-only", "existing-or-clone"] },
+        "localCandidates": { "$ref": "#/$defs/stringArray" },
+        "remote": { "type": "string", "minLength": 1 },
+        "defaultBranch": { "type": "string", "minLength": 1 }
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components", "paths"],
+      "properties": {
+        "components": { "$ref": "#/$defs/stringArray" },
+        "paths": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provides", "consumes", "contractsProduced", "contractsConsumed", "gui"],
+      "properties": {
+        "provides": { "$ref": "#/$defs/stringArray" },
+        "consumes": { "$ref": "#/$defs/stringArray" },
+        "contractsProduced": { "$ref": "#/$defs/stringArray" },
+        "contractsConsumed": { "$ref": "#/$defs/stringArray" },
+        "gui": { "type": "boolean" }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "sharedResources": { "$ref": "#/$defs/stringArray" },
+    "customizations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["instructions", "agents", "skills"],
+      "properties": {
+        "instructions": { "$ref": "#/$defs/stringArray" },
+        "agents": { "$ref": "#/$defs/stringArray" },
+        "skills": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "commands": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bootstrap", "unit", "integration", "lint", "build", "security"],
+      "properties": {
+        "bootstrap": { "$ref": "#/$defs/stringArray" },
+        "unit": { "$ref": "#/$defs/stringArray" },
+        "integration": { "$ref": "#/$defs/stringArray" },
+        "lint": { "$ref": "#/$defs/stringArray" },
+        "build": { "$ref": "#/$defs/stringArray" },
+        "security": { "$ref": "#/$defs/stringArray" }
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "stringArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

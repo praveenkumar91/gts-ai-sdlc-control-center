@@ -4,10 +4,10 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-Internal%20DBAG-blue.svg" alt="License: Internal DBAG">
-  <img src="https://img.shields.io/badge/composition-3--tier-7c5cff.svg" alt="3-tier composition">
-  <img src="https://img.shields.io/badge/agents-24-ff7a59.svg" alt="24 agents">
+  <img src="https://img.shields.io/badge/orchestration-program%20graph%20%2B%20Ralph%20loops-7c5cff.svg" alt="Program graph plus bounded Ralph loops">
+  <img src="https://img.shields.io/badge/agents-32-ff7a59.svg" alt="32 agents">
   <img src="https://img.shields.io/badge/systems-P7%20%C2%B7%20T7-1f9e89.svg" alt="Systems: P7 and T7">
-  <img src="https://img.shields.io/badge/skills-34-7c5cff.svg" alt="34 skills">
+  <img src="https://img.shields.io/badge/skills-36-7c5cff.svg" alt="36 skills">
   <img src="https://img.shields.io/badge/surface-VS%20Code%20Copilot-1f9e89.svg" alt="VS Code Copilot Agent mode">
 </p>
 
@@ -26,6 +26,7 @@
 <h3 align="center">
   <a href="#where--when-you-use-it">Where &amp; When</a> &nbsp;·&nbsp;
   <a href="#architecture-at-a-glance">Architecture</a> &nbsp;·&nbsp;
+  <a href="#enterprise-multi-repository-mode">Multi-repo</a> &nbsp;·&nbsp;
   <a href="#the-sdlc-pipeline">The Pipeline</a> &nbsp;·&nbsp;
   <a href="#supported-systems">Systems</a> &nbsp;·&nbsp;
   <a href="#design-principles">Design</a> &nbsp;·&nbsp;
@@ -61,6 +62,95 @@ pipeline, and **`gts-delivery`**, which proposes the terminal delivery of a merg
 <p align="center">
   <img src="docs/assets/architecture.svg" alt="GTS AI SDLC architecture — a left-hand rail marks the tiers. A request flows through gts-prompt-clarifier to Tier 1 (gts-orchestrator, the router), Tier 2 (p7-orchestrator — linear TDD pipeline; t7-orchestrator — autonomous Ralph loop) and Tier 3 (eight pipeline workers: planner, architect, developer — the only code writer — tester, reviewer, builder, pr-author, spec-author), which connect down to the SKILLS block; a narrow read-only rail holds T7/P7 Knowledge, gts-issue-analyst (root-cause) and gts-delivery (propose, human-run). Each agent carries a distinct role icon. Two inventories follow: a SKILLS grid (common + T7/P7) and an MCP SERVERS grid — codereviewer-lens, jenkins-lens, sonarqube-lens, github, devops_jira, confluence, t7codebase, t7spec, t7dbcopy, eurex_refdata and p7spec." width="100%">
 </p>
+
+<p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
+
+## Enterprise multi-repository mode
+
+The original GTS agents remain the domain experts. The enterprise layer adds an outer **program graph**
+for changes that may cross a large repository estate. It does not send 90 repositories into one prompt and
+does not replace planning with Python: agents freeze requirements, select impact and design the change;
+the small policy kernel only checks graph structure, evidence hashes, retry budgets and human approvals.
+
+```mermaid
+flowchart TD
+    U[Engineer in VS Code Copilot Chat] --> G[gts-orchestrator]
+    G --> P[program-orchestrator<br/>visible 13-stage todo]
+    P --> R[Requirements engineer<br/>DFS FSD DTS SRQ Jira design]
+    R -->|missing or contradictory| B[BLOCKED_SPEC<br/>ask the engineer]
+    R --> I[Impact analyst<br/>catalog first, focused source second]
+    I --> A[Architecture and dependency DAG]
+    A --> V{Independent plan reviews}
+    V -->|REVISE| A
+    V -->|approved digest| H1{{Human Gate 1}}
+    H1 --> W[Isolated worktrees<br/>only impacted repositories]
+    W --> D{Dependency-ready waves}
+    D --> P7[P7 worker mode<br/>original P7 agents]
+    D --> T7[T7 worker mode<br/>original Ralph agents]
+    D --> X[Generic worker<br/>repository-local agents and skills]
+    P7 --> E[Hashed test review build evidence]
+    T7 --> E
+    X --> E
+    E -->|bounded failure| D
+    E --> INT[Cross-repository integration]
+    INT --> C[Independent requirement and plan closure]
+    C --> PR[Linked draft PR set]
+    PR --> H2{{Human Gate 2}}
+    H2 --> M[Normal CODEOWNERS CI merge release and delivery controls]
+```
+
+### What happens with 90 repositories
+
+The catalog may contain up to 100 repository descriptors. Impact analysis classifies every descriptor, but
+source is opened and workers are launched only for the active subgraph.
+
+| Example impact | Execution |
+|---|---|
+| 1 implementation repository | One isolated worker; the same two program gates still apply |
+| 3 repositories with dependencies | Producer first, then independent consumers in the next ready wave |
+| 8 independent repositories | Up to the configured concurrency limit, one worktree and task context per repository |
+| 50–60 active repositories | Multiple bounded waves; shared databases/baselines are serialized |
+| 90 catalogued but 4 active | Four active workers, not ninety; the other 86 retain an evidence-backed disposition |
+
+Every repository does **not** copy this SDLC. The control centre owns the program policy under
+`.github/sdlc/`. A target repository supplies only what is local to it:
+
+```text
+target-repository/
+├─ .github/sdlc/repository.json       # identity, ownership, contracts, commands, dependencies
+├─ .github/copilot-instructions.md    # optional local rules
+├─ .github/agents/*.agent.md          # optional local specialists
+└─ .agents/skills/*/SKILL.md          # optional local expertise
+```
+
+Add a central descriptor under `.github/sdlc/repositories.d/` using
+`.github/sdlc/examples/repository.json` as the template. When selected, the worker reads the target's local
+customizations as additive constraints. If a local custom agent is callable in the multi-root workspace it is
+invoked; otherwise its agent file is loaded as role instructions rather than ignored. Local configuration may
+strengthen central gates but cannot weaken them.
+
+At Stage 7 the orchestrator automatically reuses a registered existing checkout or clones the descriptor's
+approved remote, then creates a separate change worktree under `workspace/worktrees/`. It never switches,
+cleans or overwrites a developer's dirty worktree. Missing authentication, remote metadata or an immutable
+base revision is surfaced as `INCONCLUSIVE` instead of asking the user to repair hidden state manually.
+
+The graph is language-neutral. A C++/CMake repository, Python service, Node package, Vite frontend and
+TypeScript library keep their own bootstrap, test, lint, build, security and GUI commands in the descriptor
+and local skills; the central scheduler only orders and verifies those declared commands and evidence.
+
+### The two loops and two gates
+
+- The **outer graph loop** handles scope, repository dependencies, plan revision and integration.
+- The **inner Ralph/TDD loop** handles one approved task in one repository with RED → GREEN → verify →
+  review → build backpressure and bounded retries.
+- **Human Gate 1** approves the exact reviewed requirements/plan/graph digest before production-code edits.
+- **Human Gate 2** reviews the traceability matrix, evidence and linked draft PR set before any PR approval,
+  merge, release or delivery action.
+
+A graph revision after Gate 1 clears downstream results and approvals. Missing evidence produces
+`INCONCLUSIVE`; missing authoritative intent produces `BLOCKED_SPEC`. No finite chain promises defect-free
+software, so the final result is always reported truthfully as `PASS`, `FAIL`, `INCONCLUSIVE` or
+`BLOCKED_SPEC`.
 
 <p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
@@ -135,22 +225,45 @@ the model's discretion.
   </tr>
 </table>
 
-The framework needs no build step — it *is* the agent and skill definitions. To use it:
+The agent framework needs no application build step. The deterministic policy kernel uses only the Python
+standard library. To use it:
 
-1. **Open this repo in VS Code** with GitHub Copilot (Agent mode). Every `.github/agents/*.agent.md` is
-   auto-discovered as a callable subagent.
-2. **Describe your task in Copilot Chat.** Start broad and let routing take over, or target a system:
+1. **Open this repo in VS Code** with GitHub Copilot. Opening the folder applies `.vscode/settings.json`;
+   opening `.github/GTS-AI-SDLC.code-workspace` applies the same settings explicitly. They enable nested
+   subagents and show subagent activity inline. Agents, skills and hooks are auto-discovered. Hooks are a VS
+   Code Preview feature and can be disabled by enterprise policy; CI and branch protection remain authoritative.
+2. **For a complete code change, select `program-orchestrator` from the agent dropdown**, or select
+   `gts-orchestrator` and describe the change. In local extension-host chat, `/run-program-sdlc` is also a
+   shortcut. Agent Host sessions should select the custom agent because Agent Host does not consume prompt
+   files.
+3. **Describe the task and give its sources.** For example:
 
    ```
-   /gts-orchestrator   Fix the SMP Type-B reason code on cancel in T7
+   program-orchestrator  Implement T7-12345 from DFS12345; discover the impacted repositories
+   /run-program-sdlc     Add the approved P7 risk-limit GUI change from the linked FSD
+   gts-orchestrator      Fix the SMP Type-B reason code on cancel in T7
    /p7-orchestrator    Add a validation rule to the pricing-engine request handler
    /t7-sdlc-knowledge  Who owns the Matcher, and where does the order lifecycle live?
    /gts-delivery       Deliver eurex tag T7-1234 into the 15.0 integration baseline
    /p7-sdlc-reviewer   Review the diff on this branch
    ```
 
-3. **Confirm the plan at the human gate**, then let the pipeline run its RED → GREEN → review → build →
-   PR loop to a reviewed, evidence-linked change.
+4. **Watch the thirteen stages in the parent chat.** If a required source is missing, answer the focused
+   question. Confirm the reviewed digest at Human Gate 1; the orchestrator then runs bounded repository waves.
+5. **Review Human Gate 2.** The chain presents requirement-to-change-to-test traceability and linked draft
+   PRs. It never self-approves or bypasses normal repository/release controls.
+
+Useful deterministic checks (the orchestrator normally runs these itself):
+
+```powershell
+python .github/scripts/policy_kernel.py validate
+python -m unittest discover -s .github/scripts/tests -p test_*.py -v
+python .github/scripts/policy_kernel.py ready --change-id <change-id>
+python .github/scripts/policy_kernel.py verify --change-id <change-id>
+```
+
+The executable 15-scenario results and the boundary between control-plane validation and real production
+certification are recorded in [`docs/program-validation-report.md`](docs/program-validation-report.md).
 
 ---
 

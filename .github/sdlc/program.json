@@ -1,0 +1,39 @@
+{
+  "$schema": "schemas/program.schema.json",
+  "schemaVersion": "1.0",
+  "programId": "gts-ai-sdlc-control-centre",
+  "catalogGlobs": [
+    ".github/sdlc/repositories.d/*.json"
+  ],
+  "repositoryLocalDescriptor": ".github/sdlc/repository.json",
+  "workspaceSearchRoots": [
+    ".",
+    "workspace/repositories",
+    ".."
+  ],
+  "worktreeRoot": "workspace/worktrees",
+  "runRoot": ".github/sdlc/runs",
+  "auditRoot": ".github/sdlc/audit",
+  "defaults": {
+    "riskTier": "high",
+    "maxCatalogRepositories": 100,
+    "maxActiveRepositories": 100,
+    "maxParallelWorkers": 8,
+    "maxNodeAttempts": 3,
+    "maxPlanReviewCycles": 3,
+    "requireGate1": true,
+    "requireGate2": true
+  },
+  "protectedBranches": [
+    "main",
+    "master",
+    "develop",
+    "release/*"
+  ],
+  "automationIdentities": [
+    "agent",
+    "copilot",
+    "github-actions",
+    "jenkins"
+  ]
+}

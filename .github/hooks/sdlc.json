@@ -1,0 +1,92 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "SubagentStart": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 .github/scripts/policy_kernel.py hook",
+        "windows": "python .github\\scripts\\policy_kernel.py hook",
+        "linux": "python3 .github/scripts/policy_kernel.py hook",
+        "osx": "python3 .github/scripts/policy_kernel.py hook",
+        "cwd": ".",
+        "timeout": 10
+      }
+    ]
+  }
+}

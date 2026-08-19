@@ -1,0 +1,15 @@
+{
+  "chat.useCustomAgentHooks": true,
+  "chat.useCustomizationsInParentRepositories": true,
+  "chat.subagents.allowInvocationsFromSubagents": true,
+  "chat.subagents.useRichRendering": false,
+  "chat.hookFilesLocations": {
+    ".github/hooks": true
+  },
+  "chat.agentSkillsLocations": {
+    ".agents/skills": true
+  },
+  "chat.agentFilesLocations": {
+    ".github/agents": true
+  }
+}

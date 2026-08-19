@@ -1,0 +1,61 @@
+{
+  "$schema": "../schemas/repository.schema.json",
+  "schemaVersion": "1.0",
+  "repositoryId": "replace-with-stable-id",
+  "displayName": "Example service",
+  "system": "P7",
+  "orchestrator": "p7-orchestrator",
+  "checkout": {
+    "mode": "existing-or-clone",
+    "localCandidates": [
+      "workspace/repositories/example-service"
+    ],
+    "remote": "ssh://approved-host/approved-org/example-service.git",
+    "defaultBranch": "main"
+  },
+  "ownership": {
+    "components": [
+      "example-component"
+    ],
+    "paths": [
+      "src/**"
+    ]
+  },
+  "capabilities": {
+    "provides": [
+      "example-api"
+    ],
+    "consumes": [
+      "example-events"
+    ],
+    "contractsProduced": [
+      "api/openapi.yaml"
+    ],
+    "contractsConsumed": [],
+    "gui": false
+  },
+  "dependencies": [
+    "upstream-repository-id"
+  ],
+  "sharedResources": [],
+  "customizations": {
+    "instructions": [
+      "AGENTS.md",
+      ".github/copilot-instructions.md"
+    ],
+    "agents": [
+      ".github/agents"
+    ],
+    "skills": [
+      ".agents/skills"
+    ]
+  },
+  "commands": {
+    "bootstrap": [],
+    "unit": [],
+    "integration": [],
+    "lint": [],
+    "build": [],
+    "security": []
+  }
+}

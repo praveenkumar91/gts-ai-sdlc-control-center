@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "approval.schema.json",
+  "title": "GTS SDLC human approval evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "changeId",
+    "gate",
+    "graphDigest",
+    "decision",
+    "approver",
+    "approvedAt",
+    "statement",
+    "evidenceRef"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "1.0" },
+    "changeId": { "$ref": "#/$defs/id" },
+    "gate": { "enum": ["gate-1", "gate-2"] },
+    "graphDigest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "decision": { "const": "APPROVE" },
+    "approver": { "type": "string", "minLength": 1 },
+    "approvedAt": { "type": "string", "format": "date-time" },
+    "statement": { "type": "string", "minLength": 1 },
+    "evidenceRef": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    }
+  }
+}
