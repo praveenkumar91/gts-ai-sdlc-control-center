@@ -21,8 +21,9 @@ delivery.
 |---|---|
 | `program-orchestrator`, GTS, P7, T7 and repository-worker agent files exist | PASS |
 | `multi-repo-orchestration` skill is discoverable and passes the skill validator | PASS |
-| Program and repository descriptor JSON parse successfully | PASS |
+| Single `.github/gts-repositories.json` catalog parses successfully | PASS |
 | Catalog supports 100 registered repositories and bounds active/parallel workers | PASS |
+| No `.github/sdlc` directory is required or present | PASS |
 | Seven visible stages and both human gates are defined | PASS |
 | Python policy-kernel and custom-hook runtime are absent from the active path | PASS |
 | `git diff --check` reports no content errors | PASS |
@@ -54,7 +55,7 @@ searching unrelated workspace material after discovering that the fixture reposi
 
 - Stage 3 now requires a readable descriptor, ownership, immutable base revision and a resolvable checkout or
   registered remote for every implementation or validation-only repository.
-- GTS planning receives explicit `Repository-Descriptors` and `Allowed-Sources` and is prohibited from broad
+- GTS planning receives explicit `Repository-Entries` and `Allowed-Sources` and is prohibited from broad
   workspace searches in multi-repository planning mode.
 - Any required GTS `BLOCKED_SPEC` or `INCONCLUSIVE` result is propagated immediately; the parent cannot create a
   substitute domain plan, call the reviewer or open Human Gate 1.
@@ -71,7 +72,7 @@ immutable revisions, checkouts or remotes existed.
 | Observation | Result |
 |---|---|
 | Created exactly seven visible stages | PASS |
-| Limited discovery to the registered program catalog and descriptor directory | PASS |
+| Limited discovery to the single registered program catalog | PASS |
 | Stopped at Stage 2 with `BLOCKED_SPEC` | PASS |
 | Reported the missing canonical ID, owner, immutable revision and checkout or approved remote | PASS |
 | Did not invoke GTS/P7/T7 planners or the independent plan reviewer | PASS |
@@ -82,10 +83,21 @@ The fail-closed correction therefore passes its live VS Code negative control. A
 registered repositories remains required before production adoption. Until that real integration test and the
 company-environment checks below pass, the complete real-environment result remains `INCONCLUSIVE`.
 
+## Single-catalog simplification
+
+The later simplification removed `.github/sdlc` and consolidated program limits and repository entries into
+`.github/gts-repositories.json`. The catalog parses, repository IDs are unique, required execution-identity
+fields validate, active agents contain no legacy catalog references, and the reusable skill validator passes.
+
+A post-simplification VS Code rerun was attempted, but the Windows-control helper could not activate the exact
+running VS Code window after its allowed retry. No UI input was sent. Therefore the post-simplification live UI
+result is `INCONCLUSIVE`; the earlier fail-closed negative-control result above remains valid only for the agent
+rules before this storage-layout simplification.
+
 ## Required company-environment acceptance
 
-1. Register representative T7/P7 repository descriptors with owners, immutable commits and approved local or
-   remote locations.
+1. Register representative T7/P7 entries in `.github/gts-repositories.json` with owners, immutable commits and
+   approved local or remote locations.
 2. Verify corporate Git/SSH, Jira, Confluence, specification and codebase access.
 3. Re-run the missing-descriptor negative control in the company environment and confirm repository selection or
    Stage 3 returns `BLOCKED_SPEC` without review.

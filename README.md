@@ -105,7 +105,7 @@ flowchart TD
 
 ### What happens with 90 repositories
 
-The parent reads descriptor metadata for the catalog once and uses ownership, paths, contracts, dependencies,
+The parent reads `.github/gts-repositories.json` once and uses ownership, paths, contracts, dependencies,
 components and system metadata to select impact. It opens source and starts agents only for the selected
 repositories.
 
@@ -117,23 +117,23 @@ repositories.
 | 50–60 catalogued, 3–8 active | Only the selected repositories enter bounded waves |
 | 90 catalogued but 4 active | Four active workers, not ninety |
 
-Every repository does **not** copy the complete SDLC. The control centre holds the parent agent and common
-skills. A target repository contributes only its local descriptor and any real local expertise:
+Every repository does **not** copy the complete SDLC. The control centre holds the parent agent, common skills,
+and one lightweight catalog. A target repository contributes only real local expertise when it has any:
 
 ```text
 target-repository/
-├─ .github/sdlc/repository.json       # identity, ownership, contracts, commands, dependencies
 ├─ .github/copilot-instructions.md    # optional local rules
 ├─ .github/agents/*.agent.md          # optional local specialists
 └─ .agents/skills/*/SKILL.md          # optional local expertise
 ```
 
-Add a central descriptor under `.github/sdlc/repositories.d/` using
-`.github/sdlc/examples/repository.json` as the template. When selected, GTS passes its registered local agents,
-instructions and skills to the P7/T7 or generic worker as additive expertise. Local rules may strengthen the
-central plan and gates but cannot weaken them.
+Add one entry for each repository to `.github/gts-repositories.json`. Each entry records identity, system,
+owners, components, paths, contracts, dependencies, immutable revision, checkout or remote, commands, and any
+local instruction, agent, or skill paths. When selected, GTS passes those local customizations to the P7/T7 or
+generic worker as additive expertise. Local rules may strengthen the central plan and gates but cannot weaken
+them. No `.github/sdlc` directory or per-repository copy of the catalog is required.
 
-Each active implementation or validation repository needs a registered owner, immutable base commit and either
+Each active implementation or validation repository needs a catalog entry with a registered owner, immutable base commit and either
 a resolvable local checkout or approved remote. Provisional repository names in a chat may help impact analysis,
 but they cannot open plan review or Human Gate 1. A missing execution identity stops Stage 3 as `BLOCKED_SPEC` or
 `INCONCLUSIVE` instead of triggering broad workspace searches or a substitute plan.
@@ -247,7 +247,7 @@ The framework needs no application build or Python control-plane runtime. To use
    /p7-sdlc-reviewer   Review the diff on this branch
    ```
 
-4. **Watch the seven stages in the parent chat.** If a requirement, repository descriptor, pinned revision or
+4. **Watch the seven stages in the parent chat.** If a requirement, repository catalog entry, pinned revision or
    checkout/remote is missing, answer the focused question. Confirm the reviewed plan revision at Human Gate 1;
    the orchestrator then runs bounded repository waves.
 5. **Review Human Gate 2.** The chain presents requirement-to-change-to-test traceability and linked draft

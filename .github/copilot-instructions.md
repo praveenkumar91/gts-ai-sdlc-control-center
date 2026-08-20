@@ -5,7 +5,7 @@ Use `program-orchestrator` as the parent for any code-changing request whose rep
 - The multi-repository layer is agent-only. Do not run `.github/scripts/policy_kernel.py`, Python control-plane commands, or custom SDLC hooks.
 - Keep the seven-stage plan visible in the parent chat before delegating and update it after every question, review cycle, repository wave, and human gate.
 - Recover and cite authoritative DFS/FSD/DTS/SRQ/Jira/design/user requirements. If material information is missing or contradictory, ask the smallest focused question and report `BLOCKED_SPEC`.
-- Read repository descriptor metadata once, select the impacted subset, and deep-read or checkout only that subset. A large catalog is not permission to open or change every repository.
+- Read only `.github/gts-repositories.json` for repository metadata, select the impacted subset, and deep-read or checkout only that subset. Do not search for another catalog. A large catalog is not permission to open or change every repository.
 - Use GTS as the domain router. GTS must reuse the original P7/T7 planners, architects, developers, testers, reviewers, builders, PR authors, and relevant common, system, and repository-local skills.
 - Keep Stage 3 blocked unless every active implementation or validation repository has a registered owner, immutable revision and resolvable checkout or approved remote, and every required GTS system plan returns `READY`. Do not substitute parent-authored assumptions or broad workspace searches for missing repository evidence.
 - Review the complete cross-repository plan independently. A corrected plan receives a new revision and a complete re-review; do not repeat approved reviews without an actual change.

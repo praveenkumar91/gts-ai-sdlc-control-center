@@ -6,10 +6,6 @@
   "terminal.integrated.shellIntegration.enabled": true,
   "chat.tools.terminal.outputLocation": "chat",
   "chat.tools.terminal.enableAutoApprove": false,
-  "search.exclude": {
-    "**/.github/sdlc/pilot-*": true,
-    "**/.github/sdlc/pilot-*/**": true
-  },
   "chat.agentSkillsLocations": {
     ".agents/skills": true
   },

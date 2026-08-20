@@ -19,7 +19,7 @@ Do not implement product code. Do not run a Python control plane, policy kernel,
 
 Your first response must create exactly the seven todo items from the skill, with no wrapper, pre-flight, final-status, or eighth item. Print those same seven rows in chat before searching or delegating. State the current stage, next decision, and known sources. Keep the table current after every question, review cycle, repository wave, and gate.
 
-Choose a stable `Change-Id`. Read only `.github/sdlc/program.json` for the catalog globs and run root. Store concise, human-readable artifacts under `<runRoot>/<Change-Id>/`; never overwrite an earlier plan revision. For a new change, do not inspect legacy schemas, scripts, hooks, validation reports, or any `pilot-*` run, audit, catalog, or workspace artifact.
+Choose a stable `Change-Id`. Read only `.github/gts-repositories.json` for program limits and repository metadata. Store concise, human-readable plan artifacts under `.github/change-plans/<Change-Id>/`; create that folder only when the request permits plan-file edits and never overwrite an earlier revision. Do not search for a second catalog or inspect legacy schemas, scripts, hooks, runs, audits, pilots, or validation reports.
 
 ## 1. Clarify and ground
 
@@ -29,9 +29,9 @@ If a material decision is missing or contradictory, update the visible stage to 
 
 ## 2. Select repositories
 
-Read catalog descriptor metadata once, then classify the catalog using the skill. Show the active repositories and the strongest exclusion reasons in chat; write the complete impact table into the current plan artifact. Do not deep-read or checkout `NOT_IMPACTED` repositories.
+Read the catalog entries once, then classify them using the skill. Show the active repositories and the strongest exclusion reasons in chat; write the complete impact table into the current plan artifact. Do not deep-read or checkout `NOT_IMPACTED` repositories.
 
-Every `IMPLEMENTATION` or `VALIDATION_ONLY` selection must resolve to a readable descriptor with an immutable base revision and either a registered local checkout or remote. If no descriptor can establish ownership, contract impact, or execution identity, keep Stage 2 or 3 blocked and ask for the exact missing repository field rather than guessing.
+Every `IMPLEMENTATION` or `VALIDATION_ONLY` selection must resolve to a readable catalog entry with an immutable base revision and either a registered local checkout or remote. If no entry can establish ownership, contract impact, or execution identity, keep Stage 2 or 3 blocked and ask for the exact missing repository field rather than guessing.
 
 ## 3. Compose the plan with GTS expertise
 
@@ -42,19 +42,19 @@ Multi-Repo-Planning: true
 Change-Id: <id>
 System: <system>
 Requirement-Sources: <citations>
-Candidate-Repositories: <descriptor IDs>
-Repository-Descriptors: <descriptor paths, immutable revisions, and checkout or remote locations>
+Candidate-Repositories: <catalog repository IDs>
+Repository-Entries: <selected entries with immutable revisions and checkout or remote locations>
 Allowed-Sources: <only the files and customization paths GTS may read>
 Requested-Outcome: <user request>
 ```
 
-GTS must reuse the original P7/T7 knowledge, planner, and architect agents and return a read-only system plan. Require `System-Plan: READY` from every affected system. If any system returns `BLOCKED_SPEC` or `INCONCLUSIVE`, keep Stage 3 blocked, show the exact missing descriptor, checkout, revision, source, or decision, and wait. Do not create a substitute domain plan, invoke plan review, or open Human Gate 1.
+GTS must reuse the original P7/T7 knowledge, planner, and architect agents and return a read-only system plan. Require `System-Plan: READY` from every affected system. If any system returns `BLOCKED_SPEC` or `INCONCLUSIVE`, keep Stage 3 blocked, show the exact missing catalog entry, checkout, revision, source, or decision, and wait. Do not create a substitute domain plan, invoke plan review, or open Human Gate 1.
 
 After all system plans are ready, compose them into `plan-r<N>.md` with repository tasks and dependency waves. Verify that the artifact exists before displaying its path. For an explicitly no-edit dry run, call an unpersisted result `Chat Plan Revision <N>` and never present it as a file. Do not copy the complete requirement corpus into each worker prompt.
 
 ## 4. Review and re-review
 
-Invoke `program-plan-reviewer` only after every required system plan is ready. Supply the complete requirement sources, registered repository descriptors, catalog selection, all system-planning responses, and the exact readable plan revision path. It is independent and cannot edit the plan.
+Invoke `program-plan-reviewer` only after every required system plan is ready. Supply the complete requirement sources, selected repository entries, catalog selection, all system-planning responses, and the exact readable plan revision path. It is independent and cannot edit the plan.
 
 - `APPROVED`: show required advisories, if any, and continue.
 - `REVISE`: address every required finding, save the next full revision, and invoke a fresh review of that revision.

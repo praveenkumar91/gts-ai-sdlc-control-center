@@ -19,7 +19,7 @@ Create exactly these seven todo items in the parent chat before searching or del
 6. Implement and validate dependency waves
 7. Verify closure, prepare draft PRs, and Human Gate 2
 
-Show a compact status table in chat. Detailed evidence may live in the run folder, but the current stage, active repositories, blockers, review findings, wave progress, and next action must remain visible to the user.
+Show a compact status table in chat. Detailed evidence may live in a change-plan folder, but the current stage, active repositories, blockers, review findings, wave progress, and next action must remain visible to the user.
 
 ## Requirements before repositories
 
@@ -30,7 +30,7 @@ Show a compact status table in chat. Detailed evidence may live in the run folde
 
 ## Select from metadata, then read source
 
-Read the catalog globs from `.github/sdlc/program.json` when present; otherwise use `.github/sdlc/repositories.d/*.json`. Read descriptor metadata for the catalog once. For a new change, ignore `pilot-*` directories and legacy graph, schema, hook, script, and validation artifacts. Do not open every repository's source and do not launch one agent per catalog entry.
+Read only `.github/gts-repositories.json` for program limits and repository metadata. Validate that it contains a `repositories` array and that its declared size is within `limits.maxCatalogRepositories`. Do not search for a second catalog, legacy descriptor directory, graph, schema, hook, script, run, audit, or pilot artifact. Do not open every repository's source and do not launch one agent per catalog entry.
 
 Classify descriptors as:
 
@@ -41,11 +41,11 @@ Classify descriptors as:
 
 Use ownership paths, produced and consumed contracts, dependencies, system, components, lifecycle, and requirement citations to justify selection. Deep-read or checkout only the active subset. A catalog of 90 repositories with three affected repositories creates three repository workers, not 90.
 
-Before Stage 3 can complete, every `IMPLEMENTATION` or `VALIDATION_ONLY` repository must have a readable registered descriptor containing its repository ID, system, ownership, immutable base revision, and either a resolvable local checkout or registered remote. User-supplied provisional metadata may support impact analysis, but it does not replace this execution identity. If any required descriptor, revision, checkout, remote, or ownership fact is missing, keep Stage 3 blocked and return `BLOCKED_SPEC` or `INCONCLUSIVE` with the exact missing field. Do not manufacture a repository identity or continue to plan review.
+Before Stage 3 can complete, every `IMPLEMENTATION` or `VALIDATION_ONLY` repository must have a readable registered catalog entry containing its repository ID, system, owners, immutable base revision, and either a resolvable local checkout or registered remote. User-supplied provisional metadata may support impact analysis, but it does not replace this execution identity. If any required entry, revision, checkout, remote, or ownership fact is missing, keep Stage 3 blocked and return `BLOCKED_SPEC` or `INCONCLUSIVE` with the exact missing field. Do not manufacture a repository identity or continue to plan review.
 
 ## Plan and independent review
 
-Create a versioned Markdown plan under the configured `runRoot/<change-id>/` using editor tools. Verify that the path exists and is readable before naming it as a plan artifact. A no-edit dry run may use a clearly labelled `Chat Plan Revision <N>`, but must never display a file path that was not created. The plan must include:
+Create a versioned Markdown plan under `.github/change-plans/<change-id>/` using editor tools. Create that folder only for a real change that permits plan artifacts; do not add placeholder run or audit directories. Verify that the path exists and is readable before naming it as a plan artifact. A no-edit dry run may use a clearly labelled `Chat Plan Revision <N>`, but must never display a file path that was not created. The plan must include:
 
 - cited requirement IDs and acceptance checks;
 - active and excluded repositories with reasons;
@@ -54,7 +54,7 @@ Create a versioned Markdown plan under the configured `runRoot/<change-id>/` usi
 - unit, component, contract, integration, security, performance, operational, rollback, and GUI evidence only where applicable;
 - explicit forbidden scope and unresolved risks.
 
-Ask GTS for one domain-planning response per affected system so the existing P7/T7 planners and architects contribute. Pass only the frozen requirement sources, selected descriptors, registered revisions, and explicitly allowed local customization paths. Planning agents must not compensate for a missing descriptor or checkout by searching unrelated workspace files.
+Ask GTS for one domain-planning response per affected system so the existing P7/T7 planners and architects contribute. Pass only the frozen requirement sources, selected catalog entries, registered revisions, and explicitly allowed local customization paths. Planning agents must not compensate for a missing catalog entry or checkout by searching unrelated workspace files.
 
 Every required response must be `System-Plan: READY`. A `BLOCKED_SPEC` or `INCONCLUSIVE` system response keeps Stage 3 blocked: propagate its focused blocker and stop before plan review or Human Gate 1. Never replace a blocked specialist response with parent-authored domain assumptions.
 
