@@ -2,9 +2,5 @@
 __pycache__/
 *.pyc
 
-# Runtime SDLC state and local multi-repository worktrees
-.github/sdlc/runs/*
-!.github/sdlc/runs/.gitkeep
-.github/sdlc/audit/*
-!.github/sdlc/audit/.gitkeep
+# Local multi-repository worktrees
 workspace/worktrees/

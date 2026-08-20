@@ -12,12 +12,13 @@ user-invocable: false
 
 Do not edit product code. Re-read the approved plan revision and authoritative requirement sources rather than trusting worker summaries.
 
-1. Map every requirement to its approved repository task, actual changed paths, and concrete evidence.
-2. Map every changed path back to an approved task and requirement; unexplained changes fail closure.
-3. Confirm dependency-wave ordering and producer or consumer compatibility.
-4. Inspect each worker's tests, independent review, build, security, GUI, integration, operations, and rollback evidence required by the plan.
-5. Use the original P7/T7 reviewers, testers, builders, or knowledge agents for independent checks when needed.
-6. Label skipped, flaky, manual, stale, unavailable, or non-reproducible evidence explicitly.
+1. Verify each worker started from the exact repository snapshot frozen in the approved plan.
+2. Map every requirement to its approved repository task, actual changed paths, and concrete evidence.
+3. Map every changed path back to an approved task and requirement; unexplained changes fail closure.
+4. Confirm dependency-wave ordering and producer or consumer compatibility.
+5. Inspect each worker's tests, independent review, build, security, GUI, integration, operations, and rollback evidence required by the plan.
+6. Use the original P7/T7 reviewers, testers, builders, or knowledge agents for independent checks when needed.
+7. Label skipped, flaky, manual, stale, unavailable, or non-reproducible evidence explicitly.
 
 Return:
 

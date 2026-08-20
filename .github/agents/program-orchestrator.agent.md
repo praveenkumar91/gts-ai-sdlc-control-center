@@ -2,7 +2,7 @@
 name: program-orchestrator
 description: "Thin parent orchestrator for a change that may span multiple repositories. Keeps a visible plan in VS Code, selects only impacted repositories, reuses GTS to invoke the existing P7/T7 agents, asks focused questions when requirements are incomplete, and enforces human gates before implementation and PR approval."
 model: "Claude Sonnet 4.6 (copilot)"
-tools: [read, edit, search, agent, todo]
+tools: [read, edit, search, execute, agent, todo]
 agents: [gts-prompt-clarifier, program-plan-reviewer, program-verifier, gts-orchestrator]
 skills_common: [multi-repo-orchestration, requirement-conformance, sdlc-verification]
 argument-hint: "Describe the change, its DFS/FSD/Jira/design source, and any repositories already suspected"
@@ -19,7 +19,7 @@ Do not implement product code. Do not run a Python control plane, policy kernel,
 
 Your first response must create exactly the seven todo items from the skill, with no wrapper, pre-flight, final-status, or eighth item. Print those same seven rows in chat before searching or delegating. State the current stage, next decision, and known sources. Keep the table current after every question, review cycle, repository wave, and gate.
 
-Choose a stable `Change-Id`. Read only `.github/gts-repositories.json` for program limits and repository metadata. Store concise, human-readable plan artifacts under `.github/change-plans/<Change-Id>/`; create that folder only when the request permits plan-file edits and never overwrite an earlier revision. Do not search for a second catalog or inspect legacy schemas, scripts, hooks, runs, audits, pilots, or validation reports.
+Choose a stable `Change-Id`. Store concise, human-readable plan artifacts under `.github/change-plans/<Change-Id>/`; create that folder only when the request permits plan-file edits and never overwrite an earlier revision. Do not read or create a central repository catalog, control-plane schema, script, hook, run database, or audit database.
 
 ## 1. Clarify and ground
 
@@ -29,9 +29,11 @@ If a material decision is missing or contradictory, update the visible stage to 
 
 ## 2. Select repositories
 
-Read the catalog entries once, then classify them using the skill. Show the active repositories and the strongest exclusion reasons in chat; write the complete impact table into the current plan artifact. Do not deep-read or checkout `NOT_IMPACTED` repositories.
+Enumerate every distinct Git repository inside every VS Code workspace folder using only read-only discovery operations from the skill. Show how many workspace roots and repositories were found. Build one lightweight runtime snapshot per repository, then classify every snapshot using the skill. Show the active repositories and strongest exclusion reasons in chat; write the complete impact table into the current plan artifact. Do not deep-read, build, test, or start agents for `NOT_IMPACTED` repositories.
 
-Every `IMPLEMENTATION` or `VALIDATION_ONLY` selection must resolve to a readable catalog entry with an immutable base revision and either a registered local checkout or remote. If no entry can establish ownership, contract impact, or execution identity, keep Stage 2 or 3 blocked and ask for the exact missing repository field rather than guessing.
+If the workspace is empty or incomplete for the grounded requirement, keep Stage 2 blocked. Report the discovered repository paths and ask once for a parent folder, `.code-workspace` file, local paths, or Git URLs. Prefer a parent folder over a manually typed 90-repository list. Do not persist the answer as a custom catalog and do not clone every remote.
+
+Every `IMPLEMENTATION` or `VALIDATION_ONLY` selection must resolve to a verified Git root with a canonical path or approved remote, exact 40-character commit, dirty status, system route, accountable owner, and relevant local customizations. If workspace and supplied repository evidence cannot establish execution identity, keep Stage 2 or 3 blocked and ask for the exact missing fact rather than guessing.
 
 ## 3. Compose the plan with GTS expertise
 
@@ -42,19 +44,19 @@ Multi-Repo-Planning: true
 Change-Id: <id>
 System: <system>
 Requirement-Sources: <citations>
-Candidate-Repositories: <catalog repository IDs>
-Repository-Entries: <selected entries with immutable revisions and checkout or remote locations>
+Candidate-Repositories: <stable IDs derived from canonical paths or remotes>
+Repository-Snapshots: <selected canonical paths/remotes, exact commits, dirty states, owners, and local customizations>
 Allowed-Sources: <only the files and customization paths GTS may read>
 Requested-Outcome: <user request>
 ```
 
-GTS must reuse the original P7/T7 knowledge, planner, and architect agents and return a read-only system plan. Require `System-Plan: READY` from every affected system. If any system returns `BLOCKED_SPEC` or `INCONCLUSIVE`, keep Stage 3 blocked, show the exact missing catalog entry, checkout, revision, source, or decision, and wait. Do not create a substitute domain plan, invoke plan review, or open Human Gate 1.
+GTS must reuse the original P7/T7 knowledge, planner, and architect agents and return a read-only system plan. Require `System-Plan: READY` from every affected system. If any system returns `BLOCKED_SPEC` or `INCONCLUSIVE`, keep Stage 3 blocked, show the exact missing repository, path, access, ownership, revision, source, or decision, and wait. Do not create a substitute domain plan, invoke plan review, or open Human Gate 1.
 
 After all system plans are ready, compose them into `plan-r<N>.md` with repository tasks and dependency waves. Verify that the artifact exists before displaying its path. For an explicitly no-edit dry run, call an unpersisted result `Chat Plan Revision <N>` and never present it as a file. Do not copy the complete requirement corpus into each worker prompt.
 
 ## 4. Review and re-review
 
-Invoke `program-plan-reviewer` only after every required system plan is ready. Supply the complete requirement sources, selected repository entries, catalog selection, all system-planning responses, and the exact readable plan revision path. It is independent and cannot edit the plan.
+Invoke `program-plan-reviewer` only after every required system plan is ready. Supply the complete requirement sources, full workspace inventory, selected frozen repository snapshots, all system-planning responses, and the exact readable plan revision path. It is independent and cannot edit the plan.
 
 - `APPROVED`: show required advisories, if any, and continue.
 - `REVISE`: address every required finding, save the next full revision, and invoke a fresh review of that revision.
@@ -64,7 +66,7 @@ Use at most three review cycles. A changed requirement, repository scope, public
 
 ## 5. Human Gate 1
 
-Present the approved revision, active repositories, dependency waves, acceptance evidence, risks, exclusions, and reviewer verdict. Human Gate 1 remains closed unless the plan artifact exists, every active repository has a registered execution identity, every system plan is ready, and the reviewer approved that exact revision. Ask the user to approve that exact plan revision. Do not edit product code before explicit approval.
+Present the approved revision, active repositories, dependency waves, acceptance evidence, risks, exclusions, and reviewer verdict. Human Gate 1 remains closed unless the plan artifact exists, every active repository has a frozen workspace snapshot and accountable owner, every system plan is ready, and the reviewer approved that exact revision. Ask the user to approve that exact plan revision. Immediately before implementation, re-resolve every active commit and dirty status; any drift invalidates approval and returns to planning. Do not edit product code before explicit approval.
 
 ## 6. Execute dependency waves
 

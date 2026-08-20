@@ -78,8 +78,11 @@ flowchart TD
     U[Engineer in VS Code Copilot Chat] --> P[program-orchestrator<br/>visible 7-stage todo]
     P --> R[Read DFS FSD DTS SRQ Jira or design]
     R -->|material detail missing| Q[Ask one focused question<br/>BLOCKED_SPEC]
-    R --> C[Read catalog metadata once]
-    C --> I[Select only impacted repositories]
+    R --> C[Inventory all Git repositories<br/>inside VS Code workspace roots]
+    C --> WC{Workspace complete<br/>for this requirement?}
+    WC -->|No| RL[Ask once for parent folder<br/>workspace file paths or Git URLs]
+    RL --> C
+    WC -->|Yes| I[Select only impacted repositories]
     I --> G1[GTS planning mode]
     G1 --> P7P[P7 planners and architects]
     G1 --> T7P[T7 planners and architects]
@@ -105,20 +108,20 @@ flowchart TD
 
 ### What happens with 90 repositories
 
-The parent reads `.github/gts-repositories.json` once and uses ownership, paths, contracts, dependencies,
-components and system metadata to select impact. It opens source and starts agents only for the selected
-repositories.
+The parent first discovers every Git repository inside every VS Code workspace folder. It reads only lightweight
+Git metadata, root manifests, CODEOWNERS, tracked paths and local agent or skill locations for the full set. It
+then deep-reads source and starts agents only for plausible impact candidates.
 
 | Example impact | Execution |
 |---|---|
 | 1 implementation repository | One isolated worker; both human gates still apply |
 | 3 repositories with dependencies | Producer first, then independent consumers in the next wave |
 | 8 independent repositories | Bounded parallel workers with one task context per repository |
-| 50–60 catalogued, 3–8 active | Only the selected repositories enter bounded waves |
-| 90 catalogued but 4 active | Four active workers, not ninety |
+| 50–60 workspace repositories, 3–8 active | Only the selected repositories enter bounded waves |
+| 90 workspace repositories but 4 active | Four active workers, not ninety |
 
-Every repository does **not** copy the complete SDLC. The control centre holds the parent agent, common skills,
-and one lightweight catalog. A target repository contributes only real local expertise when it has any:
+Every repository does **not** copy the complete SDLC. The control centre holds the parent agent and common
+skills. A target repository contributes only real local expertise when it has any:
 
 ```text
 target-repository/
@@ -127,16 +130,16 @@ target-repository/
 └─ .agents/skills/*/SKILL.md          # optional local expertise
 ```
 
-Add one entry for each repository to `.github/gts-repositories.json`. Each entry records identity, system,
-owners, components, paths, contracts, dependencies, immutable revision, checkout or remote, commands, and any
-local instruction, agent, or skill paths. When selected, GTS passes those local customizations to the P7/T7 or
-generic worker as additive expertise. Local rules may strengthen the central plan and gates but cannot weaken
-them. No `.github/sdlc` directory or per-repository copy of the catalog is required.
+No repository catalog is maintained. Open the project repository parent folder or add the project repositories
+to a multi-root VS Code workspace. If the available workspace is incomplete, the parent shows what it found and
+asks once for a parent folder, `.code-workspace` file, local paths, or Git URLs. Prefer one parent folder over
+typing dozens of repositories. GTS passes discovered local customizations to the P7/T7 or generic worker as
+additive expertise; local rules may strengthen the central plan and gates but cannot weaken them.
 
-Each active implementation or validation repository needs a catalog entry with a registered owner, immutable base commit and either
-a resolvable local checkout or approved remote. Provisional repository names in a chat may help impact analysis,
-but they cannot open plan review or Human Gate 1. A missing execution identity stops Stage 3 as `BLOCKED_SPEC` or
-`INCONCLUSIVE` instead of triggering broad workspace searches or a substitute plan.
+Each active implementation or validation repository needs a runtime snapshot with an accountable owner, exact
+40-character base commit, dirty status, system route and either a usable local checkout or approved remote.
+Provisional repository names may guide discovery, but they cannot open plan review or Human Gate 1. The approved
+plan freezes those snapshots and rechecks them before implementation; drift returns to plan review.
 
 Only an impacted repository is reused or cloned. A dirty developer checkout is never switched, cleaned or
 overwritten; implementation uses an isolated worktree. The approach is language-neutral: C++/CMake, Python,
@@ -148,7 +151,7 @@ Node, Vite and TypeScript repositories keep their own test, lint, build, securit
 - The **inner P7/T7 loop** handles one approved task in one repository with bounded test, implementation,
   review and build backpressure.
 - **Human Gate 1** approves the latest independently reviewed plan revision only after every required system plan
-  is ready and every active repository has a registered execution identity.
+  is ready and every active repository has a frozen workspace snapshot and accountable owner.
 - **Human Gate 2** reviews traceability, evidence and linked draft PRs before approval, merge, release or delivery.
 
 The plan is re-reviewed only after a real finding or material change. A scope change after Gate 1 returns to
@@ -230,10 +233,12 @@ the model's discretion.
 
 The framework needs no application build or Python control-plane runtime. To use it:
 
-1. **Open only this control-centre repo in VS Code** with GitHub Copilot. Opening the folder applies
-   `.vscode/settings.json`; opening `.github/GTS-AI-SDLC.code-workspace` applies the same settings explicitly.
-   Nested subagents and rich inline activity are enabled. Custom SDLC hooks and terminal auto-approval are
-   disabled. Agents and skills are auto-discovered.
+1. **Open this control-centre repo and the project repository roots in one VS Code workspace** with GitHub
+   Copilot. Add a common parent folder when it contains many repositories, or use a multi-root `.code-workspace`
+   file. Opening the control folder applies `.vscode/settings.json`; opening
+   `.github/GTS-AI-SDLC.code-workspace` applies the same settings explicitly. Nested subagents and rich inline
+   activity are enabled. Custom SDLC hooks and terminal auto-approval are disabled. Agents and skills are
+   auto-discovered.
 2. **For unknown or multi-repository scope, select `program-orchestrator` from the agent dropdown.** Use
    `gts-orchestrator`, `p7-orchestrator`, or `t7-orchestrator` directly for clearly single-system work.
 3. **Describe the task and give its sources.** For example:
@@ -247,9 +252,9 @@ The framework needs no application build or Python control-plane runtime. To use
    /p7-sdlc-reviewer   Review the diff on this branch
    ```
 
-4. **Watch the seven stages in the parent chat.** If a requirement, repository catalog entry, pinned revision or
-   checkout/remote is missing, answer the focused question. Confirm the reviewed plan revision at Human Gate 1;
-   the orchestrator then runs bounded repository waves.
+4. **Watch the seven stages in the parent chat.** The parent inventories every workspace Git repository first.
+   If the workspace, ownership, exact revision or checkout/remote is incomplete, answer its one focused question.
+   Confirm the reviewed plan revision at Human Gate 1; the orchestrator then runs bounded repository waves.
 5. **Review Human Gate 2.** The chain presents requirement-to-change-to-test traceability and linked draft
    PRs. It never self-approves or bypasses normal repository/release controls.
 

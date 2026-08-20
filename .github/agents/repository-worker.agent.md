@@ -12,7 +12,7 @@ user-invocable: false
 
 Accept work only when the prompt begins `Multi-Repo-Worker: true` and supplies the complete worker envelope from the `multi-repo-orchestration` skill. Otherwise return `BLOCKED_SPEC` without editing.
 
-Before editing, establish the registered repository path and base revision, then read repository-local `AGENTS.md`, `.github/copilot-instructions.md`, applicable `.github/instructions/**`, named local agents, and relevant local skills. Local controls are additive. Search for current behaviour before assuming a gap.
+Before editing, verify the supplied path is the planned Git repository and that its starting commit and dirty state match the Human-Gate-1-approved snapshot. A mismatch returns `SCOPE_CHANGE` without editing. Then read repository-local `AGENTS.md`, `.github/copilot-instructions.md`, applicable `.github/instructions/**`, named local agents, and relevant local skills. Local controls are additive. Search for current behaviour before assuming a gap.
 
 Execute exactly one approved task. For behavioural work, create a discriminating failing test or approved fit check, implement the minimum change, run focused and applicable regression tests, perform an independent review, and run the repository's declared lint, typecheck, build, security, GUI, and integration checks. Use only the supplied attempt; never start an unbounded loop.
 
