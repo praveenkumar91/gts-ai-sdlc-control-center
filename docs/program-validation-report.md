@@ -1,63 +1,95 @@
-# Program orchestration validation report
+# Agent-only multi-repository orchestration validation
 
-**Run date:** 2026-08-19
+**Validation date:** 2026-08-20
 
-**Branch:** `change/agent-first-sdlc-orchestration`
+**Branch:** `test/private-github-vscode-pilot`
 
-**Fresh ZIP base:** `55b9a92`
+**Company-history base:** `55b9a92`
 
-**Command:** `python -m unittest discover -s .github/scripts/tests -p test_*.py -v`
+**Agent-first baseline:** `9ce9a829ae22b8385dddce8d9d97891d54aa3fe8`
 
-These are executable control-plane tests using real temporary Git repositories/filesystem artifacts and the
-standard-library policy kernel. They validate scheduling, state transitions, evidence integrity and gates.
-They do **not** certify any Deutsche Börse/Eurex production application, business algorithm, target repository,
-CI system, MCP connection or deployment environment. Those require a real approved change and its own evidence.
+## Scope
 
-| ID | Scenario | Scale / negative control | Expected control behaviour | Result |
-|---:|---|---|---|---|
-| 01 | Repository catalog validation | 100 registered repositories | Load every unique descriptor within the configured catalog limit | PASS |
-| 02 | Dependency graph for a small cross-repo change | 3 implementation repositories; one producer, two consumers | Accept the DAG and preserve producer-before-consumer dependencies | PASS |
-| 03 | Parallel wave selection and recording | 8 independent implementation repositories; concurrency limit 4; four concurrent result writes | Schedule at most four without resource collision and preserve every state transition under the run lock | PASS |
-| 04 | Maximum configured estate | 100 active implementation repositories | Validate the graph without loading all source into one model context | PASS |
-| 05 | Active-scope limit | 61 active repositories against a configured limit of 60 | Reject before execution with the exact configured-limit error | PASS |
-| 06 | Cyclic dependency | Requirements node depends on final gate | Reject the graph as cyclic | PASS |
-| 07 | Missing lifecycle stage | `INTEGRATE` removed | Reject a graph that does not represent all thirteen stages | PASS |
-| 08 | Bounded failure loop | Node budget 2; two recorded failures | First failure returns to pending; second becomes terminal `FAIL` | PASS |
-| 09 | Agent self-approval | Gate approver is `agent` | Reject automation identity at Human Gate 1 | PASS |
-| 10 | Stale approval | Approval digest differs from current graph digest | Reject the approval | PASS |
-| 11 | Scope expansion after Gate 1 | Revision adds a repository | Clear every node result and approval; require planning/review/Gate 1 again | PASS |
-| 12 | Evidence tampering | Recorded evidence file changed afterward | Fail integrity verification on SHA-256 mismatch | PASS |
-| 13 | Complete lifecycle | 3 repositories, all thirteen stages, Gate 1 and Gate 2 | Finish only when every required node and both human gates pass | PASS |
-| 14 | VS Code pre-tool policy | Force-push and direct protected-branch push | Deny force-push; require human approval for protected push | PASS |
-| 15 | Multi-root workspace generation | 3 active repositories in a 100-repository catalog | Include control centre plus only the three active worktrees; show subagents inline | PASS |
+This report covers the agent-only orchestration path used by GitHub Copilot Chat in VS Code. It validates
+custom-agent discovery, visible stage handling, GTS-to-P7/T7 planning routes, independent plan review and the
+Human Gate 1 boundary. It does not certify a Deutsche Börse/Eurex production application or claim defect-free
+delivery.
 
-Additional validation:
+## Static validation
 
-| Check | Observed result |
+| Check | Result |
 |---|---|
-| Policy/configuration validation | PASS |
-| Custom-agent discovery validation | 32 unique agents; all explicit agent references resolve |
-| Agent Skill discovery validation | 36 unique skills; folder/name contracts pass |
-| New `program-graph` skill portability validation | PASS with the skill-creator validator |
-| Hook configuration validation | 1 hook file; all 8 current VS Code lifecycle events valid |
-| JSON schema/config parsing | 4 schemas plus program/catalog/workspace/settings files valid |
-| High-risk review segregation | Graph registration rejects fewer than two independent plan-review evidence types |
-| Parallel state integrity | Four separate policy-kernel processes recorded one wave without a lost update |
-| Retry evidence history | Tampering with evidence from an earlier failed attempt is detected |
+| `program-orchestrator`, GTS, P7, T7 and repository-worker agent files exist | PASS |
+| `multi-repo-orchestration` skill is discoverable and passes the skill validator | PASS |
+| Program and repository descriptor JSON parse successfully | PASS |
+| Catalog supports 100 registered repositories and bounds active/parallel workers | PASS |
+| Seven visible stages and both human gates are defined | PASS |
+| Python policy-kernel and custom-hook runtime are absent from the active path | PASS |
+| `git diff --check` reports no content errors | PASS |
 
-## Required real-environment acceptance before production use
+## Live VS Code Copilot test
 
-Run a controlled pilot against representative, non-production repositories before adopting this as a release
-control. The pilot must independently verify:
+The selectable `program-orchestrator` received a planning-only fixture with two T7 repositories and one P7
+repository. The fixture supplied four requirements for order throttling, contract compatibility, a P7 operations
+GUI and boundary/integration/visual evidence. The run was explicitly forbidden from editing files, creating
+worktrees, implementing code or creating PRs.
 
-1. corporate GitHub/SSH authentication and repository descriptor accuracy;
-2. Jira, Confluence, P7/T7 specification and codebase MCP permissions;
-3. VS Code discovery of the custom agents, Agent Skills and Preview hooks under enterprise policy;
-4. one real single-repository change, one three-repository change and one eight-repository change;
-5. representative C++, Python, Node/Vite and TypeScript build/test commands;
-6. GUI browser/accessibility/visual evidence against an approved design or current-screen baseline;
-7. draft PR creation, CODEOWNERS/CI/branch protection and the Human Gate 2 approval path;
-8. recovery from unavailable dependencies, flaky tests, stale specs, dirty worktrees and scope expansion.
+| Observation | Result |
+|---|---|
+| Created exactly seven visible todos | PASS |
+| Grounded the supplied requirements without requesting duplicate information | PASS |
+| Selected exactly `t7-order-gateway`, `t7-matching-engine` and `p7-risk-monitor` | PASS |
+| Derived gateway-first, then parallel matching-engine/P7 consumer waves | PASS |
+| Invoked separate GTS planning branches for T7 and P7 | PASS |
+| GTS planners rejected missing registered descriptors and pinned checkouts | PASS — expected `BLOCKED_SPEC` |
+| Parent stopped immediately at blocked Stage 3 | FAIL — it created a chat substitute plan |
+| Independent reviewer rejected missing repository execution identities | FAIL — it approved revision 2 |
+| Human Gate 1 remained closed | FAIL — it displayed the gate as open, although it did not pass it |
+| No files, worktrees, implementation, PR or GitHub state were created | PASS |
 
-Until those environment-specific checks pass, the deterministic control plane is validated but the complete
-corporate production path remains `INCONCLUSIVE` rather than implicitly certified.
+Observed duration was 3 minutes 26 seconds and 4.3 Copilot credits. Much of the cost came from domain agents
+searching unrelated workspace material after discovering that the fixture repositories were not registered.
+
+## Corrections made from the live findings
+
+- Stage 3 now requires a readable descriptor, ownership, immutable base revision and a resolvable checkout or
+  registered remote for every implementation or validation-only repository.
+- GTS planning receives explicit `Repository-Descriptors` and `Allowed-Sources` and is prohibited from broad
+  workspace searches in multi-repository planning mode.
+- Any required GTS `BLOCKED_SPEC` or `INCONCLUSIVE` result is propagated immediately; the parent cannot create a
+  substitute domain plan, call the reviewer or open Human Gate 1.
+- The independent reviewer must return `BLOCKED` when repository execution identity, a ready system plan or the
+  named readable plan artifact is missing.
+- Unpersisted dry-run output must be labelled as a chat revision and cannot be represented as an existing file.
+
+## Post-correction negative control
+
+After reloading the VS Code window, the selectable `program-orchestrator` received a planning-only request that
+explicitly identified the same three repository names as provisional and stated that no registered descriptors,
+immutable revisions, checkouts or remotes existed.
+
+| Observation | Result |
+|---|---|
+| Created exactly seven visible stages | PASS |
+| Limited discovery to the registered program catalog and descriptor directory | PASS |
+| Stopped at Stage 2 with `BLOCKED_SPEC` | PASS |
+| Reported the missing canonical ID, owner, immutable revision and checkout or approved remote | PASS |
+| Did not invoke GTS/P7/T7 planners or the independent plan reviewer | PASS |
+| Did not create or name a plan artifact | PASS |
+| Did not open Human Gate 1 or edit any files | PASS |
+
+The fail-closed correction therefore passes its live VS Code negative control. A controlled test with three real,
+registered repositories remains required before production adoption. Until that real integration test and the
+company-environment checks below pass, the complete real-environment result remains `INCONCLUSIVE`.
+
+## Required company-environment acceptance
+
+1. Register representative T7/P7 repository descriptors with owners, immutable commits and approved local or
+   remote locations.
+2. Verify corporate Git/SSH, Jira, Confluence, specification and codebase access.
+3. Re-run the missing-descriptor negative control in the company environment and confirm repository selection or
+   Stage 3 returns `BLOCKED_SPEC` without review.
+4. Run one planning-only three-repository change through approved Human Gate 1.
+5. Run controlled implementation tests for C++ and Node/TypeScript repositories, including contract, integration,
+   GUI accessibility and visual evidence.
+6. Verify linked draft PRs, CODEOWNERS, CI, branch protection and Human Gate 2 without self-approval.

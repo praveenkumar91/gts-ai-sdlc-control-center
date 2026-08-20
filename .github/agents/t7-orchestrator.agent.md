@@ -8,18 +8,18 @@ argument-hint: "Describe the T7 feature, bug fix, or task to run through the SDL
 user-invocable: true
 ---
 
-## Program Worker Mode (check before Step 0)
+## Multi-repository Worker Mode (check before Step 0)
 
-If and only if the incoming message begins `Program-Worker-Mode: true`, this orchestrator is one bounded repository worker inside an already reviewed program graph.
+If and only if the incoming message begins `Multi-Repo-Worker: true`, this orchestrator is one bounded T7 repository worker under an independently reviewed cross-repository plan.
 
-Validate that the message supplies `Change-Id`, `Graph-Digest`, `Graph-Node`, `Repository-Id`, `Repository-Path`, `Base-Revision`, `Task-Id`, `Requirement-Ids`, observable `Acceptance-Criteria`, `Architecture-Constraints`, `Required-Evidence`, `Attempt`, and `Forbidden-Scope`. If any field is missing or the named path/revision cannot be established by the delegated workers, return `BLOCKED_SPEC` and edit nothing.
+Validate that the message supplies `Change-Id`, `Plan-Revision`, `Repository-Id`, `Repository-Path`, `Base-Revision`, `Task-Id`, `Requirement-Ids`, observable `Acceptance-Criteria`, `Architecture-Constraints`, `Required-Evidence`, `Attempt`, `Forbidden-Scope`, and `Local-Customizations`. If any field is missing or the named path/revision cannot be established by the delegated workers, return `BLOCKED_SPEC` and edit nothing.
 
 In this mode:
 
-1. Skip prompt clarification, SPECS/PLAN generation, the local Plan Gate, PR preparation, and delivery. The program graph already owns them.
+1. Skip prompt clarification, SPECS/PLAN generation, the local Plan Gate, PR preparation, and delivery. The parent multi-repository plan already owns them.
 2. Treat the assignment as exactly one fresh Ralph BUILD iteration. Create a visible todo: orient/search -> RED or approved fit check -> GREEN -> verify -> independent review -> build -> evidence result.
 3. Dispatch the existing T7 knowledge agent to confirm current behaviour and scope, then use the existing T7 tester, developer, tester, reviewer, and builder sequence. Pass the complete worker envelope to every subagent; never rely on inherited chat context.
-4. The developer may edit only `Repository-Path` and only the approved task. Repository-local instructions, agents, skills, and stronger gates are additive.
+4. The developer may edit only `Repository-Path` and only the approved task. Read and apply the supplied repository-local instructions, agents, skills, and stronger gates as additive expertise.
 5. Use only the supplied `Attempt`; do not create an unbounded retry loop. If the task requires another obligation/repository or changes an approved interface/acceptance criterion, stop as `SCOPE_CHANGE` without making the extra change.
 6. Do not approve a gate, create/approve/merge a PR, deliver, deploy, or switch/overwrite another worktree.
 
@@ -28,9 +28,9 @@ Return exactly:
 ```text
 Worker-Status: PASS | FAIL | INCONCLUSIVE | BLOCKED_SPEC | SCOPE_CHANGE
 Change-Id: <id>
-Graph-Digest: <digest>
-Graph-Node: <id>
+Plan-Revision: <revision>
 Repository-Id: <id>
+Task-Id: <id>
 Commit: <sha or none>
 Changed-Paths: <paths or none>
 Evidence: <artifact paths and commands>

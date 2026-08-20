@@ -5,7 +5,7 @@ agent: program-orchestrator
 argument-hint: "Describe the change and provide requirement/ticket/design references"
 ---
 
-Run the complete visible program SDLC for this request. Begin with the thirteen-stage todo and status table. Resolve authoritative requirements, ask for missing material information, select the impacted repository subgraph, independently review and re-review the plan, stop at Human Gate 1, execute approved tasks in bounded dependency waves, independently verify requirement closure, prepare linked draft PRs, and stop at Human Gate 2.
+Run the agent-only multi-repository SDLC for this request. Begin with exactly the seven todo items from the `multi-repo-orchestration` skill and show the same status table in this chat. Resolve authoritative requirements, ask the smallest focused question when material information is missing, select only impacted repositories from descriptor metadata, obtain one GTS planning response per affected system, independently review and re-review real plan revisions, stop at Human Gate 1, execute approved repository tasks through GTS in bounded dependency waves, independently verify requirement closure, prepare linked draft PRs, and stop at Human Gate 2. Do not run Python control-plane scripts, hooks, graph schemas, or legacy pilot artifacts.
 
 User request: ${input:request:Describe the feature, fix, refactor, migration, or GUI change}
 

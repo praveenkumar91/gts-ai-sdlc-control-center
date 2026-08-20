@@ -9,6 +9,10 @@
     "repositoryId",
     "displayName",
     "system",
+    "revision",
+    "lifecycle",
+    "compatibility",
+    "evidenceSources",
     "checkout",
     "ownership",
     "capabilities",
@@ -19,11 +23,81 @@
   ],
   "properties": {
     "$schema": { "type": "string" },
-    "schemaVersion": { "const": "1.0" },
+    "schemaVersion": { "const": "1.1" },
     "repositoryId": { "$ref": "#/$defs/id" },
     "displayName": { "type": "string", "minLength": 1 },
     "system": { "type": "string", "minLength": 1 },
     "orchestrator": { "type": "string", "minLength": 1 },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commitSha"],
+      "properties": {
+        "commitSha": { "$ref": "#/$defs/commitSha" }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "retirementMarker"],
+      "properties": {
+        "status": { "enum": ["ACTIVE", "RETIRED", "EXCLUDED"] },
+        "retirementMarker": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["marker", "effectiveDate", "reason", "evidenceRef"],
+              "properties": {
+                "marker": { "const": "RETIRED" },
+                "effectiveDate": { "type": "string", "format": "date" },
+                "reason": { "type": "string", "minLength": 1 },
+                "evidenceRef": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "RETIRED" } } },
+          "then": { "properties": { "retirementMarker": { "type": "object" } } },
+          "else": { "properties": { "retirementMarker": { "type": "null" } } }
+        }
+      ]
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "version", "compatibleWith"],
+      "properties": {
+        "contract": { "const": "gts-repository-descriptor" },
+        "version": { "const": "1.1" },
+        "compatibleWith": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "evidenceSources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "location", "revision", "authority"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "kind": { "enum": ["GIT", "DOCUMENT", "CONFIG", "USER_DECISION"] },
+          "location": { "type": "string", "minLength": 1 },
+          "revision": { "type": "string", "minLength": 1 },
+          "authority": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
     "checkout": {
       "type": "object",
       "additionalProperties": false,
@@ -38,8 +112,9 @@
     "ownership": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["components", "paths"],
+      "required": ["owners", "components", "paths"],
       "properties": {
+        "owners": { "$ref": "#/$defs/nonEmptyStringArray" },
         "components": { "$ref": "#/$defs/stringArray" },
         "paths": { "$ref": "#/$defs/stringArray" }
       }
@@ -65,8 +140,9 @@
     "customizations": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["instructions", "agents", "skills"],
+      "required": ["namespace", "instructions", "agents", "skills"],
       "properties": {
+        "namespace": { "$ref": "#/$defs/id" },
         "instructions": { "$ref": "#/$defs/stringArray" },
         "agents": { "$ref": "#/$defs/stringArray" },
         "skills": { "$ref": "#/$defs/stringArray" }
@@ -91,8 +167,18 @@
       "type": "string",
       "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
     },
+    "commitSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
     "stringArray": {
       "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "nonEmptyStringArray": {
+      "type": "array",
+      "minItems": 1,
       "uniqueItems": true,
       "items": { "type": "string", "minLength": 1 }
     }

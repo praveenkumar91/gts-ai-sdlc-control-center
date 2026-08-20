@@ -4,8 +4,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-Internal%20DBAG-blue.svg" alt="License: Internal DBAG">
-  <img src="https://img.shields.io/badge/orchestration-program%20graph%20%2B%20Ralph%20loops-7c5cff.svg" alt="Program graph plus bounded Ralph loops">
-  <img src="https://img.shields.io/badge/agents-32-ff7a59.svg" alt="32 agents">
+  <img src="https://img.shields.io/badge/orchestration-agent%20only%20multi--repo%20%2B%20GTS-7c5cff.svg" alt="Agent-only multi-repository orchestration above GTS">
+  <img src="https://img.shields.io/badge/agents-29-ff7a59.svg" alt="29 agents">
   <img src="https://img.shields.io/badge/systems-P7%20%C2%B7%20T7-1f9e89.svg" alt="Systems: P7 and T7">
   <img src="https://img.shields.io/badge/skills-36-7c5cff.svg" alt="36 skills">
   <img src="https://img.shields.io/badge/surface-VS%20Code%20Copilot-1f9e89.svg" alt="VS Code Copilot Agent mode">
@@ -43,19 +43,20 @@
 
 Open the repo in VS Code and the whole team is already there — Copilot auto-discovers every
 `.github/agents/*.agent.md`, so you run the **whole lifecycle** or call a **single phase** with zero setup.
-The six ways in are shown above; you never need to know which orchestrator owns your change.
+For unknown or multi-repository scope, select `program-orchestrator`; it discovers which GTS system and
+repositories own the change. The original direct routes remain available for focused work.
 
 > **One writer, always gated.** Only the **developer** edits code — every other agent coordinates or reads.
-> Nothing reaches a PR until the tester, reviewer and builder gates pass, and a single human gate confirms
-> the plan before any code is written.
+> Nothing reaches a PR until the tester, reviewer and builder gates pass. Human Gate 1 confirms the reviewed
+> plan before code is written; Human Gate 2 occurs before PR approval or merge.
 
 <p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
 ## Architecture at a glance
 
-The framework is a **3-tier composition model**: a generic router on top, one orchestrator per system in
-the middle, and single-purpose pipeline agents at the bottom — each system now with its own read-only
-knowledge agent — all drawing on shared **skills**. Alongside them sit two read-only cross-system peers:
+For focused work the framework keeps its original **3-tier composition model**: GTS router, system
+orchestrator, then single-purpose pipeline agents. Multi-repository work adds only one thin parent above GTS;
+it selects repository scope and dependency waves while reusing every original agent and skill. Alongside them sit two read-only cross-system peers:
 **`gts-issue-analyst`**, which runs root-cause analysis on engineering issues and feeds fixes back into the
 pipeline, and **`gts-delivery`**, which proposes the terminal delivery of a merged change into an integration baseline.
 
@@ -67,53 +68,57 @@ pipeline, and **`gts-delivery`**, which proposes the terminal delivery of a merg
 
 ## Enterprise multi-repository mode
 
-The original GTS agents remain the domain experts. The enterprise layer adds an outer **program graph**
-for changes that may cross a large repository estate. It does not send 90 repositories into one prompt and
-does not replace planning with Python: agents freeze requirements, select impact and design the change;
-the small policy kernel only checks graph structure, evidence hashes, retry budgets and human approvals.
+The original GTS agents remain the domain experts. `program-orchestrator` is a thin agent layer above GTS:
+it handles repository discovery, the cross-repository plan, dependency waves, independent closure and the two
+human gates. GTS still routes domain work to the existing P7 and T7 orchestrators. There is no Python
+control-plane runtime in this path.
 
 ```mermaid
 flowchart TD
-    U[Engineer in VS Code Copilot Chat] --> G[gts-orchestrator]
-    G --> P[program-orchestrator<br/>visible 13-stage todo]
-    P --> R[Requirements engineer<br/>DFS FSD DTS SRQ Jira design]
-    R -->|missing or contradictory| B[BLOCKED_SPEC<br/>ask the engineer]
-    R --> I[Impact analyst<br/>catalog first, focused source second]
-    I --> A[Architecture and dependency DAG]
-    A --> V{Independent plan reviews}
-    V -->|REVISE| A
-    V -->|approved digest| H1{{Human Gate 1}}
-    H1 --> W[Isolated worktrees<br/>only impacted repositories]
-    W --> D{Dependency-ready waves}
-    D --> P7[P7 worker mode<br/>original P7 agents]
-    D --> T7[T7 worker mode<br/>original Ralph agents]
-    D --> X[Generic worker<br/>repository-local agents and skills]
-    P7 --> E[Hashed test review build evidence]
-    T7 --> E
-    X --> E
-    E -->|bounded failure| D
-    E --> INT[Cross-repository integration]
-    INT --> C[Independent requirement and plan closure]
-    C --> PR[Linked draft PR set]
+    U[Engineer in VS Code Copilot Chat] --> P[program-orchestrator<br/>visible 7-stage todo]
+    P --> R[Read DFS FSD DTS SRQ Jira or design]
+    R -->|material detail missing| Q[Ask one focused question<br/>BLOCKED_SPEC]
+    R --> C[Read catalog metadata once]
+    C --> I[Select only impacted repositories]
+    I --> G1[GTS planning mode]
+    G1 --> P7P[P7 planners and architects]
+    G1 --> T7P[T7 planners and architects]
+    P7P -->|READY| PLAN[Cross-repository plan revision]
+    T7P -->|READY| PLAN
+    P7P -->|BLOCKED_SPEC or INCONCLUSIVE| B[Keep Stage 3 blocked<br/>ask for exact missing repository evidence]
+    T7P -->|BLOCKED_SPEC or INCONCLUSIVE| B
+    PLAN --> REV{Independent review}
+    REV -->|REVISE| PLAN
+    REV -->|APPROVED| H1{{Human Gate 1}}
+    H1 --> WAVES[Dependency-ready repository waves]
+    WAVES --> G2[GTS worker mode per repository]
+    G2 --> P7[P7 tester developer reviewer builder]
+    G2 --> T7[T7 Ralph loop and specialists]
+    G2 --> X[Generic worker plus local skills]
+    P7 --> CLOSE[Independent requirement and plan closure]
+    T7 --> CLOSE
+    X --> CLOSE
+    CLOSE --> PR[Linked draft PRs]
     PR --> H2{{Human Gate 2}}
-    H2 --> M[Normal CODEOWNERS CI merge release and delivery controls]
+    H2 --> GOV[Normal CODEOWNERS CI merge release controls]
 ```
 
 ### What happens with 90 repositories
 
-The catalog may contain up to 100 repository descriptors. Impact analysis classifies every descriptor, but
-source is opened and workers are launched only for the active subgraph.
+The parent reads descriptor metadata for the catalog once and uses ownership, paths, contracts, dependencies,
+components and system metadata to select impact. It opens source and starts agents only for the selected
+repositories.
 
 | Example impact | Execution |
 |---|---|
-| 1 implementation repository | One isolated worker; the same two program gates still apply |
-| 3 repositories with dependencies | Producer first, then independent consumers in the next ready wave |
-| 8 independent repositories | Up to the configured concurrency limit, one worktree and task context per repository |
-| 50–60 active repositories | Multiple bounded waves; shared databases/baselines are serialized |
-| 90 catalogued but 4 active | Four active workers, not ninety; the other 86 retain an evidence-backed disposition |
+| 1 implementation repository | One isolated worker; both human gates still apply |
+| 3 repositories with dependencies | Producer first, then independent consumers in the next wave |
+| 8 independent repositories | Bounded parallel workers with one task context per repository |
+| 50–60 catalogued, 3–8 active | Only the selected repositories enter bounded waves |
+| 90 catalogued but 4 active | Four active workers, not ninety |
 
-Every repository does **not** copy this SDLC. The control centre owns the program policy under
-`.github/sdlc/`. A target repository supplies only what is local to it:
+Every repository does **not** copy the complete SDLC. The control centre holds the parent agent and common
+skills. A target repository contributes only its local descriptor and any real local expertise:
 
 ```text
 target-repository/
@@ -124,33 +129,31 @@ target-repository/
 ```
 
 Add a central descriptor under `.github/sdlc/repositories.d/` using
-`.github/sdlc/examples/repository.json` as the template. When selected, the worker reads the target's local
-customizations as additive constraints. If a local custom agent is callable in the multi-root workspace it is
-invoked; otherwise its agent file is loaded as role instructions rather than ignored. Local configuration may
-strengthen central gates but cannot weaken them.
+`.github/sdlc/examples/repository.json` as the template. When selected, GTS passes its registered local agents,
+instructions and skills to the P7/T7 or generic worker as additive expertise. Local rules may strengthen the
+central plan and gates but cannot weaken them.
 
-At Stage 7 the orchestrator automatically reuses a registered existing checkout or clones the descriptor's
-approved remote, then creates a separate change worktree under `workspace/worktrees/`. It never switches,
-cleans or overwrites a developer's dirty worktree. Missing authentication, remote metadata or an immutable
-base revision is surfaced as `INCONCLUSIVE` instead of asking the user to repair hidden state manually.
+Each active implementation or validation repository needs a registered owner, immutable base commit and either
+a resolvable local checkout or approved remote. Provisional repository names in a chat may help impact analysis,
+but they cannot open plan review or Human Gate 1. A missing execution identity stops Stage 3 as `BLOCKED_SPEC` or
+`INCONCLUSIVE` instead of triggering broad workspace searches or a substitute plan.
 
-The graph is language-neutral. A C++/CMake repository, Python service, Node package, Vite frontend and
-TypeScript library keep their own bootstrap, test, lint, build, security and GUI commands in the descriptor
-and local skills; the central scheduler only orders and verifies those declared commands and evidence.
+Only an impacted repository is reused or cloned. A dirty developer checkout is never switched, cleaned or
+overwritten; implementation uses an isolated worktree. The approach is language-neutral: C++/CMake, Python,
+Node, Vite and TypeScript repositories keep their own test, lint, build, security and GUI commands.
 
 ### The two loops and two gates
 
-- The **outer graph loop** handles scope, repository dependencies, plan revision and integration.
-- The **inner Ralph/TDD loop** handles one approved task in one repository with RED → GREEN → verify →
-  review → build backpressure and bounded retries.
-- **Human Gate 1** approves the exact reviewed requirements/plan/graph digest before production-code edits.
-- **Human Gate 2** reviews the traceability matrix, evidence and linked draft PR set before any PR approval,
-  merge, release or delivery action.
+- The **outer agent loop** handles scope, repository dependencies, plan revision and integration.
+- The **inner P7/T7 loop** handles one approved task in one repository with bounded test, implementation,
+  review and build backpressure.
+- **Human Gate 1** approves the latest independently reviewed plan revision only after every required system plan
+  is ready and every active repository has a registered execution identity.
+- **Human Gate 2** reviews traceability, evidence and linked draft PRs before approval, merge, release or delivery.
 
-A graph revision after Gate 1 clears downstream results and approvals. Missing evidence produces
-`INCONCLUSIVE`; missing authoritative intent produces `BLOCKED_SPEC`. No finite chain promises defect-free
-software, so the final result is always reported truthfully as `PASS`, `FAIL`, `INCONCLUSIVE` or
-`BLOCKED_SPEC`.
+The plan is re-reviewed only after a real finding or material change. A scope change after Gate 1 returns to
+planning and requires Gate 1 again. Missing evidence is `INCONCLUSIVE`; missing authoritative intent is
+`BLOCKED_SPEC`. No finite chain promises defect-free software.
 
 <p align="center"><img src="docs/assets/divider.svg" alt="" width="100%"></p>
 
@@ -225,22 +228,18 @@ the model's discretion.
   </tr>
 </table>
 
-The agent framework needs no application build step. The deterministic policy kernel uses only the Python
-standard library. To use it:
+The framework needs no application build or Python control-plane runtime. To use it:
 
-1. **Open this repo in VS Code** with GitHub Copilot. Opening the folder applies `.vscode/settings.json`;
-   opening `.github/GTS-AI-SDLC.code-workspace` applies the same settings explicitly. They enable nested
-   subagents and show subagent activity inline. Agents, skills and hooks are auto-discovered. Hooks are a VS
-   Code Preview feature and can be disabled by enterprise policy; CI and branch protection remain authoritative.
-2. **For a complete code change, select `program-orchestrator` from the agent dropdown**, or select
-   `gts-orchestrator` and describe the change. In local extension-host chat, `/run-program-sdlc` is also a
-   shortcut. Agent Host sessions should select the custom agent because Agent Host does not consume prompt
-   files.
+1. **Open only this control-centre repo in VS Code** with GitHub Copilot. Opening the folder applies
+   `.vscode/settings.json`; opening `.github/GTS-AI-SDLC.code-workspace` applies the same settings explicitly.
+   Nested subagents and rich inline activity are enabled. Custom SDLC hooks and terminal auto-approval are
+   disabled. Agents and skills are auto-discovered.
+2. **For unknown or multi-repository scope, select `program-orchestrator` from the agent dropdown.** Use
+   `gts-orchestrator`, `p7-orchestrator`, or `t7-orchestrator` directly for clearly single-system work.
 3. **Describe the task and give its sources.** For example:
 
    ```
    program-orchestrator  Implement T7-12345 from DFS12345; discover the impacted repositories
-   /run-program-sdlc     Add the approved P7 risk-limit GUI change from the linked FSD
    gts-orchestrator      Fix the SMP Type-B reason code on cancel in T7
    /p7-orchestrator    Add a validation rule to the pricing-engine request handler
    /t7-sdlc-knowledge  Who owns the Matcher, and where does the order lifecycle live?
@@ -248,22 +247,15 @@ standard library. To use it:
    /p7-sdlc-reviewer   Review the diff on this branch
    ```
 
-4. **Watch the thirteen stages in the parent chat.** If a required source is missing, answer the focused
-   question. Confirm the reviewed digest at Human Gate 1; the orchestrator then runs bounded repository waves.
+4. **Watch the seven stages in the parent chat.** If a requirement, repository descriptor, pinned revision or
+   checkout/remote is missing, answer the focused question. Confirm the reviewed plan revision at Human Gate 1;
+   the orchestrator then runs bounded repository waves.
 5. **Review Human Gate 2.** The chain presents requirement-to-change-to-test traceability and linked draft
    PRs. It never self-approves or bypasses normal repository/release controls.
 
-Useful deterministic checks (the orchestrator normally runs these itself):
-
-```powershell
-python .github/scripts/policy_kernel.py validate
-python -m unittest discover -s .github/scripts/tests -p test_*.py -v
-python .github/scripts/policy_kernel.py ready --change-id <change-id>
-python .github/scripts/policy_kernel.py verify --change-id <change-id>
-```
-
-The executable 15-scenario results and the boundary between control-plane validation and real production
-certification are recorded in [`docs/program-validation-report.md`](docs/program-validation-report.md).
+The retired deterministic prototype was removed from the active tree and remains recoverable from Git history.
+The current validation report covers the active agent-only VS Code path and records both passing behavior and
+known environment-dependent limits.
 
 ---
 
