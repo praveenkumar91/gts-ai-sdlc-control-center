@@ -57,7 +57,7 @@ jobs:
 
       - name: Preserve operation evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: sdlc-operation-${{ github.run_id }}-${{ github.run_attempt }}
           path: .github/sdlc/evidence/
@@ -90,7 +90,7 @@ jobs:
 
       - name: Preserve operation evidence
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: sdlc-operation-${{ github.run_id }}-${{ github.run_attempt }}
           path: .github/sdlc/evidence/
@@ -120,7 +120,7 @@ jobs:
             --expected-commit "$SDLC_EXPECTED_COMMIT"
 
       - name: Preserve approval evidence
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: sdlc-approval-${{ github.run_id }}-${{ github.run_attempt }}
           path: .github/sdlc/evidence/
